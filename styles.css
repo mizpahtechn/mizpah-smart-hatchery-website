@@ -141,28 +141,13 @@ img {
   display: none
 }
 
-.hero {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background: var(--deep);
-  color: white
-}
+.hero{position:relative;background:var(--deep);color:white}
 
-.hero-bg, .hero-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: -2
-}
+.hero-bg, .hero-overlay{display:none}
 
-.hero-bg {
-  background: url('https: //images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=2200&q=90') center/cover
-}
+.hero-bg{display:none}
 
-.hero-overlay {
-  z-index: -1;
-  background: linear-gradient(90deg, #002d21f5 0%, #003a2ce8 38%, #003b2c70 70%, #002d2020 100%)
-}
+.hero-overlay{display:none}
 
 .hero-inner {
   min-height: 370px;
@@ -395,11 +380,7 @@ img {
   box-shadow: 0 12px 25px #00352114
 }
 
-.product>img {
-  width: 100%;
-  height: 185px;
-  object-fit: cover
-}
+.product>img{display:none}
 
 .product-inner {
   padding: 16px
@@ -461,10 +442,7 @@ img {
   color: #5d6455
 }
 
-.why {
-  background: linear-gradient(90deg, #003b2bf7, #003b2be8 58%, #003b2b88), url('https: //images.unsplash.com/photo-1569288052389-dac9b01ac2b8?auto=format&fit=crop&w=1800&q=85') center/cover;
-  color: white
-}
+.why{background:var(--forest);color:white}
 
 .why-layout {
   display: grid;
@@ -582,10 +560,7 @@ img {
   margin: 0
 }
 
-.impact {
-  background: linear-gradient(90deg, #003b2bf3, #003b2bdc), url('https: //images.unsplash.com/photo-1563281577-a7be47e20db9?auto=format&fit=crop&w=1600&q=85') center/cover;
-  color: white
-}
+.impact{background:var(--deep);color:white}
 
 .impact-layout {
   display: grid;
@@ -818,22 +793,7 @@ img {
   gap: 20px
 }
 
-.floating {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border: 2px solid white;
-  border-radius: 50%;
-  background: #087b50;
-  color: white;
-  font-size: 23px;
-  box-shadow: 0 5px 18px #001c1266
-}
+.floating{display:none}
 
 @media(max-width: 1050px) {
   .wrap {
@@ -949,13 +909,9 @@ img {
   text-align: center
 }
 
-.hero-bg {
-  background-position: 58% center
-}
+.hero-bg{display:none}
 
-.hero-overlay {
-  background: linear-gradient(90deg, #002d21f5, #003b2ce8 65%, #003b2c9c)
-}
+.hero-overlay{display:none}
 
 .hero-inner {
   min-height: 390px;
@@ -1020,9 +976,7 @@ img {
   gap: 12px
 }
 
-.product>img {
-  height: 135px
-}
+.product>img{display:none}
 
 .product-inner {
   padding: 12px
@@ -1129,9 +1083,7 @@ img {
   grid-template-columns: 1fr
 }
 
-.product>img {
-  height: 175px
-}
+.product>img{display:none}
 
 .product p {
   min-height: 0
@@ -1146,3 +1098,5 @@ img {
 }
 
 }
+
+/* Clean text-first presentation: remote photos and floating image elements removed. */
