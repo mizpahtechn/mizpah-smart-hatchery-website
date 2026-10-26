@@ -1,25 +1,18 @@
 # Mizpah Smart Hatchery Website
 
-Public-facing marketing website for Mizpah Smart Hatchery.
+A clean responsive front-end foundation for Mizpah Smart Hatchery, styled in emerald green, white and gold.
 
-## Files
-- `index.html` — page structure and navigation
-- `styles.css` — responsive emerald-and-gold styling
-- `favicon.svg` — simple brand mark
+## Current files
+- `index.html` — page sections, navigation, product cards, dialogs and footer
+- `styles.css` — responsive layouts and visual styling
+- `script.js` — mobile menu, search dialog, demo cart, login/register demo forms and newsletter feedback
+- `logo.svg` / `favicon.svg` — Mizpah brand assets
+- `CNAME` — existing custom-domain configuration; retained so the domain setup is not unintentionally removed
 
-## Local preview
-Open `index.html` in a modern browser.
+## Preview
+Open `index.html` in a modern browser or use GitHub Pages.
 
-## Publishing
-This site is intended for GitHub Pages. Before custom-domain setup:
-1. Make the repository public if required by the current GitHub plan.
-2. Enable Pages from the repository's Settings → Pages, using the `main` branch and `/(root)`.
-3. Confirm the GitHub Pages URL works before adding a `CNAME` file or changing DNS.
-4. Inspect existing Truehost DNS records before adding custom-domain records. Preserve email and verification records.
+## Important production work
+This repository currently contains a front-end prototype. Login, registration, product data, checkout, order creation, payment confirmation and newsletter subscriptions are not connected to a live backend. Before accepting real customer data or payments, integrate the approved backend securely and test it end-to-end. Never place service-role keys or payment secrets in browser code.
 
-The product categories and app link are based on existing project context. Add verified business contact details before public launch.
-
-## Notes
-- The Android download button links to the existing releases page.
-- No credentials, payment processing, customer data, or backend secrets are included.
-- Photography loads from Unsplash; a stable launch should use approved, locally hosted image assets.
+The site uses remote Unsplash images as temporary visual assets. Replace these with approved Mizpah-owned images for a production launch.
