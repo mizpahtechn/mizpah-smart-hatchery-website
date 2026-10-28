@@ -7,6 +7,7 @@
 <meta name="description" content="Mizpah Smart Hatchery — modern hatchery solutions, day-old chicks and poultry support in Uyo, Nigeria.">
 <title>Mizpah Technology | Mizpah Smart Hatchery</title>
 <style>
+:root{--deep:#002E20;--emerald:#003D2A;--gold:#D4AF37;--bright:#FFD34E;--white:#FFFFFF;--paper:#F6F5EF}
 :root{--deep:#002e20;--emerald:#003d2a;--gold:#d4af37;--bright:#ffd34e;--white:#fff;--paper:#f8fbf7;--ink:#10271d;--header-height:128px}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:16px}body{margin:0;background:var(--deep);color:var(--white);font-family:Inter,Montserrat,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}a{color:inherit;text-decoration:none}button{font:inherit}a:focus-visible,button:focus-visible{outline:3px solid var(--bright);outline-offset:4px}
 .site-header{position:relative;z-index:5;height:var(--header-height);background:linear-gradient(100deg,#01281b,#033c29 65%,#052c1d);border-bottom:3px solid var(--gold);display:flex;align-items:center;padding:8px clamp(16px,2.7vw,48px);gap:clamp(14px,1.6vw,28px)}
@@ -14,17 +15,32 @@
 .brand{display:flex;align-items:center;gap:13px;min-width:0;flex:0 0 auto}.brand-logo{width:112px;height:112px;flex:0 0 112px;object-fit:contain}.brand-copy{width:342px;white-space:nowrap}.brand-copy strong{display:block;color:#ffdc69;font-size:clamp(19px,1.8vw,30px);line-height:1.05;letter-spacing:.2px;font-weight:850}.brand-copy span{display:block;border-top:1px solid var(--gold);margin-top:7px;padding-top:6px;text-align:center;font-size:clamp(11px,1.05vw,17px);letter-spacing:1.5px}
 .main-nav{display:flex;align-items:center;justify-content:space-between;gap:clamp(15px,2.25vw,38px);margin-left:auto;font-size:clamp(14px,1.1vw,18px);white-space:nowrap}.main-nav a{padding:12px 0;position:relative}.main-nav a.active,.main-nav a:hover{color:var(--bright)}.main-nav a.active:after{content:"";height:3px;background:var(--bright);position:absolute;left:0;right:0;bottom:-5px}
 .auth-actions{display:flex;gap:12px;align-items:center;white-space:nowrap}.auth{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:40px;padding:0 22px;height:52px;font-weight:750;border:2px solid #fff;min-width:138px;background:transparent;color:white;cursor:pointer}.auth.register{min-width:166px;background:linear-gradient(110deg,#ffdc59,#f2bb2d);border-color:var(--gold);color:#071d13}.auth:hover{filter:brightness(1.05)}.auth.register:hover{filter:brightness(1.03)}.auth svg{width:22px;height:22px;flex:0 0 22px}
-.hero{position:relative;isolation:isolate;height:calc(100svh - var(--header-height));min-height:620px;max-height:980px;overflow:hidden;background:#003d2a url("https://images.unsplash.com/photo-1589927986089-35812388d1f4?auto=format&fit=crop&w=2200&q=90") center/cover no-repeat}
-.hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,32,22,.12),rgba(0,39,27,.18) 29%,rgba(0,37,26,.4) 62%,rgba(0,32,22,.08))}
-.hero-copy{position:absolute;left:34.5%;top:12.5%;width:min(44%,690px);z-index:2;padding:10px 0 15px}.eyebrow{margin:0 0 18px;color:var(--bright);font-size:clamp(18px,1.85vw,31px);font-weight:850;letter-spacing:.42em}.hero h1{margin:0 0 14px;font-size:clamp(44px,4.72vw,82px);line-height:.99;letter-spacing:-.035em;font-weight:950;text-transform:uppercase}.hero h1 span{display:block;color:var(--bright);text-shadow:0 2px 0 #bd8d1e}.hero-copy>p:not(.eyebrow){max-width:620px;margin:0 0 34px;font-size:clamp(18px,1.68vw,29px);line-height:1.32;font-weight:550;text-shadow:0 2px 12px #00180f}
-.hero-actions{display:flex;gap:20px;flex-wrap:wrap}.cta{display:inline-flex;align-items:center;justify-content:center;gap:14px;padding:0 30px;border-radius:50px;font-size:clamp(15px,1.15vw,20px);font-weight:800;min-height:66px;border:2px solid #fff;transition:filter .18s,transform .18s}.cta:hover{filter:brightness(1.05);transform:translateY(-1px)}.cta.primary{min-width:315px;background:linear-gradient(120deg,#ffe17a,#f2bb2d);color:#071e14;border-color:#f7cc45}.cta.secondary{min-width:264px;background:#052c1f99;color:#fff}.arrow{font-size:28px;line-height:0}.reference-curve{position:absolute;left:0;bottom:-1px;width:100%;height:37%;z-index:3;pointer-events:none}.reference-curve path{fill:none;stroke:#f5c542;stroke-width:8;vector-effect:non-scaling-stroke;stroke-linecap:round}
-.content-section{background:var(--paper);color:var(--ink);padding:70px 5vw}.section-inner{max-width:1200px;margin:auto}.section-kicker{color:#a47a0a;font-weight:850;letter-spacing:.18em;text-transform:uppercase;font-size:.8rem}.content-section h2{font-size:clamp(30px,4vw,46px);margin:8px 0 12px;color:#06452e}.intro{max-width:680px;color:#52665a;line-height:1.65}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:28px}.card{border:1px solid #dce9df;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 8px 26px #143d1a0a}.card img{width:100%;height:210px;object-fit:cover;display:block}.card div{padding:20px}.card h3{color:#06452e;margin:0 0 7px}.card p{color:#5a6b60;line-height:1.6;margin:0 0 14px}.card a{font-weight:800;color:#07613b}
-footer{background:#02281b;color:#e9f4eb;padding:30px 5vw}.footer-inner{max-width:1200px;margin:auto;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.drawer{display:none;position:absolute;top:100%;left:16px;width:min(290px,calc(100vw - 32px));background:#042f21;border:1px solid #bda044;border-radius:14px;padding:12px;box-shadow:0 20px 50px #00160f88}.drawer.open{display:grid}.drawer a{padding:12px;border-radius:8px}.drawer a:hover{background:#ffffff14;color:var(--bright)}.auth-note{position:fixed;z-index:10;right:16px;top:140px;max-width:340px;padding:12px 16px;border:1px solid var(--gold);border-radius:10px;background:#fff7d9;color:#203428;box-shadow:0 8px 28px #00170d55}.auth-note[hidden]{display:none}
-@media(max-width:1450px){.brand-logo{width:94px;height:94px;flex-basis:94px}.brand-copy{width:285px}.main-nav{gap:clamp(12px,1.6vw,24px)}.auth{padding:0 16px}.auth.login{min-width:120px}.auth.register{min-width:142px}}
-@media(max-width:1120px){:root{--header-height:96px}.site-header{padding:7px 18px;gap:12px}.brand-logo{width:76px;height:76px;flex-basis:76px}.brand-copy{width:230px}.brand-copy strong{font-size:19px}.brand-copy span{font-size:10px;letter-spacing:1.1px;margin-top:5px;padding-top:4px}.main-nav{gap:12px;font-size:13px}.auth{height:44px;padding:0 12px;font-size:13px;min-width:0}.hero-copy{left:32%;top:13%;width:54%}.hero h1{font-size:clamp(42px,5.8vw,68px)}.cta{min-height:58px;padding:0 20px}.cta.primary{min-width:260px}.cta.secondary{min-width:220px}}
-@media(max-width:900px){.main-nav{display:none}.brand-copy{width:auto}.brand-copy strong{font-size:clamp(15px,2.3vw,21px)}.brand-copy span{font-size:9px}.auth-actions{margin-left:auto;gap:7px}.auth{height:42px;padding:0 12px;font-size:13px;min-width:0}.hero{min-height:690px}.hero-copy{left:31%;top:15%;width:63%}.hero h1{font-size:clamp(42px,6.8vw,64px)}.reference-curve{height:27%}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:620px){:root{--header-height:76px}.site-header{padding:7px 11px;gap:8px}.menu-toggle{width:31px;flex-basis:31px;height:38px;gap:5px}.menu-toggle span{width:28px;height:3px}.brand{gap:6px}.brand-logo{width:48px;height:48px;flex-basis:48px}.brand-copy strong{font-size:12px}.brand-copy span{font-size:7px;letter-spacing:.4px;margin-top:4px;padding-top:3px}.auth-actions{gap:5px}.auth{height:38px;padding:0 9px;gap:5px;border-width:1.5px;font-size:12px}.auth .auth-label{display:none}.auth svg{width:18px;height:18px;flex-basis:18px}.hero{height:calc(100svh - var(--header-height));min-height:650px;max-height:none;background-position:44% center}.hero:before{background:linear-gradient(90deg,rgba(0,38,25,.65),rgba(0,37,25,.62))}.hero-copy{left:7%;top:13%;width:86%;padding-top:22px}.eyebrow{font-size:14px;letter-spacing:.32em;margin-bottom:16px}.hero h1{font-size:clamp(40px,11vw,56px);line-height:1.02}.hero-copy>p:not(.eyebrow){font-size:17px;margin:20px 0 27px}.hero-actions{display:grid;gap:11px;max-width:300px}.cta,.cta.primary,.cta.secondary{min-width:0;width:100%;min-height:52px;padding:0 16px;font-size:14px}.reference-curve{height:18%}.reference-curve path{stroke-width:6}.cards{grid-template-columns:1fr}.card img{height:190px}.content-section{padding:48px 22px}.footer-inner{display:block}.footer-inner p{margin:8px 0}}
-@media(max-width:380px){.brand-copy strong{font-size:10px}.brand-copy span{font-size:6.5px}.brand-logo{width:42px;height:42px;flex-basis:42px}.site-header{gap:6px}.auth{padding:0 7px}.hero h1{font-size:40px}}
+.hero{position:relative;isolation:isolate;height:calc(100svh - var(--header-height));min-height:620px;max-height:980px;overflow:hidden;background:radial-gradient(ellipse at 79% 52%,#245c3b 0%,#0c442e 27%,transparent 55%),linear-gradient(105deg,#00291d 0%,#003d2a 48%,#073b27 100%)}
+.hero:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 68% 48%,rgba(209,175,55,.09),transparent 34%),linear-gradient(90deg,rgba(0,24,16,.18),transparent 45%,rgba(0,20,13,.12))}
+.hero-scene{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hatchery-glow{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 13.5%,rgba(213,175,55,.055) 13.6% 13.75%,transparent 13.85% 27%),linear-gradient(0deg,rgba(0,15,10,.35),transparent 40%)}
+.incubator-art{position:absolute;left:-1.5%;top:6%;width:36%;height:85%;filter:drop-shadow(20px 18px 22px #00150f80)}
+.chick-art{position:absolute;right:0;bottom:7%;width:31%;height:69%;filter:drop-shadow(0 18px 18px #00170e80)}
+.hero-copy{position:absolute;left:34.5%;top:12.5%;width:min(44%,690px);z-index:2;padding:10px 0 15px}
+.eyebrow{margin:0 0 18px;color:var(--bright);font-size:clamp(18px,1.85vw,31px);font-weight:850;letter-spacing:.42em}
+.hero h1{margin:0 0 14px;font-size:clamp(44px,4.72vw,82px);line-height:.99;letter-spacing:-.035em;font-weight:950;text-transform:uppercase}
+.hero h1 span{display:block;color:var(--bright);text-shadow:0 2px 0 #bd8d1e}
+.hero-copy>p:not(.eyebrow){max-width:570px;margin:0 0 34px;font-size:clamp(18px,1.68vw,29px);line-height:1.32;font-weight:550;text-shadow:0 2px 12px #00180f}
+.hero-actions{display:flex;gap:20px;flex-wrap:wrap}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:14px;padding:0 30px;border-radius:50px;font-size:clamp(15px,1.15vw,20px);font-weight:800;min-height:66px;border:2px solid #fff;transition:filter .18s,transform .18s}
+.cta:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.cta.primary{min-width:315px;background:linear-gradient(120deg,#ffe17a,#f2bb2d);color:#071e14;border-color:#f7cc45}
+.cta.secondary{min-width:264px;background:#052c1f99;color:#fff}
+.cta-icon{width:22px;height:22px;flex:0 0 22px}
+.arrow{font-size:28px;line-height:0}
+.reference-curve{position:absolute;left:0;bottom:-1px;width:100%;height:34%;z-index:3;pointer-events:none}
+.reference-curve path{fill:none;stroke:#f5c542;stroke-width:8;vector-effect:non-scaling-stroke;stroke-linecap:round}
+@media(max-width:1450px){.incubator-art{width:35%;left:-2%}.chick-art{width:29%}.hero-copy{left:32%;width:48%}}
+@media(max-width:1120px){.hero-copy{left:30%;top:13%;width:55%}.hero h1{font-size:clamp(42px,5.8vw,68px)}.cta{min-height:58px;padding:0 20px}.cta.primary{min-width:260px}.cta.secondary{min-width:220px}.incubator-art{width:36%;height:78%;top:9%}.chick-art{width:30%;height:59%;bottom:10%}}
+@media(max-width:900px){.hero{min-height:690px}.hero-copy{left:31%;top:15%;width:63%}.hero h1{font-size:clamp(42px,6.8vw,64px)}.reference-curve{height:27%}.incubator-art{left:-8%;width:44%;height:70%;top:18%;opacity:.85}.chick-art{right:-7%;width:38%;height:50%;bottom:8%;opacity:.85}}
+@media(max-width:620px){.hero{height:calc(100svh - var(--header-height));min-height:680px;max-height:none}.hero:before{background:linear-gradient(90deg,rgba(0,38,25,.25),rgba(0,37,25,.56) 62%,rgba(0,37,25,.22))}.hero-copy{left:7%;top:13%;width:86%;padding-top:22px}.eyebrow{font-size:14px;letter-spacing:.32em;margin-bottom:16px}.hero h1{font-size:clamp(40px,11vw,56px);line-height:1.02}.hero-copy>p:not(.eyebrow){font-size:17px;margin:20px 0 27px;max-width:320px}.hero-actions{display:grid;gap:11px;max-width:300px}.cta,.cta.primary,.cta.secondary{min-width:0;width:100%;min-height:52px;padding:0 16px;font-size:14px}.reference-curve{height:18%}.reference-curve path{stroke-width:6}.incubator-art{left:-13%;top:40%;width:56%;height:49%;opacity:.63}.chick-art{right:-7%;bottom:5%;width:43%;height:38%;opacity:.82}.hatchery-glow{opacity:.8}}
+@media(max-width:380px){.brand-copy strong{font-size:10px}.brand-copy span{font-size:6.5px}.brand-logo{width:42px;height:42px;flex-basis:42px}.site-header{gap:6px}.auth{padding:0 7px}.hero h1{font-size:40px}.hero-copy{top:10%}.incubator-art{top:44%;width:58%}.chick-art{width:42%;height:35%}}
+
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
 </style>
 </head>
@@ -39,7 +55,79 @@ footer{background:#02281b;color:#e9f4eb;padding:30px 5vw}.footer-inner{max-width
 <p class="auth-note" id="authNote" role="status" hidden></p>
 <main>
 <section class="hero" id="home" aria-labelledby="hero-title">
-  <div class="hero-copy"><p class="eyebrow">WELCOME TO</p><h1 id="hero-title">MIZPAH SMART <span>HATCHERY</span></h1><p>Modern hatchery solutions for healthier poultry and a more sustainable future.</p><div class="hero-actions"><a class="cta primary" href="#products">Explore Our Products <span class="arrow" aria-hidden="true">→</span></a><a class="cta secondary" href="#services"><span aria-hidden="true">🎧</span> Our Services</a></div></div><svg class="reference-curve" viewBox="0 0 1716 260" preserveAspectRatio="none" aria-hidden="true"><path d="M-8 6 C 240 215, 505 246, 770 253 S 1370 231, 1724 112"/></svg></section>
+  <div class="hero-scene" aria-hidden="true">
+    <div class="hatchery-glow"></div>
+    <svg class="incubator-art" viewBox="0 0 620 760" role="img" aria-label="Illustration of a stainless-steel commercial egg incubator">
+      <defs>
+        <linearGradient id="steel" x1="0" x2="1"><stop stop-color="#394b49"/><stop offset=".12" stop-color="#dce3df"/><stop offset=".26" stop-color="#899995"/><stop offset=".48" stop-color="#eef2ee"/><stop offset=".72" stop-color="#87938f"/><stop offset=".91" stop-color="#d8dfdb"/><stop offset="1" stop-color="#394b47"/></linearGradient>
+        <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bfe5d9" stop-opacity=".32"/><stop offset=".5" stop-color="#082c24" stop-opacity=".16"/><stop offset="1" stop-color="#e6fff4" stop-opacity=".24"/></linearGradient>
+        <linearGradient id="inside" x1="0" x2="1"><stop stop-color="#132d27"/><stop offset=".5" stop-color="#456057"/><stop offset="1" stop-color="#152e28"/></linearGradient>
+        <linearGradient id="egg" x1="0" x2="1"><stop stop-color="#b9b9a6"/><stop offset=".4" stop-color="#fff8df"/><stop offset="1" stop-color="#bdbba9"/></linearGradient>
+        <filter id="metalshine"><feGaussianBlur stdDeviation="3"/></filter>
+      </defs>
+      <ellipse cx="310" cy="711" rx="275" ry="26" fill="#00180f" opacity=".65"/>
+      <path d="M68 78 110 32 525 32 567 77 567 664 533 704 83 704 52 665Z" fill="#1b302c" stroke="#9eaaa5" stroke-width="8"/>
+      <path d="M70 78 110 39 524 39 558 79 558 651 531 688 87 688 61 651Z" fill="url(#steel)" stroke="#f2f5ef" stroke-width="3"/>
+      <path d="M91 95 125 69 505 69 535 96 535 635 512 660 111 660 91 634Z" fill="#263d37" stroke="#54645e" stroke-width="7"/>
+      <path d="M109 112 131 91 496 91 515 112 515 624 497 643 126 643 109 623Z" fill="url(#inside)" stroke="#d7ded8" stroke-width="5"/>
+      <g stroke="#b8c8c1" stroke-width="6" fill="none" opacity=".85"><path d="M111 232H514M111 359H514M111 486H514M111 613H514"/><path d="M126 113V632M498 113V632"/></g>
+      <g fill="#172720" stroke="#8b9b93" stroke-width="3">
+        <rect x="128" y="150" width="366" height="67" rx="4"/><rect x="128" y="277" width="366" height="67" rx="4"/><rect x="128" y="404" width="366" height="67" rx="4"/><rect x="128" y="531" width="366" height="67" rx="4"/>
+      </g>
+      <g fill="#a9b6ac" stroke="#e7e9dc" stroke-width="2">
+        <path d="M140 167H482V205H140Z" fill="#66786d"/><path d="M140 294H482V332H140Z" fill="#66786d"/><path d="M140 421H482V459H140Z" fill="#66786d"/><path d="M140 548H482V586H140Z" fill="#66786d"/>
+      </g>
+      <g fill="url(#egg)" stroke="#6f786b" stroke-width="1.5">
+        <ellipse cx="160" cy="169" rx="11" ry="17"/><ellipse cx="190" cy="169" rx="11" ry="17"/><ellipse cx="220" cy="169" rx="11" ry="17"/><ellipse cx="250" cy="169" rx="11" ry="17"/><ellipse cx="280" cy="169" rx="11" ry="17"/><ellipse cx="310" cy="169" rx="11" ry="17"/><ellipse cx="340" cy="169" rx="11" ry="17"/><ellipse cx="370" cy="169" rx="11" ry="17"/><ellipse cx="400" cy="169" rx="11" ry="17"/><ellipse cx="430" cy="169" rx="11" ry="17"/><ellipse cx="460" cy="169" rx="11" ry="17"/>
+        <ellipse cx="160" cy="296" rx="11" ry="17"/><ellipse cx="190" cy="296" rx="11" ry="17"/><ellipse cx="220" cy="296" rx="11" ry="17"/><ellipse cx="250" cy="296" rx="11" ry="17"/><ellipse cx="280" cy="296" rx="11" ry="17"/><ellipse cx="310" cy="296" rx="11" ry="17"/><ellipse cx="340" cy="296" rx="11" ry="17"/><ellipse cx="370" cy="296" rx="11" ry="17"/><ellipse cx="400" cy="296" rx="11" ry="17"/><ellipse cx="430" cy="296" rx="11" ry="17"/><ellipse cx="460" cy="296" rx="11" ry="17"/>
+        <ellipse cx="160" cy="423" rx="11" ry="17"/><ellipse cx="190" cy="423" rx="11" ry="17"/><ellipse cx="220" cy="423" rx="11" ry="17"/><ellipse cx="250" cy="423" rx="11" ry="17"/><ellipse cx="280" cy="423" rx="11" ry="17"/><ellipse cx="310" cy="423" rx="11" ry="17"/><ellipse cx="340" cy="423" rx="11" ry="17"/><ellipse cx="370" cy="423" rx="11" ry="17"/><ellipse cx="400" cy="423" rx="11" ry="17"/><ellipse cx="430" cy="423" rx="11" ry="17"/><ellipse cx="460" cy="423" rx="11" ry="17"/>
+        <ellipse cx="160" cy="550" rx="11" ry="17"/><ellipse cx="190" cy="550" rx="11" ry="17"/><ellipse cx="220" cy="550" rx="11" ry="17"/><ellipse cx="250" cy="550" rx="11" ry="17"/><ellipse cx="280" cy="550" rx="11" ry="17"/><ellipse cx="310" cy="550" rx="11" ry="17"/><ellipse cx="340" cy="550" rx="11" ry="17"/><ellipse cx="370" cy="550" rx="11" ry="17"/><ellipse cx="400" cy="550" rx="11" ry="17"/><ellipse cx="430" cy="550" rx="11" ry="17"/><ellipse cx="460" cy="550" rx="11" ry="17"/>
+      </g>
+      <g fill="#e7eee8" opacity=".8"><path d="M88 100 108 80V622L88 641Z"/><path d="M523 100 538 112V624L519 644Z" fill="#8e9f98"/></g>
+      <path d="M76 83 111 46H521L552 82" fill="none" stroke="#fff" stroke-width="6" opacity=".8"/>
+      <g fill="#14231e" stroke="#c6d1ca" stroke-width="4"><rect x="437" y="49" width="72" height="36" rx="4"/><rect x="456" y="698" width="22" height="31" rx="3"/><rect x="151" y="698" width="22" height="31" rx="3"/></g>
+      <rect x="448" y="57" width="48" height="18" rx="2" fill="#9fe4bb"/><text x="472" y="70" fill="#173d2d" font-size="11" text-anchor="middle" font-weight="bold">37.5°</text>
+      <path d="M66 130H49V627H66M570 130H584V627H570" fill="none" stroke="#d9e2dd" stroke-width="5"/>
+      <path d="M83 108 83 648" stroke="#fff" stroke-width="3" opacity=".55"/>
+      <g fill="#f5c542"><circle cx="518" cy="116" r="5"/><circle cx="518" cy="135" r="3"/></g>
+    </svg>
+    <svg class="chick-art" viewBox="0 0 560 520" role="img" aria-label="Illustration of a fluffy yellow chick among hatching eggs and straw">
+      <defs>
+        <radialGradient id="down" cx=".38" cy=".25" r=".8"><stop stop-color="#fff5a6"/><stop offset=".45" stop-color="#ffd84c"/><stop offset=".8" stop-color="#e9a923"/><stop offset="1" stop-color="#a96815"/></radialGradient>
+        <linearGradient id="shell" x1="0" x2="1"><stop stop-color="#c8bda0"/><stop offset=".42" stop-color="#fff7df"/><stop offset=".8" stop-color="#e5d7b6"/><stop offset="1" stop-color="#9e8b68"/></linearGradient>
+        <radialGradient id="ground"><stop stop-color="#7b5a25"/><stop offset="1" stop-color="#342919"/></radialGradient>
+      </defs>
+      <ellipse cx="283" cy="468" rx="235" ry="35" fill="#00150d" opacity=".65"/>
+      <path d="M30 436Q70 382 117 411T207 405T299 414T394 402T530 425L530 478Q280 520 34 480Z" fill="url(#ground)"/>
+      <g fill="none" stroke="#b89545" stroke-width="8" stroke-linecap="round"><path d="M58 438l66-45 48 31 42-57M101 459l60-28 49 20 54-42M333 444l47-40 41 31 56-44M365 468l60-25 47 15"/></g>
+      <g transform="translate(55 285)">
+        <path d="M9 116Q2 68 30 30Q56 -3 91 27Q118 57 107 116Z" fill="url(#shell)" stroke="#c4b58e" stroke-width="4"/>
+        <path d="M13 87l15-14 12 13 13-12 14 14 13-11 14 12 12-8 2 35H12Z" fill="#f8efd4"/>
+        <path d="M35 51Q45 30 58 45T82 45" fill="none" stroke="#fffdf0" stroke-width="7" stroke-linecap="round"/>
+      </g>
+      <g transform="translate(385 344) rotate(13)">
+        <path d="M5 77Q0 36 28 11Q55 -13 80 13Q105 39 96 78Z" fill="url(#shell)" stroke="#bba982" stroke-width="4"/>
+        <path d="M8 58l13-12 13 10 13-13 13 12 14-12 16 14 7-7 0 27H8Z" fill="#f8efd4"/>
+        <path d="M30 33Q44 15 57 33T79 30" fill="none" stroke="#fffdf0" stroke-width="6" stroke-linecap="round"/>
+      </g>
+      <g transform="translate(136 72)">
+        <path d="M70 97Q46 63 66 34Q84 6 103 30Q127 1 144 31Q173 14 182 49Q208 43 211 75Q246 91 224 126Q247 157 219 181Q236 216 202 235Q196 271 161 268Q130 296 101 267Q67 283 52 252Q15 247 25 210Q-1 184 20 155Q3 124 33 110Q36 86 70 97Z" fill="url(#down)" stroke="#dca62e" stroke-width="3"/>
+        <path d="M54 122Q19 109 16 145Q25 167 60 165Q44 149 54 122Z" fill="#f4c333" stroke="#dba52c" stroke-width="3"/>
+        <path d="M184 127Q224 105 233 139Q231 165 195 170Q208 148 184 127Z" fill="#f5c638" stroke="#dba52c" stroke-width="3"/>
+        <path d="M87 69Q104 47 117 67M139 65Q154 44 168 65M63 94Q47 82 48 103M194 95Q209 82 209 103M75 204Q58 216 75 229M176 211Q194 224 178 238" fill="none" stroke="#fff0a0" stroke-width="8" stroke-linecap="round"/>
+        <ellipse cx="115" cy="125" rx="12" ry="16" fill="#201d12"/><ellipse cx="174" cy="125" rx="12" ry="16" fill="#201d12"/>
+        <circle cx="119" cy="120" r="4" fill="#fff"/><circle cx="178" cy="120" r="4" fill="#fff"/>
+        <path d="M133 148 156 157 133 169 120 158Z" fill="#f08b21" stroke="#c96b16" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M118 260 111 291M171 262 179 291" stroke="#e99520" stroke-width="8" stroke-linecap="round"/>
+        <path d="M95 292l-17 6m17-6 3 10m78-10 16 7m-16-7-2 11" stroke="#e99520" stroke-width="6" stroke-linecap="round"/>
+        <path d="M102 91l-10-23m57 10 8-22m-76 78-22-7m144 3 20-12" stroke="#fff1a4" stroke-width="6" stroke-linecap="round"/>
+      </g>
+      <g fill="none" stroke="#d6b25a" stroke-width="6" stroke-linecap="round"><path d="M20 483l58-25 26 13 35-31M224 478l28-20 31 14 24-19M459 489l26-23 35 11"/></g>
+      <g fill="#f1d9a1" opacity=".8"><ellipse cx="108" cy="451" rx="8" ry="3" transform="rotate(-20 108 451)"/><ellipse cx="464" cy="443" rx="8" ry="3" transform="rotate(20 464 443)"/><ellipse cx="319" cy="482" rx="8" ry="3"/></g>
+    </svg>
+  </div>
+  <div class="hero-copy"><p class="eyebrow">WELCOME TO</p><h1 id="hero-title">MIZPAH SMART <span>HATCHERY</span></h1><p>Modern hatchery solutions for healthier<br class="desktop-break"> poultry and a more sustainable future.</p><div class="hero-actions"><a class="cta primary" href="#products">Explore Our Products <span class="arrow" aria-hidden="true">→</span></a><a class="cta secondary" href="#services"><svg class="cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="12" width="5" height="7" rx="2"/><rect x="16" y="12" width="5" height="7" rx="2"/><path d="M19 19c0 2-2 3-5 3h-2"/></svg> Our Services</a></div></div>
+  <svg class="reference-curve" viewBox="0 0 1716 260" preserveAspectRatio="none" aria-hidden="true"><path d="M-8 6 C 240 215, 505 246, 770 253 S 1370 231, 1724 112"/></svg></section>
 <section class="content-section" id="about"><div class="section-inner"><span class="section-kicker">Built for poultry success</span><h2>Reliable hatchery solutions, closer to you.</h2><p class="intro">Mizpah Smart Hatchery supports poultry farmers with day-old chicks, egg incubation, vaccination and practical technical guidance.</p></div></section>
 <section class="content-section" id="products"><div class="section-inner"><span class="section-kicker">Our products</span><h2>Start your flock with confidence</h2><p class="intro">Explore our core day-old chick categories. Contact our team for current availability and pricing.</p><div class="cards"><article class="card"><img src="https://images.unsplash.com/photo-1569288063643-5d29ad64df4d?auto=format&fit=crop&w=700&q=80" alt="Young broiler chicks" loading="lazy"><div><h3>Broiler Day-Old Chicks</h3><p>Quality chicks for meat production and healthy flock development.</p><a href="#contact">Enquire about broilers →</a></div></article><article class="card"><img src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=700&q=80" alt="Poultry birds" loading="lazy"><div><h3>Layer Day-Old Chicks</h3><p>Get started with birds selected for your egg-production plans.</p><a href="#contact">Enquire about layers →</a></div></article><article class="card"><img src="https://images.unsplash.com/photo-1589927986089-35812388d1f4?auto=format&fit=crop&w=700&q=80" alt="Hatchery equipment" loading="lazy"><div><h3>Custom Egg Incubation</h3><p>Incubation support tailored to your egg quantity and hatchery needs.</p><a href="#contact">Ask about incubation →</a></div></article></div></div></section>
 <section class="content-section" id="services"><div class="section-inner"><span class="section-kicker">Our services</span><h2>Support beyond the hatch</h2><div class="cards"><article class="card"><div><h3>Vaccination Support</h3><p>Practical guidance to help farmers plan responsible chick vaccination.</p><a href="#contact">Request support →</a></div></article><article class="card"><div><h3>Poultry Consultancy</h3><p>Guidance for farm management, flock health and hatchery performance.</p><a href="#contact">Talk to our team →</a></div></article><article class="card"><div><h3>Training & Technical Support</h3><p>Helpful training and equipment support for poultry operators.</p><a href="#contact">Make an enquiry →</a></div></article></div></div></section>
@@ -48,6 +136,7 @@ footer{background:#02281b;color:#e9f4eb;padding:30px 5vw}.footer-inner{max-width
 </main>
 <footer><div class="footer-inner"><strong>MIZPAH TECHNOLOGY · MIZPAH SMART HATCHERY</strong><p>© <span id="year"></span> Mizpah Technology. All rights reserved.</p></div></footer>
 <script>
+document.documentElement.classList.add("js-enabled");
 const toggle=document.getElementById('menuToggle'),drawer=document.getElementById('drawer');
 toggle.addEventListener('click',()=>{const open=drawer.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Close navigation menu':'Open navigation menu')});
 drawer.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{drawer.classList.remove('open');toggle.setAttribute('aria-expanded','false')}));
