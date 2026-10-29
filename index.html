@@ -149,31 +149,31 @@ body{font-size:17px}
 @media(max-width:800px){.about{min-height:0;padding:12px;gap:10px}.about img{flex-basis:92px;width:92px;height:100px}.ready{min-height:0;padding:12px;grid-template-columns:minmax(0,1fr) 76px;column-gap:8px}.ready img{width:76px;height:92px;max-width:76px}}
 @media(max-width:430px){.about{padding:12px;gap:9px}.about img{flex-basis:76px;width:76px;height:88px}.about h2,.ready h2{font-size:17px}.about p,.ready p{font-size:12px;line-height:1.35}.yellow,.ready .order{font-size:12px;padding:6px 9px}.ready{grid-template-columns:minmax(0,1fr) 62px;padding:11px;column-gap:7px}.ready img{width:62px;height:82px;max-width:62px}}
 
-/* Compact green callout cards with larger, clearer copy */
-.about{padding:14px 16px;gap:12px}
-.about img{flex-basis:clamp(90px,10vw,125px);width:clamp(90px,10vw,125px);height:120px}
-.about h2,.ready h2{font-size:clamp(23px,1.8vw,27px);line-height:1.2}
-.about p,.ready p{font-size:18px;line-height:1.5;font-weight:650}
-.about .yellow{padding:6px 15px}
-.ready{padding:14px 16px;column-gap:12px;row-gap:6px;min-height:0}
-.ready img{width:100%;max-width:100px;height:108px}
-.ready .order{padding:10px 16px}
+/* Larger, more readable callout text; show the complete poultry image without cropping. */
+.about{padding:16px 18px;gap:14px}
+.about img{flex-basis:clamp(110px,12vw,150px);width:clamp(110px,12vw,150px);height:150px;object-fit:contain;object-position:center;background:#eef7ef}
+.about h2,.ready h2{font-size:clamp(25px,2vw,30px);line-height:1.2;margin-bottom:7px}
+.about p,.ready p{font-size:20px;line-height:1.5;font-weight:650}
+.about .yellow{padding:10px 16px;font-size:16px}
+.ready{padding:16px 18px;column-gap:14px;row-gap:8px;min-height:0}
+.ready img{width:100%;max-width:126px;height:142px;object-fit:contain;object-position:center;background:transparent}
+.ready .order{padding:11px 17px;font-size:16px}
 @media(max-width:800px){
-  .about{padding:12px;gap:10px}
-  .about img{flex-basis:100px;width:100px;height:112px}
-  .about h2,.ready h2{font-size:23px}
-  .about p,.ready p{font-size:17px;line-height:1.5}
-  .ready{padding:12px;grid-template-columns:minmax(0,1fr) 78px;column-gap:9px}
-  .ready img{width:78px;height:100px;max-width:78px}
+  .about{padding:14px;gap:12px}
+  .about img{flex-basis:112px;width:112px;height:132px}
+  .about h2,.ready h2{font-size:26px}
+  .about p,.ready p{font-size:19px;line-height:1.5}
+  .ready{padding:14px;grid-template-columns:minmax(0,1fr) 94px;column-gap:11px}
+  .ready img{width:94px;height:122px;max-width:94px}
 }
 @media(max-width:430px){
-  .about{padding:11px 10px;gap:9px}
-  .about img{flex-basis:82px;width:82px;height:100px}
-  .about h2,.ready h2{font-size:21px}
-  .about p,.ready p{font-size:16px;line-height:1.45}
-  .ready{grid-template-columns:minmax(0,1fr) 62px;padding:11px 10px;column-gap:7px}
-  .ready img{width:62px;height:88px;max-width:62px}
-  .ready .order{padding:9px 12px;font-size:14px}
+  .about{padding:12px 11px;gap:10px}
+  .about img{flex-basis:94px;width:94px;height:116px}
+  .about h2,.ready h2{font-size:23px}
+  .about p,.ready p{font-size:18px;line-height:1.45}
+  .ready{grid-template-columns:minmax(0,1fr) 76px;padding:12px 11px;column-gap:8px}
+  .ready img{width:76px;height:104px;max-width:76px}
+  .about .yellow,.ready .order{font-size:15px;padding:9px 12px}
 }
 
 </style><script>document.querySelectorAll('a[href="#contact"]').forEach(a=>{if(/order|quote/i.test(a.textContent))a.href='#order'});</script><script>
