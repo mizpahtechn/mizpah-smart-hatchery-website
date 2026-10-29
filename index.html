@@ -94,6 +94,34 @@ body{font-size:17px}
 .ready img{width:82px;height:100px;max-width:82px}
 @media(max-width:800px){.about{min-height:0;padding:12px;gap:10px}.about img{flex-basis:92px;width:92px;height:100px}.ready{min-height:0;padding:12px;grid-template-columns:minmax(0,1fr) 76px;column-gap:8px}.ready img{width:76px;height:92px;max-width:76px}}
 @media(max-width:430px){.about{padding:12px;gap:9px}.about img{flex-basis:76px;width:76px;height:88px}.about h2,.ready h2{font-size:17px}.about p,.ready p{font-size:12px;line-height:1.35}.yellow,.ready .order{font-size:12px;padding:6px 9px}.ready{grid-template-columns:minmax(0,1fr) 62px;padding:11px;column-gap:7px}.ready img{width:62px;height:82px;max-width:62px}}
+
+/* Compact green callout cards with larger, clearer copy */
+.about{padding:14px 16px;gap:12px}
+.about img{flex-basis:clamp(90px,10vw,125px);width:clamp(90px,10vw,125px);height:120px}
+.about h2,.ready h2{font-size:clamp(23px,1.8vw,27px);line-height:1.2}
+.about p,.ready p{font-size:18px;line-height:1.5;font-weight:650}
+.about .yellow{padding:6px 15px}
+.ready{padding:14px 16px;column-gap:12px;row-gap:6px;min-height:0}
+.ready img{width:100%;max-width:100px;height:108px}
+.ready .order{padding:10px 16px}
+@media(max-width:800px){
+  .about{padding:12px;gap:10px}
+  .about img{flex-basis:100px;width:100px;height:112px}
+  .about h2,.ready h2{font-size:23px}
+  .about p,.ready p{font-size:17px;line-height:1.5}
+  .ready{padding:12px;grid-template-columns:minmax(0,1fr) 78px;column-gap:9px}
+  .ready img{width:78px;height:100px;max-width:78px}
+}
+@media(max-width:430px){
+  .about{padding:11px 10px;gap:9px}
+  .about img{flex-basis:82px;width:82px;height:100px}
+  .about h2,.ready h2{font-size:21px}
+  .about p,.ready p{font-size:16px;line-height:1.45}
+  .ready{grid-template-columns:minmax(0,1fr) 62px;padding:11px 10px;column-gap:7px}
+  .ready img{width:62px;height:88px;max-width:62px}
+  .ready .order{padding:9px 12px;font-size:14px}
+}
+
 </style><script>document.querySelectorAll('a[href="#contact"]').forEach(a=>{if(/order|quote/i.test(a.textContent))a.href='#order'});</script><script>
 /* Keep only one visible leaf label if "Quality Assured" is repeated in the page markup. */
 document.addEventListener('DOMContentLoaded',()=>{
