@@ -333,12 +333,19 @@ tbody tr:hover{background:#f8faf6}
  .auth-card{padding:25px}
 }
 
+
+.brand-logo{width:58px;height:58px;flex:0 0 58px;object-fit:contain;display:block;border-radius:12px;background:#fff;padding:3px;box-shadow:0 5px 18px #0002}
+.sidebar .brand-logo{width:62px;height:62px;flex-basis:62px;background:#fff}
+.auth-card .brand{align-items:center;gap:14px}
+.brand strong{font-size:14px;letter-spacing:.055em;line-height:1.25}
+@media(max-width:640px){.brand-logo{width:48px;height:48px;flex-basis:48px}.sidebar .brand-logo{width:52px;height:52px;flex-basis:52px}}
+
 </style>
 </head>
 <body class="auth-locked">
 <div class="auth-shield" id="authShield">
  <form class="auth-card" id="adminLoginForm">
-  <div class="brand" style="padding:0 0 18px"><div class="brand-mark">M</div><div><strong>MIZPAH TECHNOLOGY</strong><small style="display:block;color:var(--muted)">Secure administrator access</small></div></div>
+  <div class="brand" style="padding:0 0 18px"><img class="brand-logo" src="../assets/images/logo%202.png" alt="Mizpah Technology logo"><div><strong>MIZPAH TECHNOLOGY</strong><small style="display:block;color:var(--muted)">Secure administrator access</small></div></div>
   <h1>Administrator sign in</h1><p>Sign in with an authorised Mizpah staff account.</p>
   <label for="adminEmail">Email address</label><input id="adminEmail" type="email" autocomplete="username" required>
   <label for="adminPassword">Password</label><input id="adminPassword" type="password" autocomplete="current-password" required>
