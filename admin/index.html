@@ -510,16 +510,16 @@ label,.field label,.auth-card label{font-size:16px!important}
 
 .stat-icon.service-photo{overflow:hidden;padding:0;background:#fff}.stat-icon.service-photo img{display:block;width:100%;height:100%;object-fit:cover;border-radius:11px}
 
-/* Welcome banner: enlarge the real day-old-chick photo to fill the full image panel. */
+/* Welcome banner: expand the day-old-chick photograph across the right side to the banner midpoint. */
 .dash-welcome{position:relative}
-.dash-welcome-copy{position:relative;z-index:3;max-width:62%}
-.dash-welcome-art{position:absolute;top:0;right:0;bottom:0;width:42%;min-width:0;height:auto;margin:0;padding:0;gap:0;border-radius:0 17px 17px 0;background:none;box-shadow:none;overflow:hidden;z-index:1}
+.dash-welcome-copy{position:relative;z-index:3;max-width:53%}
+.dash-welcome-art{position:absolute;top:0;right:0;bottom:0;left:45%;width:55%;min-width:0;height:auto;margin:0;padding:0;gap:0;border-radius:0 17px 17px 0;background:none;box-shadow:none;overflow:hidden;z-index:1}
 .dash-welcome-art:before{display:none}
-.dash-welcome-art .welcome-chicks-photo{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:center;border:0;border-radius:0 17px 17px 0;box-shadow:none}
+.dash-welcome-art .welcome-chicks-photo{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:center center;border:0;border-radius:0 17px 17px 0;box-shadow:none}
 .dash-welcome:after{z-index:2;pointer-events:none}
 @media(max-width:600px){
- .dash-welcome-copy{max-width:64%}
- .dash-welcome-art{top:0;right:0;bottom:0;width:39%;min-width:0;height:auto;padding:0;gap:0;border-radius:0 12px 12px 0}
+ .dash-welcome-copy{max-width:52%}
+ .dash-welcome-art{top:0;right:0;bottom:0;left:43%;width:57%;min-width:0;height:auto;padding:0;gap:0;border-radius:0 12px 12px 0}
  .dash-welcome-art .welcome-chicks-photo{border-radius:0 12px 12px 0}
  .dash-welcome:after{right:24%;z-index:2}
 }
