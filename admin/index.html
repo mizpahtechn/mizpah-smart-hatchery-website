@@ -347,6 +347,44 @@ tbody tr:hover{background:#f8faf6}
 .sidebar .brand.sidebar-brand strong{display:block;color:#fff;font-size:16px;font-weight:850;letter-spacing:.075em;line-height:1.25;text-align:center}
 .brand-logo{background:transparent!important;padding:0!important;box-shadow:none!important;border-radius:0!important}
 @media(max-width:640px){.sidebar .brand.sidebar-brand .brand-logo{width:112px;height:112px;flex-basis:112px}.sidebar .brand.sidebar-brand strong{font-size:14px}}
+
+/* FINAL MIZPAH ADMIN BRAND + CONSISTENT DASHBOARD THEME */
+:root{--green:#0b3828;--green2:#176344;--gold:#d2ad55;--ink:#17251e;--muted:#718078;--line:#e1e9e2;--paper:#f2f6f2;--shadow:0 9px 28px rgba(11,56,40,.07)}
+body{background:radial-gradient(ellipse at 85% 0%,#e6efe5 0,transparent 38%),var(--paper);color:var(--ink);font-family:Inter,"Segoe UI",system-ui,sans-serif}
+.app{grid-template-columns:278px minmax(0,1fr);min-height:100vh}
+.sidebar{background:linear-gradient(160deg,#082e20 0%,#104832 55%,#092f22 100%);border-right:1px solid #d2ad5570;box-shadow:8px 0 30px rgba(11,56,40,.08)}
+.sidebar .brand.sidebar-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;width:100%;padding:4px 6px 18px;text-align:center}
+.sidebar .brand.sidebar-brand .brand-logo{width:132px;height:132px;flex:0 0 132px;max-width:100%;object-fit:contain;display:block;background:transparent!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+.sidebar .brand.sidebar-brand strong{display:block;color:#fff;font-size:16px;font-weight:850;letter-spacing:.075em;line-height:1.25;text-align:center}
+.sidebar .brand.sidebar-brand .sidebar-brand-subtitle{display:block;color:#e0c779;font-size:12px;font-weight:650;letter-spacing:.045em;line-height:1.35;text-align:center;margin-top:1px}
+.sidebar .nav-label{color:#d0bd80}
+.sidebar .nav button{border:1px solid transparent;border-radius:11px;padding:12px 13px;color:#e0ebe4}
+.sidebar .nav button:hover,.sidebar .nav button.active{background:linear-gradient(90deg,#ffffff20,#ffffff0d);border-color:#d2ad5555;color:#fff}
+.main{min-width:0;background:transparent}
+.topbar{background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);box-shadow:0 3px 16px rgba(11,56,40,.035)}
+.content{max-width:1600px}
+.page-head h1{color:#173d2c}
+.eyebrow{color:var(--green2)}
+.stats{gap:17px}
+.stat,.panel,.service-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.stat{padding:19px}
+.stat-icon{background:#eaf2ec;color:var(--green2)}
+.stat-value{color:#153d2b}
+.panel{overflow:hidden}
+.panel-head{background:linear-gradient(180deg,#fff,#fbfdfb);border-bottom:1px solid var(--line)}
+th{background:#f1f6f1;color:#53675b}
+td{border-top-color:#edf2ed}
+tbody tr:hover{background:#f6faf6}
+.btn{border-radius:10px;transition:background .18s ease,border-color .18s ease,transform .18s ease}
+.btn.primary{background:linear-gradient(135deg,#176344,#0b3828);border-color:#176344}
+.btn.gold{background:linear-gradient(135deg,#e2c675,#c9a34a);border-color:#c9a34a}
+input,select,.select,.search input{border-color:#dce6dd;border-radius:9px}
+input:focus,select:focus,.search input:focus{border-color:#639477;box-shadow:0 0 0 3px #17634418;outline:0}
+.service-card{padding:20px}
+.modal{border:1px solid #e2e9e2;box-shadow:0 25px 80px rgba(7,35,24,.24)}
+@media(max-width:1050px){.app{grid-template-columns:225px minmax(0,1fr)}}
+@media(max-width:700px){.sidebar{width:278px}.sidebar .brand.sidebar-brand .brand-logo{width:112px;height:112px;flex-basis:112px}.sidebar .brand.sidebar-brand strong{font-size:15px}.sidebar .brand.sidebar-brand .sidebar-brand-subtitle{font-size:11px}.stats{gap:10px}}
+
 </style>
 </head>
 <body class="auth-locked">
@@ -363,7 +401,7 @@ tbody tr:hover{background:#f8faf6}
 
 <div class="app">
 <aside class="sidebar" id="sidebar">
-  <div class="brand sidebar-brand"><img class="brand-logo" src="../assets/images/logo%202.png" alt="Mizpah Technology logo"><strong>MIZPAH TECHNOLOGY</strong></div>
+  <div class="brand sidebar-brand"><img class="brand-logo" src="../assets/images/logo%202.png" alt="Mizpah Technology logo"><strong>MIZPAH TECHNOLOGY</strong><small class="sidebar-brand-subtitle">Smart Hatchery - Admin</small></div>
   <div><div class="nav-label">Workspace</div><nav class="nav" aria-label="Main navigation">
     <button class="active" data-view="overview"><span class="ico">▦</span>Overview</button>
     <button data-view="products"><span class="ico">▣</span>Product management</button>
