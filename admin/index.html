@@ -20,6 +20,58 @@
 .auth-card button{width:100%;justify-content:center;margin-top:16px}
 .auth-error{color:#a22;font-size:12px;min-height:18px;margin-top:10px}
 body.auth-locked .app,body.auth-locked .modal-backdrop,body.auth-locked .toast{display:none!important}
+
+/* Mizpah professional admin refinement */
+:root{--green:#123b2b;--green2:#1e6545;--gold:#c9a34a;--ink:#17251e;--muted:#748178;--line:#e7ece7;--paper:#f3f6f3;--shadow:0 10px 30px rgba(18,59,43,.055)}
+body{background:linear-gradient(135deg,#f5f7f4 0%,#eef3ee 100%);color:var(--ink);letter-spacing:.005em}
+.app{grid-template-columns:264px minmax(0,1fr)}
+.sidebar{background:linear-gradient(180deg,#103b2a 0%,#0c3024 100%);padding:27px 17px 20px;gap:34px;box-shadow:8px 0 28px rgba(13,48,35,.08)}
+.brand{padding:0 9px;gap:12px}.brand-mark{width:45px;height:45px;border-radius:14px;box-shadow:0 5px 14px #0002}
+.brand strong{font-size:13px;letter-spacing:.075em}.brand small{letter-spacing:.025em}
+.nav-label{font-size:9px;letter-spacing:.17em;color:#a9c7b5;margin-bottom:10px}
+.nav{gap:6px}.nav button{min-height:44px;padding:11px 13px;border:1px solid transparent;border-radius:10px;font-size:12px;transition:background .18s,border-color .18s,transform .18s}
+.nav button:hover{background:#ffffff12;border-color:#ffffff12;transform:translateX(2px)}
+.nav button.active{background:linear-gradient(90deg,#ffffff20,#ffffff0c);border-color:#ffffff20;box-shadow:inset 3px 0 0 var(--gold);color:#fff}
+.nav .ico{width:21px;font-size:16px;color:#d7bd78}
+.side-note{background:#ffffff0b;border-color:#ffffff20;border-radius:13px;line-height:1.6;padding:15px}
+.topbar{height:72px;position:sticky;top:0;z-index:6;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);padding:0 34px;box-shadow:0 3px 14px rgba(20,48,32,.025)}
+.crumb{font-size:12px}.top-right{gap:12px}
+.demo{padding:7px 12px;letter-spacing:.055em;font-size:9px}
+.avatar{height:38px;width:38px;border:1px solid #dce8de;box-shadow:0 2px 8px #123f2d0d}
+.content{max-width:1600px;padding:34px 36px 52px}
+.page-head{align-items:center;margin-bottom:27px}
+.eyebrow{font-size:9px;letter-spacing:.17em}
+.page-head h1{font-size:29px;letter-spacing:-.045em;margin:6px 0}
+.page-head p{font-size:13px}
+.btn{border-radius:10px;padding:10px 15px;box-shadow:0 2px 5px rgba(18,59,43,.025);transition:transform .16s,box-shadow .16s,background .16s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 15px rgba(18,59,43,.09)}
+.btn.primary{background:linear-gradient(135deg,#174b35,#103b2a);box-shadow:0 5px 12px rgba(18,59,43,.14)}
+.stats{gap:17px;margin-bottom:24px}
+.stat{position:relative;border-radius:15px;padding:20px 20px 18px;box-shadow:0 5px 20px rgba(18,59,43,.035);transition:transform .18s,box-shadow .18s;overflow:hidden}
+.stat:after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);opacity:.8}
+.stat:hover{transform:translateY(-2px);box-shadow:0 12px 25px rgba(18,59,43,.075)}
+.stat-top{font-size:11px;letter-spacing:.015em}.stat-icon{border-radius:11px;background:#edf4ee;color:#1d6242}
+.stat-value{font-size:30px;margin:14px 0 2px;line-height:1.15}.stat-foot{font-size:10px}
+.panel{border-radius:15px;box-shadow:0 6px 24px rgba(18,59,43,.04)}
+.panel-head{padding:20px 22px}.panel-head h2{font-size:15px;letter-spacing:-.015em}.panel-head p{font-size:11px}
+th{background:#f7faf7;color:#75847a;font-size:9px;letter-spacing:.12em;padding:13px 18px}
+td{padding:15px 18px;font-size:12px}
+tbody tr{transition:background .15s}tbody tr:hover{background:#f7faf7}
+.product-img{height:45px;width:45px;border:1px solid #e7eee8;border-radius:12px;background:linear-gradient(145deg,#f1f6f1,#e8f0e9)}
+.product b{font-size:12px}.product small{font-size:10px}
+.pill{padding:5px 10px;font-size:10px;letter-spacing:.01em}
+.lower{gap:20px;margin-top:22px}
+.service-card{border-radius:15px;padding:21px;box-shadow:0 5px 18px rgba(18,59,43,.035);transition:transform .18s,box-shadow .18s}
+.service-card:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(18,59,43,.07)}
+.notice{border-radius:12px;padding:14px 17px}
+.modal{border-radius:18px;padding:26px}.auth-shield{background:radial-gradient(ellipse at 20% 10%,#e4eee5 0%,#f4f7f3 55%,#eaf0e9 100%)}
+.auth-card{border-radius:20px;padding:32px;box-shadow:0 24px 75px rgba(18,59,43,.12);border-color:#e2eae3}
+.auth-card .brand-mark{background:linear-gradient(145deg,#dfc16d,#c49b3e)}
+.auth-card h1{letter-spacing:-.035em}.auth-card input{padding:13px;border-radius:10px;background:#fcfdfc}
+.auth-card button{min-height:45px}
+@media(max-width:1050px){.app{grid-template-columns:225px minmax(0,1fr)}.content{padding:27px 22px 40px}.topbar{padding:0 23px}}
+@media(max-width:700px){.sidebar{width:275px}.topbar{padding:0 14px}.content{padding:22px 14px 36px}.page-head{gap:12px}.page-head h1{font-size:24px}.stats{gap:10px}.stat{padding:15px}.stat-value{font-size:25px}.panel-head{padding:16px}.lower{margin-top:15px}}
+
 </style>
 </head>
 <body class="auth-locked">
@@ -46,7 +98,7 @@ body.auth-locked .app,body.auth-locked .modal-backdrop,body.auth-locked .toast{d
     <button data-view="services"><span class="ico">✳</span>Hatchery services</button>
   </nav></div>
   <div><div class="nav-label">System</div><nav class="nav"><button data-view="guide"><span class="ico">ⓘ</span>Dashboard guide</button></nav></div>
-  <div class="side-note"><b>Demo dashboard</b>Sample records only. Changes are kept in this browser for demonstration; no live database or payment system is connected.</div>
+  <div class="side-note"><b>Operations workspace</b>Secure staff area for hatchery catalogue, pricing, inventory and customer-order administration.</div>
 </aside>
 <main class="main">
 <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><button class="btn mobile-menu" id="menuToggle" aria-label="Open menu">☰</button><div class="crumb">Mizpah Smart Hatchery / <strong id="crumb">Overview</strong></div></div><div class="top-right"><span class="demo">DEMO MODE</span><div class="avatar" title="Administrator demo profile">AD</div></div></header>
