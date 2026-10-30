@@ -148,17 +148,38 @@ async function loadLiveRecords(){
  orders=(or.data||[]).map(o=>({id:o.order_number,dbid:o.id,customer:o.customer_name,email:o.customer_email,items:(o.items||[]).map(x=>(x.name||x.product_name||'Item')+' × '+(x.quantity||x.qty||1)).join(', '),date:new Date(o.created_at).toLocaleDateString('en-NG'),total:o.quoted_total_ngn||0,status:o.status}));
  selected.clear();render();
 }
-document.addEventListener('DOMContentLoaded',async()=>{
- $('adminLoginForm').addEventListener('submit',async e=>{
-  e.preventDefault();$('adminAuthError').textContent='';$('adminLoginButton').disabled=true;
-  const {data,error}=await supabaseClient.auth.signInWithPassword({email:$('adminEmail').value.trim(),password:$('adminPassword').value});
-  $('adminLoginButton').disabled=false;
-  if(error){$('adminAuthError').textContent=error.message;return}
-  await establishStaff(data.session);
+(async function initialiseAdminAuthentication(){
+ const form=$('adminLoginForm');
+ if(!form){console.error('Mizpah admin login form was not found.');return}
+ form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const errorBox=$('adminAuthError'),button=$('adminLoginButton');
+  errorBox.textContent='';
+  button.disabled=true;
+  button.textContent='Signing in…';
+  try{
+   if(!window.supabase||!supabaseClient)throw new Error('The secure login service did not load. Refresh the page and try again.');
+   const {data,error}=await supabaseClient.auth.signInWithPassword({email:$('adminEmail').value.trim(),password:$('adminPassword').value});
+   if(error)throw error;
+   await establishStaff(data.session);
+   if(document.body.classList.contains('auth-locked')&&!errorBox.textContent){
+    errorBox.textContent='Your account signed in, but administrator access could not be verified. Check the staff registration and permissions.';
+   }
+  }catch(error){
+   console.error('Mizpah admin sign-in failed:',error);
+   errorBox.textContent=error?.message||'Sign-in failed. Please try again.';
+  }finally{
+   button.disabled=false;
+   button.textContent='Sign in securely';
+  }
  });
- const {data:{session}}=await supabaseClient.auth.getSession();await establishStaff(session);
+ try{
+  const {data:{session},error}=await supabaseClient.auth.getSession();
+  if(error)console.warn('Could not restore admin session:',error.message);
+  if(session)await establishStaff(session);
+ }catch(error){console.error('Admin session initialisation failed:',error)}
  supabaseClient.auth.onAuthStateChange((_event,session)=>{if(!session)lockAdmin()});
-});
+})();
 
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>'₦'+Number(n||0).toLocaleString('en-NG');
