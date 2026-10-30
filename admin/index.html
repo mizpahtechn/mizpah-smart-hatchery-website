@@ -727,7 +727,7 @@ async function loadLiveRecords(){
   if(error)console.warn('Could not restore admin session:',error.message);
   if(session)await establishStaff(session);
  }catch(error){console.error('Admin session initialisation failed:',error)}
- supabaseClient.auth.onAuthStateChange((_event,session)=>{if(!session)lockAdmin()});
+ supabaseClient.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){currentStaff=null;lockAdmin()}});
 })();
 
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
