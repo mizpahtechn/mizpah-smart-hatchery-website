@@ -385,6 +385,37 @@ input:focus,select:focus,.search input:focus{border-color:#639477;box-shadow:0 0
 @media(max-width:1050px){.app{grid-template-columns:225px minmax(0,1fr)}}
 @media(max-width:700px){.sidebar{width:278px}.sidebar .brand.sidebar-brand .brand-logo{width:112px;height:112px;flex-basis:112px}.sidebar .brand.sidebar-brand strong{font-size:15px}.sidebar .brand.sidebar-brand .sidebar-brand-subtitle{font-size:11px}.stats{gap:10px}}
 
+
+/* ACCESSIBILITY: larger, clearer typography throughout the admin dashboard */
+html{font-size:18px}
+body{font-size:18px;line-height:1.6}
+.sidebar-brand strong{font-size:1.28rem;line-height:1.35}
+.sidebar-brand-subtitle{font-size:1rem;line-height:1.45}
+.nav a,.nav button,.nav [data-view]{font-size:1.08rem;line-height:1.45}
+h1,.page-title{font-size:clamp(1.8rem,2.6vw,2.35rem);line-height:1.2}
+h2,.section-title{font-size:1.42rem;line-height:1.3}
+h3{font-size:1.2rem;line-height:1.35}
+p,.muted,.helper-text,.description{font-size:1rem;line-height:1.65}
+label,.form-label{font-size:1rem;font-weight:650}
+input,select,textarea,.input,.select,.form-control{font-size:1.05rem;min-height:48px}
+button,.btn,.link-btn{font-size:1rem;line-height:1.4}
+th{font-size:.94rem;line-height:1.4}
+td{font-size:1rem;line-height:1.55}
+.product b,.order-customer{font-size:1.04rem}
+.product small,.order-customer small,.table small,.pill{font-size:.88rem;line-height:1.4}
+.stat-value,.stat-number{font-size:2rem;line-height:1.15}
+.stat-label{font-size:.98rem;line-height:1.4}
+.crumb,.breadcrumb{font-size:.95rem}
+@media(max-width:760px){
+ html{font-size:17px}
+ body{font-size:17px}
+ h1,.page-title{font-size:1.75rem}
+ h2,.section-title{font-size:1.3rem}
+ .nav a,.nav button,.nav [data-view]{font-size:1.02rem}
+ th{font-size:.86rem}
+ td{font-size:.95rem}
+}
+
 </style>
 </head>
 <body class="auth-locked">
