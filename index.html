@@ -250,6 +250,48 @@ body{font-size:17px}
 #order .hp{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
 @media(max-width:800px){#order .order-shell{grid-template-columns:1fr}#order .cart-panel{order:2}}
 @media(max-width:560px){#order .order-panel,#order .cart-panel{padding:17px}#order .order-grid{grid-template-columns:1fr}#order .order-field.full{grid-column:auto}#order .catalog-row{grid-template-columns:minmax(0,1fr) 78px}#order .catalog-row button{grid-column:1/-1}}
+
+/* Order form readability and layout refinement */
+#order{font-size:16px;line-height:1.65}
+#order .order-intro{font-size:18px;line-height:1.7;color:#435448;margin-top:10px}
+#order .order-shell{gap:28px;margin-top:32px}
+#order .order-panel,#order .cart-panel{padding:30px;border-radius:18px}
+#order .order-panel h3,#order .cart-panel h3{font-size:21px;line-height:1.35;margin-bottom:20px}
+#order .order-field{gap:9px}
+#order .order-field label{font-size:16px;line-height:1.4}
+#order .order-field input,#order .order-field select,#order .order-field textarea{min-height:54px;padding:13px 15px;font-size:16px;line-height:1.45;border-radius:9px}
+#order .order-field textarea{min-height:120px}
+#order .order-grid{gap:20px}
+#order .catalog-row{gap:14px;margin:18px 0}
+#order .order-btn{font-size:16px;min-height:50px;padding:13px 22px}
+#order .order-note{font-size:15px;line-height:1.7}
+#order .cart-line{font-size:16px;line-height:1.55;padding:15px 0}
+#order .cart-line small{font-size:14px;line-height:1.5}
+#order .cart-empty{font-size:16px}
+#order .cart-total{font-size:18px;line-height:1.5;padding:18px}
+#order .cart-total small{font-size:14px;line-height:1.6}
+#order .status-msg{font-size:16px;padding:15px;line-height:1.6}
+#order .price-preview{margin:14px 0;padding:17px 18px;border:1px solid #dce8d9;border-radius:12px;background:#f6faf4;display:flex;flex-direction:column;gap:5px}
+#order .price-preview span{font-size:14px;color:#526454;font-weight:700}
+#order .price-preview strong{font-size:20px;line-height:1.4;color:#075b28}
+#order .price-preview small{font-size:14px;line-height:1.55;color:#59665b}
+#order aside.cart-panel{position:sticky;top:22px}
+#order aside.cart-panel ol{font-size:16px;line-height:1.9!important;padding-left:24px!important}
+#order aside.cart-panel p{font-size:16px;line-height:1.7}
+#order aside.cart-panel .order-note{font-size:15px}
+@media(max-width:800px){#order .order-shell{gap:18px}#order aside.cart-panel{position:static}}
+@media(max-width:560px){
+ #order .order-intro{font-size:16px}
+ #order .order-panel,#order .cart-panel{padding:20px}
+ #order .order-panel h3,#order .cart-panel h3{font-size:19px}
+ #order .order-grid{gap:16px}
+ #order .catalog-row{grid-template-columns:minmax(0,1fr) 90px;gap:10px}
+ #order .catalog-row button{grid-column:1/-1;width:100%}
+ #order .order-field input,#order .order-field select,#order .order-field textarea{font-size:16px}
+ #order .order-actions{display:grid;grid-template-columns:1fr}
+ #order .order-actions .order-btn{width:100%}
+ #order .price-preview strong{font-size:18px}
+}
 </style>
 <div class="wrap">
 <p class="eyebrow">CUSTOMER ORDER DESK</p>
