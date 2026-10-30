@@ -359,4 +359,35 @@ document.addEventListener('DOMContentLoaded',()=>{
   );
   labels.slice(1).forEach(el=>{el.hidden=true;});
 });
-</script></body></html>
+</script>
+<style>
+/* Android/mobile-safe visibility fix for the Contact Us message field. */
+#contact #mizpah-contact-form #contact-message{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:150px!important;
+  height:150px!important;
+  padding:14px!important;
+  background-color:#fff!important;
+  color:#101b34!important;
+  -webkit-text-fill-color:#101b34!important;
+  caret-color:#075b28!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:16px!important;
+  line-height:1.5!important;
+  border:1px solid #d6e0d6!important;
+  border-radius:8px!important;
+  box-sizing:border-box!important;
+  color-scheme:light;
+  resize:vertical;
+}
+#contact #mizpah-contact-form #contact-message::placeholder{
+  color:#59665b!important;
+  -webkit-text-fill-color:#59665b!important;
+  opacity:1!important;
+}
+</style>
+</body></html>
