@@ -210,7 +210,105 @@ body{font-size:17px}
   });
 })();
 </script></div></section>
-<section class="section" id="order"><div class="wrap"><p class="eyebrow">CUSTOMER ORDER DESK</p><h2>Place an Order or Request a Quote</h2><p>Choose the product or service you need, tell us your quantity and delivery location, and contact our team to confirm availability, price and delivery arrangements. An order is not confirmed until Mizpah Technology confirms it directly.</p><div class="zoho-order-form" aria-label="Online order form"><iframe title="Mizpah Smart Hatchery Order Form" loading="lazy" frameborder="0" style="width:100%;height:850px;border:0;display:block;background:#fff" src="https://forms.zohopublic.com/adminmizpahte1/form/SimpleOrderForm/formperma/0jzCW6-9_THBpneYQp578S6oA8Mf3jUwfWGHDP869gE"></iframe><p class="note">If the form does not load, <a href="https://forms.zohopublic.com/adminmizpahte1/form/SimpleOrderForm/formperma/0jzCW6-9_THBpneYQp578S6oA8Mf3jUwfWGHDP869gE" target="_blank" rel="noopener noreferrer">open the order form in a new tab</a>.</p></div><div class="cards"><article class="card"><h3>Day-old chicks</h3><p>Broiler, layer or cockerel chicks. Include quantity, preferred collection/delivery date and location.</p><a class="btn primary" href="https://wa.me/2347068645654?text=Hello%20Mizpah%20Technology%2C%20I%20want%20to%20order%20day-old%20chicks." target="_blank" rel="noopener">Order chicks on WhatsApp</a></article><article class="card"><h3>Egg incubation</h3><p>Tell us the number of eggs, egg type, expected schedule and any special requirements.</p><a class="btn primary" href="https://wa.me/2347068645654?text=Hello%20Mizpah%20Technology%2C%20I%20need%20an%20egg%20incubation%20quotation." target="_blank" rel="noopener">Request incubation quote</a></article><article class="card"><h3>Other hatchery services</h3><p>Ask about vaccination support, consultancy, training, maintenance or delivery.</p><a class="btn primary" href="https://wa.me/2347068645654?text=Hello%20Mizpah%20Technology%2C%20I%20want%20to%20enquire%20about%20a%20hatchery%20service." target="_blank" rel="noopener">Enquire about a service</a></article></div></div></section>
+<section class="section" id="order">
+<style>
+#order .order-intro{max-width:850px}#order .order-shell{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.8fr);gap:24px;align-items:start;margin-top:28px}
+#order .order-panel,#order .cart-panel{background:#fff;border:1px solid #e1e9df;border-radius:16px;padding:24px;box-shadow:0 8px 28px #12351a0d}
+#order .order-panel h3,#order .cart-panel h3{color:#075b28;margin:0 0 16px}
+#order .order-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+#order .order-field{display:flex;flex-direction:column;gap:7px;min-width:0}
+#order .order-field.full{grid-column:1/-1}#order .order-field label{font-weight:750;font-size:14px;color:#203328}
+#order .order-field input,#order .order-field select,#order .order-field textarea{width:100%;min-height:46px;padding:11px 12px;border:1px solid #cbd7cc;border-radius:8px;background:#fff;color:#17251b}
+#order .order-field textarea{min-height:90px;resize:vertical}
+#order .order-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+#order .order-btn{border:0;border-radius:24px;padding:12px 18px;font-weight:800;cursor:pointer}
+#order .order-btn.primary{background:#075b28;color:#fff}#order .order-btn.gold{background:#ffc629;color:#1d2a1e}
+#order .order-btn:disabled{opacity:.55;cursor:not-allowed}
+#order .order-note{font-size:13px;color:#647267;line-height:1.55}
+#order .catalog-row{display:grid;grid-template-columns:minmax(0,1fr) 92px auto;gap:10px;align-items:end;margin:12px 0}
+#order .cart-line{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #edf1ec;font-size:14px}
+#order .cart-line strong{display:block;color:#1c3525}#order .cart-line small{color:#647267}
+#order .remove-line{border:0;background:transparent;color:#a22a2a;font-weight:700;cursor:pointer}
+#order .cart-empty{padding:18px 0;color:#6a756c;font-size:14px}
+#order .cart-total{margin-top:16px;padding:14px;background:#f5f8f1;border-radius:10px;font-weight:800;color:#075b28}
+#order .cart-total small{display:block;font-weight:500;color:#59665b;margin-top:5px}
+#order .status-msg{margin-top:14px;padding:12px;border-radius:8px;display:none;line-height:1.5}
+#order .status-msg.show{display:block}#order .status-msg.ok{background:#edf8ef;color:#145c2b}#order .status-msg.err{background:#fff0ee;color:#8d251b}
+#order .hp{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+@media(max-width:800px){#order .order-shell{grid-template-columns:1fr}#order .cart-panel{order:2}}
+@media(max-width:560px){#order .order-panel,#order .cart-panel{padding:17px}#order .order-grid{grid-template-columns:1fr}#order .order-field.full{grid-column:auto}#order .catalog-row{grid-template-columns:minmax(0,1fr) 78px}#order .catalog-row button{grid-column:1/-1}}
+</style>
+<div class="wrap">
+<p class="eyebrow">CUSTOMER ORDER DESK</p>
+<h2>Order Products & Hatchery Services</h2>
+<p class="order-intro">Build your order from Mizpah's product and service catalogue. Submit a purchase request or request a quotation. Our team will verify availability, final pricing and delivery arrangements before issuing payment instructions.</p>
+<div class="order-shell">
+<div class="order-panel">
+<h3>1. Select products or services</h3>
+<div class="catalog-row">
+<div class="order-field"><label for="order-category">Catalogue category</label><select id="order-category"><option value="chicks">Day-old chicks</option><option value="incubation">Egg incubation & assessment</option><option value="services">Hatchery & poultry services</option><option value="delivery">Delivery</option><option value="equipment">Poultry equipment</option></select></div>
+<div class="order-field"><label for="order-qty">Quantity</label><input id="order-qty" type="number" min="1" step="1" value="1"></div>
+<button class="order-btn primary" id="order-add" type="button">Add item</button>
+</div>
+<div class="order-field"><label for="order-item">Product or service</label><select id="order-item"></select></div>
+<p class="order-note">Prices are not displayed until confirmed by Mizpah. Egg incubation quotations depend on egg quantity, egg type and service requirements. Equipment and other services may require a customised quotation.</p>
+<div class="cart-panel" style="margin-top:20px;background:#fbfcfa;box-shadow:none">
+<h3>Your order list</h3><div id="order-cart"><div class="cart-empty">No items added yet.</div></div>
+<div class="cart-total">Pricing: To be confirmed by Mizpah Technology<small>No payment will be requested until your order and final price are confirmed.</small></div>
+</div>
+<h3 style="margin-top:26px">2. Customer and delivery details</h3>
+<form id="mizpah-order-form">
+<div class="order-grid">
+<div class="order-field"><label for="ord-name">Full name *</label><input id="ord-name" name="name" autocomplete="name" maxlength="120" required></div>
+<div class="order-field"><label for="ord-email">Email address *</label><input id="ord-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
+<div class="order-field"><label for="ord-phone">Phone / WhatsApp *</label><input id="ord-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" required></div>
+<div class="order-field"><label for="ord-customer">Customer type</label><select id="ord-customer" name="customer_type"><option>Individual farmer</option><option>Poultry farm</option><option>Distributor / reseller</option><option>Business / institution</option></select></div>
+<div class="order-field"><label for="ord-method">Fulfilment method *</label><select id="ord-method" name="fulfilment" required><option value="">Select one</option><option>Delivery</option><option>Collection</option><option>To be discussed</option></select></div>
+<div class="order-field"><label for="ord-date">Preferred date</label><input id="ord-date" name="preferred_date" type="date"></div>
+<div class="order-field full"><label for="ord-address">Delivery address / collection location *</label><input id="ord-address" name="address" autocomplete="street-address" maxlength="300" required></div>
+<div class="order-field"><label for="ord-state">State</label><input id="ord-state" name="state" maxlength="80"></div>
+<div class="order-field"><label for="ord-city">Town / LGA</label><input id="ord-city" name="city" maxlength="100"></div>
+<div class="order-field full"><label for="ord-notes">Special instructions</label><textarea id="ord-notes" name="notes" maxlength="3000" placeholder="For example: chick breed, egg type, vaccination requirements, equipment specifications or delivery instructions."></textarea></div>
+<div class="order-field full"><label for="ord-intent">Request type *</label><select id="ord-intent" name="intent" required><option value="Order request">Place an order (confirm availability and price)</option><option value="Quotation request">Request a quotation first</option></select></div>
+<div class="hp" aria-hidden="true"><label for="ord-website">Leave this blank</label><input id="ord-website" name="website" tabindex="-1" autocomplete="off"></div>
+</div>
+<div class="order-actions"><button class="order-btn primary" id="order-submit" type="submit">Submit order request</button><button class="order-btn gold" type="button" id="order-whatsapp">Continue on WhatsApp</button></div>
+<p class="order-note">Submitting this form sends an order request to Mizpah Technology. It does not confirm stock, reserve products or charge your account. Our team will contact you with availability, final pricing and secure payment options.</p>
+<div class="status-msg" id="order-status" role="status" aria-live="polite"></div>
+</form>
+</div>
+<aside class="cart-panel">
+<h3>How ordering works</h3>
+<ol style="padding-left:20px;line-height:1.8;color:#314437">
+<li>Select one or more products or services.</li><li>Provide your contact and fulfilment details.</li><li>Submit your order or quotation request.</li><li>Mizpah verifies availability, quantity and final price.</li><li>You receive confirmation and applicable payment instructions.</li>
+</ol>
+<p class="order-note"><strong>Payment safety:</strong> Do not transfer money to an account supplied by an unverified person. Wait for official confirmation from Mizpah Technology.</p>
+<p><strong>Need help?</strong><br><a href="tel:+2347068645654">+234 706 864 5654</a><br><a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></p>
+</aside>
+</div>
+</div>
+<script>
+(function(){
+const root=document.getElementById('order');if(!root||root.dataset.ready)return;root.dataset.ready='1';
+const catalog={
+chicks:['Broiler DOCs','Layer DOCs','Cockerel DOCs'],
+incubation:['Custom Egg Incubation','Egg Hatching Service','Egg Candling & Fertility Assessment','Egg Grading & Quality Assessment'],
+services:['Day-Old Chick Vaccination','Poultry Vaccination Support','Hatchery Biosecurity Consultation','Egg Disinfection & Hatchery Sanitation','Hatchery Performance Analysis','Poultry Farm & Hatchery Consultancy','Poultry Farmer Training','Hatchery Setup & Optimization','Hatchery Equipment Installation & Support','Incubator & Hatcher Maintenance'],
+delivery:['Standard Delivery','Express Delivery'],
+equipment:['Poultry equipment (specify requirements in notes)']
+};
+const category=document.getElementById('order-category'),item=document.getElementById('order-item'),qty=document.getElementById('order-qty'),cartBox=document.getElementById('order-cart'),status=document.getElementById('order-status');
+let cart=[];
+function fillItems(){item.innerHTML='';(catalog[category.value]||[]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;item.appendChild(o);});}
+function renderCart(){cartBox.innerHTML='';if(!cart.length){cartBox.innerHTML='<div class="cart-empty">No items added yet.</div>';return;}cart.forEach((x,i)=>{const row=document.createElement('div');row.className='cart-line';const info=document.createElement('div');const strong=document.createElement('strong');strong.textContent=x.name;const small=document.createElement('small');small.textContent='Quantity: '+x.qty+' · Price pending confirmation';info.append(strong,small);const remove=document.createElement('button');remove.type='button';remove.className='remove-line';remove.textContent='Remove';remove.setAttribute('aria-label','Remove '+x.name);remove.addEventListener('click',()=>{cart.splice(i,1);renderCart();});row.append(info,remove);cartBox.appendChild(row);});}
+category.addEventListener('change',fillItems);fillItems();
+document.getElementById('order-add').addEventListener('click',()=>{const n=Number(qty.value);if(!Number.isInteger(n)||n<1){status.textContent='Enter a valid quantity of at least 1.';status.className='status-msg show err';return;}const name=item.value;const found=cart.find(x=>x.name===name);if(found)found.qty+=n;else cart.push({name,qty:n});renderCart();status.className='status-msg';qty.value='1';});
+function buildMessage(orderNo){const f=document.getElementById('mizpah-order-form');const v=id=>document.getElementById(id).value.trim();const lines=cart.map(x=>'- '+x.name+' | Quantity: '+x.qty).join('\n');return 'ORDER REQUEST: '+orderNo+'\nRequest type: '+v('ord-intent')+'\n\nITEMS\n'+lines+'\n\nCUSTOMER\nName: '+v('ord-name')+'\nEmail: '+v('ord-email')+'\nPhone: '+v('ord-phone')+'\nCustomer type: '+v('ord-customer')+'\n\nFULFILMENT\nMethod: '+v('ord-method')+'\nPreferred date: '+(v('ord-date')||'Not specified')+'\nAddress: '+v('ord-address')+'\nState: '+v('ord-state')+'\nTown/LGA: '+v('ord-city')+'\n\nSPECIAL INSTRUCTIONS\n'+(v('ord-notes')||'None')+'\n\nPricing and availability are pending confirmation. No payment has been collected.';}
+document.getElementById('mizpah-order-form').addEventListener('submit',async e=>{e.preventDefault();if(!cart.length){status.textContent='Please add at least one product or service before submitting.';status.className='status-msg show err';return;}const btn=document.getElementById('order-submit');btn.disabled=true;btn.textContent='Submitting…';status.className='status-msg';const orderNo='MZP-'+new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14)+'-'+Math.random().toString(36).slice(2,6).toUpperCase();try{const payload={name:document.getElementById('ord-name').value.trim(),email:document.getElementById('ord-email').value.trim(),subject:'Mizpah '+document.getElementById('ord-intent').value+' — '+orderNo,message:buildMessage(orderNo),website:document.getElementById('ord-website').value};const response=await fetch('https://mizpah-website-forms.fineboyeddie073.workers.dev/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});let data={};try{data=await response.json();}catch(_){}if(!response.ok)throw new Error(data.error||data.message||'Submission failed. Please try again or contact Mizpah by phone.');status.textContent='Your request has been submitted. Reference: '+orderNo+'. Mizpah will contact you to confirm availability and final pricing. Please also check your email.';status.className='status-msg show ok';e.target.reset();cart=[];renderCart();}catch(err){status.textContent=err.message;status.className='status-msg show err';}finally{btn.disabled=false;btn.textContent='Submit order request';}});
+document.getElementById('order-whatsapp').addEventListener('click',()=>{if(!cart.length){status.textContent='Add at least one product or service first.';status.className='status-msg show err';return;}const f=document.getElementById('mizpah-order-form');if(!f.reportValidity())return;const lines=cart.map(x=>x.name+' x '+x.qty).join(', ');const msg='Hello Mizpah Technology. I would like to submit an order/quotation request. Items: '+lines+'. Name: '+document.getElementById('ord-name').value+'. Phone: '+document.getElementById('ord-phone').value+'. Email: '+document.getElementById('ord-email').value+'. Fulfilment: '+document.getElementById('ord-method').value+'. Location: '+document.getElementById('ord-address').value+'. Notes: '+document.getElementById('ord-notes').value;window.open('https://wa.me/2347068645654?text='+encodeURIComponent(msg),'_blank','noopener');});
+})();
+</script>
+</section>
 <section class="section" id="faq"><div class="wrap"><p class="eyebrow">HELP CENTRE</p><h2>Frequently Asked Questions</h2><div class="faqlist"><details><summary>How do I order day-old chicks?</summary><p>Contact us with the chick type, quantity, preferred date and delivery or collection location. We will confirm availability, pricing and next steps.</p></details><details><summary>Are prices and stock guaranteed on this website?</summary><p>Prices and availability must be confirmed by Mizpah Technology before payment. Do not treat an enquiry as a confirmed order.</p></details><details><summary>Can I request custom egg incubation?</summary><p>Yes. Send the egg quantity, egg type and preferred timeline so the team can advise on suitability, pricing and scheduling.</p></details><details><summary>How do I arrange delivery?</summary><p>Provide your location and preferred date when enquiring. Delivery options, timing and any charges will be confirmed before the order is accepted.</p></details><details><summary>How do I get help after purchase?</summary><p>Contact us by phone, email or WhatsApp with your order details so we can direct your request to the appropriate team.</p></details></div></div></section>
 <section class="section" id="policies"><div class="wrap"><p class="eyebrow">CLEAR CUSTOMER EXPECTATIONS</p><h2>Ordering, Payment & Customer Care</h2><div class="cards"><article class="card"><h3>Order confirmation</h3><p>Orders are confirmed only after staff verify product/service availability, quantity, price, schedule and delivery arrangements.</p></article><article class="card"><h3>Payment safety</h3><p>Confirm official payment instructions with Mizpah Technology before transferring funds. Never rely on unverified messages or account details.</p></article><article class="card"><h3>Changes and complaints</h3><p>Contact our team promptly with your order reference and details. Any cancellation, refund or replacement terms must be confirmed at the time of order.</p></article></div><p class="note">Before launch, publish a formally approved privacy notice, terms of service, delivery policy and cancellation/refund policy. This preview does not yet collect or store customer information on a secure server.</p></div></section>
 </main><footer class="foot"><div class="wrap">© <span id="year"></span> Mizpah Technology. ...Ensuring Customer’s Satisfaction. <span class="footer-contact">Contact: <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="tel:+2348038817886">+234 803 881 7886</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></span></div></footer>
