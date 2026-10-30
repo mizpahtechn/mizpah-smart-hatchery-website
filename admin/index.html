@@ -340,6 +340,13 @@ tbody tr:hover{background:#f8faf6}
 .brand strong{font-size:14px;letter-spacing:.055em;line-height:1.25}
 @media(max-width:640px){.brand-logo{width:48px;height:48px;flex-basis:48px}.sidebar .brand-logo{width:52px;height:52px;flex-basis:52px}}
 
+
+/* Sidebar identity: large transparent logo with company name directly below */
+.sidebar .brand.sidebar-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:4px 6px 18px;text-align:center;width:100%}
+.sidebar .brand.sidebar-brand .brand-logo{display:block;width:132px;height:132px;max-width:100%;flex:0 0 132px;object-fit:contain;background:transparent!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+.sidebar .brand.sidebar-brand strong{display:block;color:#fff;font-size:16px;font-weight:850;letter-spacing:.075em;line-height:1.25;text-align:center}
+.brand-logo{background:transparent!important;padding:0!important;box-shadow:none!important;border-radius:0!important}
+@media(max-width:640px){.sidebar .brand.sidebar-brand .brand-logo{width:112px;height:112px;flex-basis:112px}.sidebar .brand.sidebar-brand strong{font-size:14px}}
 </style>
 </head>
 <body class="auth-locked">
@@ -356,7 +363,7 @@ tbody tr:hover{background:#f8faf6}
 
 <div class="app">
 <aside class="sidebar" id="sidebar">
-  <div class="brand"><img class="brand-logo" src="../assets/images/logo%202.png" alt="Mizpah Technology logo"><div><strong>MIZPAH TECHNOLOGY</strong><small>Smart Hatchery · Admin</small></div></div>
+  <div class="brand sidebar-brand"><img class="brand-logo" src="../assets/images/logo%202.png" alt="Mizpah Technology logo"><strong>MIZPAH TECHNOLOGY</strong></div>
   <div><div class="nav-label">Workspace</div><nav class="nav" aria-label="Main navigation">
     <button class="active" data-view="overview"><span class="ico">▦</span>Overview</button>
     <button data-view="products"><span class="ico">▣</span>Product management</button>
