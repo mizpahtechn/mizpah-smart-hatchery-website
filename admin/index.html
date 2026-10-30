@@ -456,6 +456,46 @@ label,.field label,.auth-card label{font-size:16px!important}
  .btn,.link-btn{font-size:15px!important}
 }
 
+
+/* Dashboard overview: visual implementation of the approved Mizpah reference.
+   The existing official logo asset and sidebar brand markup remain untouched. */
+.dash-welcome{min-height:245px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative;padding:30px 36px;border-radius:18px;background:linear-gradient(110deg,#fffdf2 0%,#edf4e9 58%,#dcebdd 100%);border:1px solid #e3e9dc;margin-bottom:18px}
+.dash-welcome:after{content:"";position:absolute;right:28%;top:-90px;width:310px;height:420px;border:12px solid #d5ad43;border-radius:50%;opacity:.8;transform:rotate(18deg)}
+.dash-welcome-copy{position:relative;z-index:1}.dash-welcome h1{font-size:29px;line-height:1.08;color:#123f2d;margin:12px 0}.dash-welcome h1 strong{font-size:48px;letter-spacing:-.04em}.dash-welcome p{font-size:15px;margin:0;color:#345444}
+.dash-values{display:flex;gap:9px;margin-top:23px;flex-wrap:wrap}.dash-values span{background:#fff9;border:1px solid #e1e8d8;border-radius:30px;padding:8px 12px;font-size:12px;font-weight:750;color:#1b5339}
+.dash-welcome-art{position:relative;z-index:1;width:35%;min-width:240px;height:190px;border-radius:130px 18px 18px 130px;background:radial-gradient(circle at 65% 30%,#fff 0 9%,transparent 10%),linear-gradient(140deg,#c8d9b8,#78996c 55%,#315d40);display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:inset 0 0 0 5px #ffffff66}
+.dash-welcome-art:before{content:"";position:absolute;inset:12px;border:1px solid #ffffff80;border-radius:inherit}
+.egg-art{font-size:62px;transform:rotate(-14deg);filter:drop-shadow(0 8px 5px #173d2633)}.chick-art{font-size:76px;filter:drop-shadow(0 8px 5px #173d2633)}.chick-two{font-size:55px;align-self:flex-end;margin-bottom:22px}
+.dash-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:18px}
+.dash-kpi{min-height:96px;background:#fff;border:1px solid #e1e9e2;border-radius:14px;display:flex;align-items:center;gap:13px;padding:15px;box-shadow:0 4px 16px #173d2608}
+.kpi-icon{flex:0 0 48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#0d4930;color:#e7c45f;font-size:24px}
+.dash-kpi small,.dash-kpi em{display:block;color:#5d7064;font-size:12px;font-style:normal}.dash-kpi strong{display:block;color:#142b20;font-size:23px;line-height:1.3;letter-spacing:-.025em}.dash-kpi em{font-size:11px;margin-top:2px}
+.dash-main-grid{display:grid;grid-template-columns:1.35fr .9fr 1.05fr;gap:14px;margin-bottom:15px;align-items:stretch}
+.dash-panel{min-width:0;background:#fff;border:1px solid #dfe8e0;border-radius:14px;box-shadow:0 4px 16px #173d2608;overflow:hidden}
+.dash-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 17px 12px}
+.dash-panel-head h2{font-size:17px;color:#143d2b;margin:0 0 3px}.dash-panel-head p{font-size:11px;color:#748178;margin:0}
+.chart-legend{display:flex;gap:12px;white-space:nowrap;font-size:10px;color:#4b6154}.chart-legend span{display:flex;align-items:center;gap:5px}.chart-legend i{width:8px;height:8px;border-radius:50%;background:#12613f}.chart-legend span+span i{background:#d9ad39}
+.cycle-chart{height:190px;display:flex;padding:10px 16px 0 12px}.chart-y-labels{display:flex;flex-direction:column;justify-content:space-between;padding:0 9px 22px 0;color:#6b7a70;font-size:10px}
+.chart-bars{position:relative;flex:1;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid #dce5dd}
+.chart-gridlines{position:absolute;inset:0 0 22px;display:flex;flex-direction:column;justify-content:space-between}.chart-gridlines i{border-top:1px solid #e9eee9}
+.bar-pair{height:100%;display:flex;align-items:flex-end;gap:8px;position:relative;padding:0 15px 22px}.bar{width:45px;border-radius:5px 5px 0 0;z-index:1}.revenue-bar{background:linear-gradient(#1c7550,#0b4930)}.profit-bar{background:linear-gradient(#edc653,#d39e25)}.bar-pair small{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:10px;color:#65776b}
+.chart-values{display:flex;justify-content:space-around;padding:10px 8px 13px;font-size:10px;color:#607367}.chart-values span{display:grid;gap:2px}.chart-values b{font-size:12px;color:#183d2b}
+.annual-list{margin:0 12px 12px;padding:5px 10px;background:#f1f7f0;border-radius:13px}
+.annual-list>div{display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid #e2ebe1}.annual-list>div:last-child{border:0}
+.annual-icon{width:32px;height:32px;flex:0 0 32px;border-radius:9px;background:#e0eee0;color:#15583a;display:grid;place-items:center;font-size:18px}
+.annual-list p{margin:0;min-width:0}.annual-list small{display:block;color:#64786a;font-size:10px}.annual-list b{display:block;color:#142f21;font-size:14px;line-height:1.4}
+.funding-top{display:flex;align-items:center;gap:12px;padding:2px 15px 8px}.funding-donut{width:112px;height:112px;flex:0 0 112px;border-radius:50%;background:conic-gradient(#0b5135 0 30%,#d8ae3f 30% 100%);display:grid;place-items:center}
+.funding-donut>div{width:77px;height:77px;border-radius:50%;background:white;display:grid;align-content:center;justify-items:center}.funding-donut b{font-size:15px;color:#183e2b}.funding-donut small{font-size:9px;color:#718075}
+.funding-legend{display:grid;gap:10px}.funding-legend p{display:flex;align-items:flex-start;gap:8px;margin:0;font-size:11px;color:#506458}.funding-legend p>i{width:11px;height:11px;border-radius:50%;margin-top:2px}.equity-dot{background:#0b5135}.loan-dot{background:#d8ae3f}.funding-legend b{display:block;color:#183e2b;font-size:12px;margin-top:2px}
+.funding-subtitle{font-size:12px;margin:4px 15px 8px;color:#183e2b}.funds-list{padding:0 15px 14px;display:grid;gap:8px}.funds-list>div{display:grid;grid-template-columns:minmax(0,1fr) 30px;gap:5px;font-size:10px;color:#5a6e60}.funds-list b{text-align:right;color:#244d36}.funds-list i{grid-column:1/-1;height:7px;border-radius:8px;background:#edf0e5;overflow:hidden}.funds-list u{display:block;height:100%;border-radius:8px;background:#0c5738;text-decoration:none}
+.dash-bottom-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-bottom:15px}
+.dash-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:0 15px 15px}.dash-actions button{min-height:47px;border:0;border-radius:9px;background:linear-gradient(135deg,#0b5638,#073b27);color:white;font-weight:700;font-size:12px;text-align:left;padding:9px 11px;display:flex;align-items:center;gap:9px}.dash-actions button span{width:27px;height:27px;display:grid;place-items:center;background:#ffffff20;border-radius:8px;color:#f0cc68;font-size:17px}
+.dash-catalogue-panel{margin-bottom:10px}.dash-footnote{font-size:11px;color:#718075;padding:5px 2px 0}
+.dash-orders-panel .table-wrap{padding-bottom:2px}
+@media(max-width:1200px){.dash-main-grid{grid-template-columns:1.2fr 1fr}.dash-funding-panel{grid-column:1/-1}.funding-top{justify-content:flex-start}.funds-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:850px){.dash-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-main-grid{grid-template-columns:1fr 1fr}.dash-chart-panel{grid-column:1/-1}.dash-funding-panel{grid-column:auto}.dash-bottom-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.dash-welcome{padding:23px 19px;min-height:205px}.dash-welcome h1{font-size:23px}.dash-welcome h1 strong{font-size:39px}.dash-welcome p{font-size:13px;max-width:210px}.dash-welcome-art{min-width:105px;width:34%;height:130px;gap:0;border-radius:70px 12px 12px 70px}.dash-welcome-art:after{content:"";position:absolute;inset:5px}.egg-art{font-size:35px}.chick-art{font-size:43px}.chick-two{display:none}.dash-welcome:after{right:19%;width:150px;height:280px;top:-35px;border-width:7px}.dash-values{gap:5px;margin-top:14px}.dash-values span{font-size:9px;padding:6px 8px}.dash-kpis{gap:8px}.dash-kpi{padding:10px;gap:8px;min-height:82px}.kpi-icon{width:35px;height:35px;flex-basis:35px;font-size:18px}.dash-kpi small{font-size:10px}.dash-kpi strong{font-size:17px}.dash-kpi em{font-size:9px}.dash-main-grid{grid-template-columns:1fr}.dash-chart-panel,.dash-funding-panel{grid-column:auto}.dash-panel-head{padding:14px}.dash-panel-head h2{font-size:16px}.funding-top{justify-content:space-around}.funds-list{grid-template-columns:1fr}.dash-actions{gap:7px;padding:0 12px 12px}.dash-actions button{font-size:11px;padding:8px}.cycle-chart{height:165px}}
+
 </style>
 </head>
 <body class="auth-locked">
@@ -488,16 +528,57 @@ label,.field label,.auth-card label{font-size:16px!important}
 <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><button class="btn mobile-menu" id="menuToggle" aria-label="Open menu">☰</button><div class="crumb">Mizpah Smart Hatchery / <strong id="crumb">Overview</strong></div></div><div class="top-right"><span class="demo">DEMO MODE</span><div class="avatar" title="Administrator demo profile">AD</div></div></header>
 <div class="content">
 <section class="view active" id="view-overview">
-  <div class="page-head"><div><div class="eyebrow">Control centre</div><h1>Dashboard overview</h1><p>Manage hatchery products, prices, stock and customer orders.</p></div><button class="btn primary" id="quickAdd"><span>＋</span> Add product</button></div>
-  <div class="stats">
-    <article class="stat"><div class="stat-top">Total products <span class="stat-icon">▣</span></div><div class="stat-value" id="statProducts">6</div><div class="stat-foot">Products in your catalogue</div></article>
-    <article class="stat"><div class="stat-top">Published products <span class="stat-icon">↗</span></div><div class="stat-value" id="statPublished">4</div><div class="stat-foot">Visible to customers in this demo</div></article>
-    <article class="stat"><div class="stat-top">Low stock items <span class="stat-icon">◷</span></div><div class="stat-value" id="statLow">2</div><div class="stat-foot">At or below the low-stock threshold</div></article>
-    <article class="stat"><div class="stat-top">Orders to review <span class="stat-icon">▤</span></div><div class="stat-value" id="statOrders">3</div><div class="stat-foot">Sample orders awaiting action</div></article>
+  <div class="dash-welcome">
+    <div class="dash-welcome-copy">
+      <div class="eyebrow">MIZPAH TECHNOLOGY · CONTROL CENTRE</div>
+      <h1>Welcome Back,<br><strong>Admin</strong></h1>
+      <p>Here's what's happening with your hatchery today.</p>
+      <div class="dash-values"><span>✦ Quality</span><span>✦ Innovation</span><span>✦ Partnership</span></div>
+    </div>
+    <div class="dash-welcome-art" aria-label="Poultry hatchery illustration"><span class="egg-art">🥚</span><span class="chick-art">🐥</span><span class="chick-art chick-two">🐤</span></div>
   </div>
-  <div class="panel"><div class="panel-head"><div><h2>Product catalogue</h2><p>Products and publication status are controlled here.</p></div><div class="toolbar"><label class="search"><input id="overviewSearch" type="search" placeholder="Search products…" aria-label="Search products"></label><button class="btn" data-goto="products">View catalogue →</button></div></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>Price</th><th>Stock</th><th>Publication</th><th>Action</th></tr></thead><tbody id="overviewRows"></tbody></table></div></div>
-  <div class="lower"><div class="panel"><div class="panel-head"><div><h2>Recent customer orders</h2><p>Demo orders for review</p></div><button class="link-btn" data-goto="orders">View all →</button></div><div class="table-wrap"><table style="min-width:520px"><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody id="recentOrders"></tbody></table></div></div>
-  <div class="panel"><div class="panel-head"><div><h2>Quick actions</h2><p>Common catalogue tasks</p></div></div><div style="padding:16px;display:grid;gap:9px"><button class="btn" data-goto="products" style="justify-content:flex-start">▣　Manage products and publishing</button><button class="btn" data-goto="prices" style="justify-content:flex-start">₦　Review product prices</button><button class="btn" data-goto="stock" style="justify-content:flex-start">◫　Update stock availability</button><button class="btn" data-goto="orders" style="justify-content:flex-start">▤　Review customer orders</button></div></div></div>
+
+  <div class="dash-kpis">
+    <article class="dash-kpi"><span class="kpi-icon">🥚</span><div><small>Total Eggs / Cycle</small><strong>50,000</strong><em>Per cycle</em></div></article>
+    <article class="dash-kpi"><span class="kpi-icon">🐥</span><div><small>Total Chicks / Cycle</small><strong>43,400</strong><em>Per cycle</em></div></article>
+    <article class="dash-kpi"><span class="kpi-icon">⟳</span><div><small>Cycles / Year</small><strong>17</strong><em>Per year</em></div></article>
+    <article class="dash-kpi"><span class="kpi-icon">₦</span><div><small>Revenue / Cycle</small><strong>₦112.84M</strong><em>Business plan projection</em></div></article>
+    <article class="dash-kpi"><span class="kpi-icon">↗</span><div><small>Gross Profit / Cycle</small><strong>₦76.38M</strong><em>Business plan projection</em></div></article>
+    <article class="dash-kpi"><span class="kpi-icon">%</span><div><small>Gross Margin</small><strong>67.7%</strong><em>Projected margin</em></div></article>
+  </div>
+
+  <div class="dash-main-grid">
+    <article class="dash-panel dash-chart-panel">
+      <div class="dash-panel-head"><div><h2>Revenue & Profit Overview</h2><p>Projected performance per production cycle</p></div><div class="chart-legend"><span><i></i> Revenue</span><span><i></i> Gross profit</span></div></div>
+      <div class="cycle-chart" role="img" aria-label="Revenue per cycle 112.84 million naira; gross profit per cycle 76.38 million naira">
+        <div class="chart-y-labels"><span>₦120M</span><span>₦90M</span><span>₦60M</span><span>₦30M</span><span>₦0</span></div>
+        <div class="chart-bars"><div class="chart-gridlines"><i></i><i></i><i></i><i></i><i></i></div><div class="bar-pair"><div class="bar revenue-bar" style="height:94%"></div><div class="bar profit-bar" style="height:64%"></div><small>Per cycle</small></div></div>
+      </div>
+      <div class="chart-values"><span><b>₦112,840,000</b> Revenue</span><span><b>₦76,380,000</b> Gross profit</span></div>
+    </article>
+    <article class="dash-panel dash-annual-panel">
+      <div class="dash-panel-head"><div><h2>Annual Summary</h2><p>Business plan projections</p></div></div>
+      <div class="annual-list">
+        <div><span class="annual-icon">▤</span><p><small>Total Annual Revenue</small><b>₦1,918,280,000</b></p></div>
+        <div><span class="annual-icon">↗</span><p><small>Total Annual Gross Profit</small><b>₦1,298,460,000</b></p></div>
+        <div><span class="annual-icon">🐥</span><p><small>Annual Production</small><b>737,800 chicks</b></p></div>
+        <div><span class="annual-icon">◆</span><p><small>Average Selling Price</small><b>₦2,600 / chick</b></p></div>
+      </div>
+    </article>
+    <article class="dash-panel dash-funding-panel">
+      <div class="dash-panel-head"><div><h2>Funding Requirement</h2><p>Proposed start-up capital structure</p></div></div>
+      <div class="funding-top"><div class="funding-donut"><div><b>₦46.8M</b><small>Total start-up</small></div></div><div class="funding-legend"><p><i class="equity-dot"></i><span>Equity (30%)<b>₦14,040,000</b></span></p><p><i class="loan-dot"></i><span>Bank Loan (70%)<b>₦32,760,000</b></span></p></div></div>
+      <h3 class="funding-subtitle">Use of Funds</h3>
+      <div class="funds-list"><div><span>Capacity Expansion</span><b>35%</b><i><u style="width:35%"></u></i></div><div><span>Technology & Automation</span><b>25%</b><i><u style="width:25%"></u></i></div><div><span>Working Capital</span><b>20%</b><i><u style="width:20%"></u></i></div><div><span>Marketing & Distribution</span><b>10%</b><i><u style="width:10%"></u></i></div><div><span>R&D</span><b>10%</b><i><u style="width:10%"></u></i></div></div>
+    </article>
+  </div>
+
+  <div class="dash-bottom-grid">
+    <article class="dash-panel dash-orders-panel"><div class="dash-panel-head"><div><h2>Recent Orders</h2><p>Latest customer order activity</p></div><button class="link-btn" data-goto="orders">View all →</button></div><div class="table-wrap"><table style="min-width:520px"><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody id="recentOrders"></tbody></table></div></article>
+    <article class="dash-panel dash-actions-panel"><div class="dash-panel-head"><div><h2>Quick Actions</h2><p>Common management tasks</p></div></div><div class="dash-actions"><button data-goto="products"><span>＋</span>Add Product</button><button data-goto="prices"><span>₦</span>Manage Prices</button><button data-goto="orders"><span>▤</span>View Orders</button><button data-goto="stock"><span>◫</span>Check Stock</button><button data-goto="services"><span>✳</span>Hatchery Services</button><button data-goto="guide"><span>▥</span>Dashboard Guide</button></div></article>
+  </div>
+  <article class="dash-panel dash-catalogue-panel"><div class="dash-panel-head"><div><h2>Product Catalogue</h2><p>Product publication and stock control</p></div><div class="toolbar"><label class="search"><input id="overviewSearch" type="search" placeholder="Search products…" aria-label="Search products"></label><button class="btn" data-goto="products">View catalogue →</button></div></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>Price</th><th>Stock</th><th>Publication</th><th>Action</th></tr></thead><tbody id="overviewRows"></tbody></table></div></article>
+  <div class="dash-footnote">Financial and production figures shown above are business-plan projections, not live sales or production readings.</div>
 </section>
 <section class="view" id="view-products">
   <div class="page-head"><div><div class="eyebrow">Catalogue control</div><h1>Product management</h1><p>Edit products and decide which items are published to customers.</p></div><button class="btn primary" id="addProduct"><span>＋</span> Add product</button></div>
