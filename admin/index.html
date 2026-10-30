@@ -501,7 +501,7 @@ label,.field label,.auth-card label{font-size:16px!important}
 /* Replace decorative poultry/egg emoji with photographic hatchery imagery */
 .dash-welcome-art{overflow:hidden;gap:12px;padding:14px;background:linear-gradient(135deg,#dce8d4,#315d40)}
 .welcome-photo{position:relative;z-index:1;display:block;height:100%;object-fit:cover;border:4px solid #ffffffa8;box-shadow:0 8px 20px #102f1f55}
-.welcome-eggs{width:39%;border-radius:18px 48px 18px 48px;transform:rotate(-5deg)}
+.welcome-chicks-photo{width:39%;border-radius:18px 48px 18px 48px;transform:rotate(-5deg)}
 .welcome-chicks{width:61%;border-radius:48px 18px 48px 18px;transform:rotate(3deg)}
 .kpi-icon.photo-kpi{overflow:hidden;padding:0;background:#fff;border:2px solid #d6ae4e}
 .kpi-icon.photo-kpi img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
@@ -549,12 +549,12 @@ label,.field label,.auth-card label{font-size:16px!important}
       <p>Here's what's happening with your hatchery today.</p>
       <div class="dash-values"><span>✦ Quality</span><span>✦ Innovation</span><span>✦ Partnership</span></div>
     </div>
-    <div class="dash-welcome-art" aria-label="Real photographs of hatching eggs and day-old chicks"><img class="welcome-photo welcome-eggs" src="https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?auto=format&fit=crop&w=420&h=300&q=85" alt="Fresh hatching eggs"><img class="welcome-photo welcome-chicks" src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=520&h=360&q=85" alt="Healthy day-old chicks"></div>
+    <div class="dash-welcome-art" aria-label="Real photographs of day-old chicks and day-old chicks"><img class="welcome-photo welcome-chicks-photo" src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=520&h=360&q=85" alt="Day-old chicks"><img class="welcome-photo welcome-chicks" src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=520&h=360&q=85" alt="Healthy day-old chicks"></div>
   </div>
 
   <div hidden aria-hidden="true"><span id="statProducts"></span><span id="statPublished"></span><span id="statLow"></span><span id="statOrders"></span></div>
   <div class="dash-kpis">
-    <article class="dash-kpi"><span class="kpi-icon photo-kpi"><img src="https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?auto=format&fit=crop&w=120&h=120&q=85" alt="Hatching eggs"></span><div><small>Total Eggs / Cycle</small><strong>50,000</strong><em>Per cycle</em></div></article>
+    <article class="dash-kpi"><span class="kpi-icon photo-kpi"><img src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=520&h=360&q=85" alt="Day-old chicks"></span><div><small>Total Eggs / Cycle</small><strong>50,000</strong><em>Per cycle</em></div></article>
     <article class="dash-kpi"><span class="kpi-icon photo-kpi"><img src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=120&h=120&q=85" alt="Day-old chicks"></span><div><small>Total Chicks / Cycle</small><strong>43,400</strong><em>Per cycle</em></div></article>
     <article class="dash-kpi"><span class="kpi-icon">⟳</span><div><small>Cycles / Year</small><strong>17</strong><em>Per year</em></div></article>
     <article class="dash-kpi"><span class="kpi-icon">₦</span><div><small>Revenue / Cycle</small><strong>₦112.84M</strong><em>Business plan projection</em></div></article>
@@ -619,7 +619,7 @@ label,.field label,.auth-card label{font-size:16px!important}
   <div class="page-head"><div><div class="eyebrow">Service catalogue</div><h1>Hatchery services</h1><p>Core service categories planned for the Mizpah catalogue.</p></div></div>
   <p class="section-intro">These are informational examples. Live service prices and bookings are not connected in this prototype.</p>
   <div class="service-grid">
-  <article class="service-card"><div class="stat-icon service-photo"><img src="https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?auto=format&fit=crop&w=180&h=180&q=85" alt="Hatching eggs"></div><h3>Custom Egg Incubation</h3><p>Incubation arranged around egg quantity and agreed hatchery schedule.</p></article>
+  <article class="service-card"><div class="stat-icon service-photo"><img src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=520&h=360&q=85" alt="Day-old chicks"></div><h3>Custom Egg Incubation</h3><p>Incubation arranged around egg quantity and agreed hatchery schedule.</p></article>
   <article class="service-card"><div class="stat-icon">🔎</div><h3>Egg Candling & Fertility Assessment</h3><p>Egg assessment during the incubation process.</p></article>
   <article class="service-card"><div class="stat-icon">💉</div><h3>Day-Old Chick Vaccination</h3><p>Vaccination support for day-old chicks.</p></article>
   <article class="service-card"><div class="stat-icon">🧼</div><h3>Hatchery Sanitation</h3><p>Egg disinfection and hatchery hygiene support.</p></article>
@@ -651,7 +651,7 @@ const initialOrders=[
 {id:'DEMO-2047',customer:'Samuel Okon',email:'samuel@example.test',items:'100 Layer chicks',date:'27 Oct 2026',total:145000,status:'Pending review'},
 {id:'DEMO-2046',customer:'Ada James',email:'ada@example.test',items:'1 Egg incubator',date:'26 Oct 2026',total:485000,status:'Pending review'},
 {id:'DEMO-2045',customer:'Peter Udo',email:'peter@example.test',items:'150 Cockerel chicks',date:'25 Oct 2026',total:142500,status:'Processing'},
-{id:'DEMO-2044',customer:'Mary Essien',email:'mary@example.test',items:'300 Hatching eggs',date:'24 Oct 2026',total:135000,status:'Completed'}
+{id:'DEMO-2044',customer:'Mary Essien',email:'mary@example.test',items:'300 Day-old chicks',date:'24 Oct 2026',total:135000,status:'Completed'}
 ];
 const load=(key,fallback)=>{try{const x=localStorage.getItem(key);return x?JSON.parse(x):fallback}catch(e){return fallback}};
 let products=[];
@@ -718,7 +718,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const money=n=>'₦'+Number(n||0).toLocaleString('en-NG');
 const stockStatus=p=>p.stock<=0?['Out of stock','out']:p.stock<=p.threshold?['Low stock','low']:['In stock','published'];
 const pill=(label,cls)=>'<span class="pill '+cls+'">'+esc(label)+'</span>';
-const productPhoto=p=>p.image_url||(/egg/i.test(p.category+' '+p.name)?'https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?auto=format&fit=crop&w=120&h=120&q=85':(/chick|poultry/i.test(p.category+' '+p.name)?'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=120&h=120&q=85':'https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=120&h=120&q=85'));
+const productPhoto=p=>p.image_url||(/egg/i.test(p.category+' '+p.name)?'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=520&h=360&q=85':(/chick|poultry/i.test(p.category+' '+p.name)?'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=120&h=120&q=85':'https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=120&h=120&q=85'));
 const productCell=p=>'<div class="product"><img class="product-img" src="'+esc(productPhoto(p))+'" alt="'+esc(p.name)+'" loading="lazy"><div><b>'+esc(p.name)+'</b><small>'+esc(p.category)+'</small></div></div>';
 const noRows=(cols,msg)=>'<tr><td colspan="'+cols+'" class="empty">'+msg+'</td></tr>';
 function save(){/* Live Supabase writes are handled by authenticated data actions; never persist admin data in browser demo storage. */}
