@@ -1,6 +1,7 @@
--- Mizpah Smart Hatchery website Phase 2
--- Additive migration: creates website-specific tables and does not alter Flutter tables.
--- Apply in Supabase SQL Editor only after reviewing the existing project and backup policy.
+-- Mizpah Smart Hatchery website Phase 2 — safer additive migration
+-- Creates only Mizpah website-prefixed objects. Does not alter Flutter tables.
+-- No DROP statements. Existing policies/triggers with these exact names are preserved.
+-- Review the project backup before applying this migration.
 
 create extension if not exists pgcrypto;
 
@@ -58,12 +59,10 @@ create index if not exists mizpah_web_orders_created_idx
 create index if not exists mizpah_web_orders_status_idx
   on public.mizpah_web_orders (status);
 
-create or replace function public.mizpah_web_is_staff()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
+-- Names are deliberately website-specific to avoid replacing app functions.
+create or replace function public.mizpah_web_phase2_is_staff()
+returns boolean language sql stable security definer
+set search_path = pg_catalog, public
 as $$
   select exists (
     select 1 from public.mizpah_web_staff s
@@ -71,12 +70,9 @@ as $$
   );
 $$;
 
-create or replace function public.mizpah_web_is_manager()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
+create or replace function public.mizpah_web_phase2_is_manager()
+returns boolean language sql stable security definer
+set search_path = pg_catalog, public
 as $$
   select exists (
     select 1 from public.mizpah_web_staff s
@@ -86,74 +82,109 @@ as $$
   );
 $$;
 
-create or replace function public.mizpah_web_touch_updated_at()
-returns trigger language plpgsql as $$
+create or replace function public.mizpah_web_phase2_touch_updated_at()
+returns trigger language plpgsql
+set search_path = pg_catalog, public
+as $$
 begin
   new.updated_at = now();
   return new;
 end;
 $$;
 
-drop trigger if exists mizpah_web_products_touch on public.mizpah_web_products;
-create trigger mizpah_web_products_touch before update on public.mizpah_web_products
-for each row execute function public.mizpah_web_touch_updated_at();
+-- Create triggers only when absent; do not drop or replace existing triggers.
+do $$
+begin
+  if not exists (
+    select 1 from pg_trigger
+    where tgname = 'mizpah_web_products_touch'
+      and tgrelid = 'public.mizpah_web_products'::regclass
+      and not tgisinternal
+  ) then
+    create trigger mizpah_web_products_touch
+      before update on public.mizpah_web_products
+      for each row execute function public.mizpah_web_phase2_touch_updated_at();
+  end if;
 
-drop trigger if exists mizpah_web_orders_touch on public.mizpah_web_orders;
-create trigger mizpah_web_orders_touch before update on public.mizpah_web_orders
-for each row execute function public.mizpah_web_touch_updated_at();
+  if not exists (
+    select 1 from pg_trigger
+    where tgname = 'mizpah_web_orders_touch'
+      and tgrelid = 'public.mizpah_web_orders'::regclass
+      and not tgisinternal
+  ) then
+    create trigger mizpah_web_orders_touch
+      before update on public.mizpah_web_orders
+      for each row execute function public.mizpah_web_phase2_touch_updated_at();
+  end if;
+end $$;
 
 alter table public.mizpah_web_staff enable row level security;
 alter table public.mizpah_web_products enable row level security;
 alter table public.mizpah_web_orders enable row level security;
 
+-- Grants are restricted to the three Mizpah website tables only.
 revoke all on public.mizpah_web_staff from anon, authenticated;
 revoke all on public.mizpah_web_products from anon, authenticated;
 revoke all on public.mizpah_web_orders from anon, authenticated;
 
+grant select on public.mizpah_web_staff to authenticated;
 grant select on public.mizpah_web_products to anon, authenticated;
 grant insert on public.mizpah_web_orders to anon, authenticated;
 grant select, insert, update, delete on public.mizpah_web_products to authenticated;
 grant select, update on public.mizpah_web_orders to authenticated;
 
-drop policy if exists "Public can view published Mizpah products" on public.mizpah_web_products;
-create policy "Public can view published Mizpah products"
-on public.mizpah_web_products for select to anon, authenticated
-using (published = true or public.mizpah_web_is_staff());
+-- Create policies only when absent. No existing policy is dropped.
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='mizpah_web_products' and policyname='mizpah_web_public_published_select') then
+    create policy mizpah_web_public_published_select
+      on public.mizpah_web_products for select to anon, authenticated
+      using (published = true or public.mizpah_web_phase2_is_staff());
+  end if;
 
-drop policy if exists "Staff manage Mizpah products" on public.mizpah_web_products;
-create policy "Staff manage Mizpah products"
-on public.mizpah_web_products for all to authenticated
-using (public.mizpah_web_is_manager())
-with check (public.mizpah_web_is_manager());
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='mizpah_web_products' and policyname='mizpah_web_manager_product_control') then
+    create policy mizpah_web_manager_product_control
+      on public.mizpah_web_products for all to authenticated
+      using (public.mizpah_web_phase2_is_manager())
+      with check (public.mizpah_web_phase2_is_manager());
+  end if;
 
-drop policy if exists "Customers can submit Mizpah orders" on public.mizpah_web_orders;
-create policy "Customers can submit Mizpah orders"
-on public.mizpah_web_orders for insert to anon, authenticated
-with check (
-  length(trim(customer_name)) between 2 and 120
-  and length(trim(customer_email)) between 5 and 254
-  and length(trim(customer_phone)) between 5 and 40
-  and jsonb_array_length(items) between 1 and 30
-  and status = 'Pending review'
-  and quoted_total_ngn is null
-  and staff_notes is null
-);
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='mizpah_web_orders' and policyname='mizpah_web_customer_order_insert') then
+    create policy mizpah_web_customer_order_insert
+      on public.mizpah_web_orders for insert to anon, authenticated
+      with check (
+        length(trim(customer_name)) between 2 and 120
+        and length(trim(customer_email)) between 5 and 254
+        and length(trim(customer_phone)) between 5 and 40
+        and jsonb_array_length(items) between 1 and 30
+        and status = 'Pending review'
+        and quoted_total_ngn is null
+        and staff_notes is null
+      );
+  end if;
 
-drop policy if exists "Staff can view Mizpah orders" on public.mizpah_web_orders;
-create policy "Staff can view Mizpah orders"
-on public.mizpah_web_orders for select to authenticated
-using (public.mizpah_web_is_staff());
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='mizpah_web_orders' and policyname='mizpah_web_staff_order_read') then
+    create policy mizpah_web_staff_order_read
+      on public.mizpah_web_orders for select to authenticated
+      using (public.mizpah_web_phase2_is_staff());
+  end if;
 
-drop policy if exists "Managers can update Mizpah orders" on public.mizpah_web_orders;
-create policy "Managers can update Mizpah orders"
-on public.mizpah_web_orders for update to authenticated
-using (public.mizpah_web_is_manager())
-with check (public.mizpah_web_is_manager());
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='mizpah_web_orders' and policyname='mizpah_web_manager_order_update') then
+    create policy mizpah_web_manager_order_update
+      on public.mizpah_web_orders for update to authenticated
+      using (public.mizpah_web_phase2_is_manager())
+      with check (public.mizpah_web_phase2_is_manager());
+  end if;
 
-drop policy if exists "Users can view own staff membership" on public.mizpah_web_staff;
-create policy "Users can view own staff membership"
-on public.mizpah_web_staff for select to authenticated
-using (user_id = auth.uid());
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='mizpah_web_staff' and policyname='mizpah_web_staff_self_read') then
+    create policy mizpah_web_staff_self_read
+      on public.mizpah_web_staff for select to authenticated
+      using (user_id = auth.uid());
+  end if;
+end $$;
 
--- Staff membership must be granted by an existing project owner via SQL/editor,
--- never by public sign-up or by the browser client.
+-- IMPORTANT:
+-- 1) Add a staff row manually only after confirming the intended Auth user UUID.
+-- 2) Never expose a service_role/secret key in website JavaScript.
+-- 3) Public order inserts are rate-limit sensitive; add server-side abuse protection
+--    before enabling broad production traffic.
