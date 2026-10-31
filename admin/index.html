@@ -547,7 +547,7 @@ label,.field label,.auth-card label{font-size:16px!important}
 <input id="adminEmail" name="email" type="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="name@mizpahtechnology.com.ng" required>
 <label for="adminPassword">Password</label>
 <input id="adminPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
-<button class="btn primary" id="adminLoginButton" type="button" onclick="window.mizpahAdminLogin && window.mizpahAdminLogin()">Sign in securely</button>
+<button class="btn primary" id="adminLoginButton" type="button" >Sign in securely</button>
 <div class="auth-error" id="adminAuthError" role="alert" aria-live="assertive"></div>
 <div class="auth-foot">Protected administrator access · Mizpah Technology</div>
 </form>
@@ -664,6 +664,78 @@ label,.field label,.auth-card label{font-size:16px!important}
 <div class="modal-backdrop" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><h2 id="modalTitle">Add product</h2><p>Enter catalogue details. Changes are saved to the live Mizpah catalogue.</p><form id="productForm"><div class="form-grid"><div class="field full"><label for="fName">Product name</label><input id="fName" name="name" required maxlength="100" placeholder="e.g. Broiler Day-Old Chicks"></div><div class="field"><label for="fCategory">Category</label><select id="fCategory" name="category"><option>Day-old chicks</option><option>Eggs</option><option>Equipment</option><option>Feed & supplies</option><option>Services</option></select></div><div class="field"><label for="fPrice">Price (₦)</label><input id="fPrice" name="price" type="number" min="0" step="1" required></div><div class="field"><label for="fStock">Stock quantity</label><input id="fStock" name="stock" type="number" min="0" step="1" required></div><div class="field"><label for="fThreshold">Low-stock threshold</label><input id="fThreshold" name="threshold" type="number" min="0" step="1" value="20" required></div><div class="field"><label for="fSku">SKU (optional)</label><input id="fSku" name="sku" maxlength="80" placeholder="Product code"></div><div class="field full"><label for="fDescription">Product description</label><textarea id="fDescription" name="description" rows="3" maxlength="2000" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit" placeholder="Describe this product or service"></textarea></div><div class="field full"><label for="fImageUrl">Product image URL (https://)</label><input id="fImageUrl" name="image_url" type="url" placeholder="https://…"></div><div class="field full"><label for="fPublished">Publication status</label><select id="fPublished" name="published"><option value="true">Published</option><option value="false">Unpublished / draft</option></select></div></div><div class="modal-actions"><button type="button" class="btn" id="cancelModal">Cancel</button><button type="submit" class="btn primary">Save product</button></div></form></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+/* Independent login bootstrap: runs before dashboard code so dashboard errors cannot disable sign-in. */
+(function () {
+  'use strict';
+  var busy = false;
+  var URL = 'https://ouebgmhtyekqnyrkfrcp.supabase.co';
+  var KEY = 'sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk';
+  function message(value) {
+    var el = document.getElementById('adminAuthError');
+    if (el) el.textContent = value || '';
+  }
+  function buttonState(button, text, disabled) {
+    if (!button) return;
+    button.textContent = text;
+    button.disabled = !!disabled;
+  }
+  async function login(event) {
+    if (event) { event.preventDefault(); event.stopImmediatePropagation(); }
+    if (busy) return;
+    var emailEl = document.getElementById('adminEmail');
+    var passwordEl = document.getElementById('adminPassword');
+    var button = document.getElementById('adminLoginButton');
+    if (!emailEl || !passwordEl || !button) {
+      message('Login form could not initialise. Refresh this page.');
+      return;
+    }
+    var email = (emailEl.value || '').trim();
+    var password = passwordEl.value || '';
+    message('');
+    if (!email || !password) { message('Enter both your email address and password.'); return; }
+    if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+      message('Secure login service did not load. Check your connection and refresh.');
+      return;
+    }
+    busy = true;
+    buttonState(button, 'Connecting securely…', true);
+    try {
+      var client = window.supabase.createClient(URL, KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      var result = await client.auth.signInWithPassword({ email: email, password: password });
+      if (result.error) throw result.error;
+      if (!result.data || !result.data.user || !result.data.session) {
+        throw new Error('Supabase did not return an active session.');
+      }
+      buttonState(button, 'Verifying administrator access…', true);
+      var staffResult = await client.from('mizpah_web_staff')
+        .select('role,active').eq('user_id', result.data.user.id).maybeSingle();
+      if (staffResult.error) throw staffResult.error;
+      if (!staffResult.data || staffResult.data.active !== true) {
+        await client.auth.signOut();
+        throw new Error('This account is not authorised for Mizpah website administration.');
+      }
+      buttonState(button, 'Opening dashboard…', true);
+      window.location.reload();
+    } catch (error) {
+      console.error('Mizpah login failed:', error);
+      message(error && error.message ? error.message : 'Sign-in failed. Please try again.');
+      passwordEl.value = '';
+      passwordEl.focus();
+      busy = false;
+      buttonState(button, 'Sign in securely', false);
+    }
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    var button = document.getElementById('adminLoginButton');
+    var form = document.getElementById('adminLoginForm');
+    if (button) button.addEventListener('click', login, true);
+    if (form) form.addEventListener('submit', login, true);
+  });
+})();
+</script>
 
 <script>
 
