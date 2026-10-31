@@ -674,7 +674,10 @@ let selected=new Set(), editingId=null;
 const $=id=>document.getElementById(id);
 const SUPABASE_URL='https://ouebgmhtyekqnyrkfrcp.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk';
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let supabaseClient=null;
+try{
+ if(window.supabase&&typeof window.supabase.createClient==='function')supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+}catch(initError){console.error('Mizpah authentication client initialisation failed:',initError)}
 let currentStaff=null;
 function lockAdmin(){document.body.classList.add('auth-locked');$('authShield').style.display='grid'}
 async function signOutAdmin(){const button=$('adminSignOut');if(button){button.disabled=true;button.textContent='Signing out…'}try{const {error}=await supabaseClient.auth.signOut();if(error)throw error;currentStaff=null;lockAdmin();$('adminPassword').value='';$('adminEmail').focus()}catch(error){toast('Unable to sign out: '+error.message)}finally{if(button){button.disabled=false;button.innerHTML='<span aria-hidden="true">↪</span> Sign out'}}}
@@ -682,6 +685,7 @@ $('adminSignOut')?.addEventListener('click',signOutAdmin);
 function unlockAdmin(){document.body.classList.remove('auth-locked');$('authShield').style.display='none';$('demoMode')?.remove()}
 async function establishStaff(session){
  if(!session){lockAdmin();return}
+ if(!supabaseClient)throw new Error('The secure login service is unavailable. Check your internet connection, refresh the page and try again.');
  const {data:staff,error}=await supabaseClient.from('mizpah_web_staff').select('role,active').eq('user_id',session.user.id).maybeSingle();
  if(error||!staff||!staff.active){await supabaseClient.auth.signOut();lockAdmin();$('adminAuthError').textContent='This account is not authorised for Mizpah website administration.';return}
  currentStaff=staff;unlockAdmin();
@@ -727,7 +731,7 @@ async function loadLiveRecords(){
   if(error)console.warn('Could not restore admin session:',error.message);
   if(session)await establishStaff(session);
  }catch(error){console.error('Admin session initialisation failed:',error)}
- supabaseClient.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){currentStaff=null;lockAdmin()}});
+ if(supabaseClient)supabaseClient.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){currentStaff=null;lockAdmin()}});
 })();
 
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
