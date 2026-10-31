@@ -650,6 +650,46 @@ label,.field label,.auth-card label{font-size:16px!important}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
+/* Standalone login guard: prevents browser form navigation even if dashboard code fails. */
+(function(){
+ 'use strict';
+ function attach(){
+  var form=document.getElementById('adminLoginForm');
+  if(!form){setTimeout(attach,50);return;}
+  if(form.dataset.mizpahLoginBound==='1')return;
+  form.dataset.mizpahLoginBound='1';
+  form.onsubmit=async function(event){
+   event.preventDefault();
+   event.stopPropagation();
+   var email=document.getElementById('adminEmail');
+   var password=document.getElementById('adminPassword');
+   var error=document.getElementById('adminAuthError');
+   var button=document.getElementById('adminLoginButton');
+   if(error)error.textContent='';
+   if(button){button.disabled=true;button.textContent='Signing in…';}
+   try{
+    if(!window.supabase||!window.supabase.createClient)throw new Error('Supabase login library did not load. Refresh the page and try again.');
+    var client=window.supabase.createClient('https://ouebgmhtyekqnyrkfrcp.supabase.co','sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk');
+    var result=await client.auth.signInWithPassword({email:(email.value||'').trim(),password:password.value||''});
+    if(result.error)throw result.error;
+    if(!result.data||!result.data.session)throw new Error('Supabase did not return a login session.');
+    var access=await client.from('mizpah_web_staff').select('role,active').eq('user_id',result.data.session.user.id).maybeSingle();
+    if(access.error)throw new Error('Login succeeded but staff access check failed: '+access.error.message);
+    if(!access.data||!access.data.active)throw new Error('Login succeeded, but this account is not active in the staff access table.');
+    if(error)error.textContent='Login verified. Opening administrator dashboard…';
+    window.location.href=window.location.pathname+'?login='+Date.now();
+   }catch(e){
+    console.error('Mizpah standalone login:',e);
+    if(error)error.textContent=e&&e.message?e.message:'Login failed. Check the email and password.';
+    if(button){button.disabled=false;button.textContent='Sign in securely';}
+   }
+   return false;
+  };
+ }
+ attach();
+})();
+</script>
+<script>
 
 </script>
 <script>
