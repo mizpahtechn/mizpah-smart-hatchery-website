@@ -547,7 +547,7 @@ label,.field label,.auth-card label{font-size:16px!important}
 <input id="adminEmail" name="email" type="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="name@mizpahtechnology.com.ng" required>
 <label for="adminPassword">Password</label>
 <input id="adminPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
-<button class="btn primary" id="adminLoginButton" type="submit">Sign in securely</button>
+<button class="btn primary" id="adminLoginButton" type="button">Sign in securely</button>
 <div class="auth-error" id="adminAuthError" role="alert" aria-live="assertive"></div>
 <div class="auth-foot">Protected administrator access · Mizpah Technology</div>
 </form>
@@ -832,10 +832,7 @@ const loginButton = $('adminLoginButton');
 const authError = $('adminAuthError');
 let loginInProgress = false;
 function showAuthError(message) { if (authError) authError.textContent = message || ''; }
-if (loginForm) {
- loginForm.addEventListener('submit', async event => {
-  event.preventDefault();
-  event.stopImmediatePropagation();
+async function performAdminLogin() {
   if (loginInProgress) return;
   const email = ($('adminEmail').value || '').trim();
   const password = $('adminPassword').value || '';
@@ -869,8 +866,9 @@ if (loginForm) {
    loginButton.disabled = false;
    loginButton.textContent = 'Sign in securely';
   }
- });
-} else { console.error('Administrator sign-in form is missing.'); }
+}
+if (loginButton) loginButton.addEventListener('click', performAdminLogin);
+if (loginForm) loginForm.addEventListener('submit', event => { event.preventDefault(); performAdminLogin(); });
 (async function restoreAdminSession() {
  if (!supabaseClient) return;
  try {
