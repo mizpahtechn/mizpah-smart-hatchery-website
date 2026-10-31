@@ -650,40 +650,7 @@ label,.field label,.auth-card label{font-size:16px!important}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-/* Independent login bootstrap: runs before the dashboard bundle and owns form submission. */
-(function(){
- 'use strict';
- const form=document.getElementById('adminLoginForm');
- if(!form)return;
- form.addEventListener('submit',async function(event){
-  event.preventDefault();
-  event.stopImmediatePropagation();
-  const emailInput=document.getElementById('adminEmail');
-  const passwordInput=document.getElementById('adminPassword');
-  const errorBox=document.getElementById('adminAuthError');
-  const button=document.getElementById('adminLoginButton');
-  if(errorBox)errorBox.textContent='';
-  if(button){button.disabled=true;button.textContent='Signing in…';}
-  try{
-   if(!window.supabase||typeof window.supabase.createClient!=='function')throw new Error('Secure login service did not load. Check your internet connection and refresh.');
-   const client=window.supabase.createClient('https://ouebgmhtyekqnyrkfrcp.supabase.co','sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk');
-   const email=(emailInput.value||'').trim();
-   const password=passwordInput.value||'';
-   if(!email||!password)throw new Error('Enter both your email address and password.');
-   const result=await client.auth.signInWithPassword({email,password});
-   if(result.error)throw result.error;
-   if(!result.data||!result.data.session)throw new Error('Sign-in did not create an active session.');
-   const access=await client.from('mizpah_web_staff').select('role,active').eq('user_id',result.data.session.user.id).maybeSingle();
-   if(access.error)throw new Error('Signed in, but staff access could not be checked: '+access.error.message);
-   if(!access.data||!access.data.active)throw new Error('This account is not authorised for Mizpah website administration.');
-   window.location.reload();
-  }catch(error){
-   console.error('Mizpah admin login:',error);
-   if(errorBox)errorBox.textContent=error&&error.message?error.message:'Sign-in failed. Please try again.';
-   if(button){button.disabled=false;button.textContent='Sign in securely';}
-  }
- },true);
-})();
+
 </script>
 <script>
 (function(){
