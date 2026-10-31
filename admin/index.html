@@ -528,14 +528,55 @@ label,.field label,.auth-card label{font-size:16px!important}
 </head>
 <body class="auth-locked">
 <div class="auth-shield" id="authShield">
- <form class="auth-card" id="adminLoginForm">
-  <div class="brand" style="padding:0 0 18px"><img class="brand-logo" src="../assets/images/logo%202.png" alt="Mizpah Technology logo"><div><strong>MIZPAH TECHNOLOGY</strong><small style="display:block;color:var(--muted)">Secure administrator access</small></div></div>
-  <h1>Administrator sign in</h1><p>Sign in with an authorised Mizpah staff account.</p>
-  <label for="adminEmail">Email address</label><input id="adminEmail" type="email" autocomplete="username" required>
-  <label for="adminPassword">Password</label><input id="adminPassword" type="password" autocomplete="current-password" required>
-  <button class="btn primary" id="adminLoginButton" type="submit">Sign in securely</button>
-  <div class="auth-error" id="adminAuthError" role="alert"></div>
- </form>
+  <form class="auth-card" id="adminLoginForm" novalidate>
+    <div class="brand" style="padding: 0 0 18px;">
+      <img
+        class="brand-logo"
+        src="../assets/images/logo%202.png"
+        alt="Mizpah Technology logo"
+      >
+      <div>
+        <strong>MIZPAH TECHNOLOGY</strong>
+        <small style="display: block; color: var(--muted);">
+          Secure administrator access
+        </small>
+      </div>
+    </div>
+
+    <h1>Administrator sign in</h1>
+    <p>Sign in with an authorised Mizpah staff account.</p>
+
+    <label for="adminEmail">Email address</label>
+    <input
+      id="adminEmail"
+      name="email"
+      type="email"
+      autocomplete="username"
+      required
+    >
+
+    <label for="adminPassword">Password</label>
+    <input
+      id="adminPassword"
+      name="password"
+      type="password"
+      autocomplete="current-password"
+      required
+    >
+
+    <button
+      class="btn primary"
+      id="adminLoginButton"
+      type="submit"
+    >Sign in securely</button>
+
+    <div
+      class="auth-error"
+      id="adminAuthError"
+      role="alert"
+      aria-live="polite"
+    ></div>
+  </form>
 </div>
 
 <div class="app">
@@ -682,71 +723,232 @@ let supabaseClient=null;
 try{
  if(window.supabase&&typeof window.supabase.createClient==='function')supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 }catch(initError){console.error('Mizpah authentication client initialisation failed:',initError)}
-let currentStaff=null;
-function lockAdmin(){document.body.classList.add('auth-locked');$('authShield').style.display='grid'}
-async function signOutAdmin(){const button=$('adminSignOut');if(button){button.disabled=true;button.textContent='Signing out…'}try{const {error}=await supabaseClient.auth.signOut();if(error)throw error;currentStaff=null;lockAdmin();$('adminPassword').value='';$('adminEmail').focus()}catch(error){toast('Unable to sign out: '+error.message)}finally{if(button){button.disabled=false;button.innerHTML='<span aria-hidden="true">↪</span> Sign out'}}}
-$('adminSignOut')?.addEventListener('click',signOutAdmin);
-function unlockAdmin(){document.body.classList.remove('auth-locked');$('authShield').style.display='none';$('demoMode')?.remove()}
-async function establishStaff(session){
- if(!session){lockAdmin();return}
- if(!supabaseClient)throw new Error('The secure login service is unavailable. Check your internet connection, refresh the page and try again.');
- const {data:staff,error}=await supabaseClient.from('mizpah_web_staff').select('role,active').eq('user_id',session.user.id).maybeSingle();
- if(error||!staff||!staff.active){await supabaseClient.auth.signOut();lockAdmin();$('adminAuthError').textContent='This account is not authorised for Mizpah website administration.';return}
- currentStaff=staff;unlockAdmin();
- await loadLiveRecords();
-}
-async function loadLiveRecords(){
- const [pr,or]=await Promise.all([
-  supabaseClient.from('mizpah_web_products').select('*').order('sort_order').order('name'),
-  supabaseClient.from('mizpah_web_orders').select('*').order('created_at',{ascending:false}).limit(500)
- ]);
- if(pr.error||or.error){toast('Unable to load live records: '+(pr.error||or.error).message);return}
- products=(pr.data||[]).map(p=>({id:p.id,name:p.name,category:p.category,price:p.price_ngn??0,stock:p.stock_quantity,threshold:p.low_stock_threshold,published:p.published,emoji:'day-old-chick-photo',description:p.description,sku:p.sku,image_url:p.image_url,price_on_request:p.price_on_request}));
- orders=(or.data||[]).map(o=>({id:o.order_number,dbid:o.id,customer:o.customer_name,email:o.customer_email,items:(o.items||[]).map(x=>(x.name||x.product_name||'Item')+' × '+(x.quantity||x.qty||1)).join(', '),date:new Date(o.created_at).toLocaleDateString('en-NG'),total:o.quoted_total_ngn??'',staffNotes:o.staff_notes||'',status:o.status}));
- selected.clear();render();
-}
-// Attach the submit handler immediately. Prevent native form navigation before any
-// dashboard initialisation can run, so a JavaScript error cannot silently clear the form.
-const loginForm=$('adminLoginForm');
-if(loginForm){
- loginForm.addEventListener('submit',function(e){
-  e.preventDefault();
-  e.stopPropagation();
-  const errorBox=$('adminAuthError'),button=$('adminLoginButton');
-  if(errorBox)errorBox.textContent='';
-  if(button){button.disabled=true;button.textContent='Signing in…'}
-  (async()=>{
-   try{
-    if(!window.supabase||!supabaseClient)throw new Error('The secure login service did not load. Check your connection and refresh the page.');
-    const email=$('adminEmail')?.value.trim()||'';
-    const password=$('adminPassword')?.value||'';
-    if(!email||!password)throw new Error('Enter both your email address and password.');
-    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-    if(error)throw error;
-    if(!data?.session)throw new Error('Authentication returned no active session. Please try again.');
-    await establishStaff(data.session);
-    if(document.body.classList.contains('auth-locked')&&errorBox&&!errorBox.textContent){
-     errorBox.textContent='Your account signed in, but administrator access could not be verified. Check the staff registration and permissions.';
-    }
-   }catch(error){
-    console.error('Mizpah admin sign-in failed:',error);
-    if(errorBox)errorBox.textContent=error?.message||'Sign-in failed. Please try again.';
-   }finally{
-    if(button){button.disabled=false;button.textContent='Sign in securely'}
-   }
-  })();
- },true);
-}else{console.error('Mizpah admin login form was not found.')}
+let currentStaff = null;
 
-(async function restoreAdminSession(){
- try{
-  if(!supabaseClient)return;
-  const {data:{session},error}=await supabaseClient.auth.getSession();
-  if(error)console.warn('Could not restore admin session:',error.message);
-  if(session)await establishStaff(session);
- }catch(error){console.error('Admin session initialisation failed:',error)}
- if(supabaseClient)supabaseClient.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){currentStaff=null;lockAdmin()}});
-})();
+function lockAdmin() {
+  document.body.classList.add('auth-locked');
+  $('authShield').style.display = 'grid';
+}
+
+function unlockAdmin() {
+  document.body.classList.remove('auth-locked');
+  $('authShield').style.display = 'none';
+  $('demoMode')?.remove();
+}
+
+async function signOutAdmin() {
+  const button = $('adminSignOut');
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Signing out…';
+  }
+
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) throw error;
+
+    currentStaff = null;
+    lockAdmin();
+    $('adminPassword').value = '';
+    $('adminEmail').focus();
+  } catch (error) {
+    toast('Unable to sign out: ' + error.message);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = '<span aria-hidden="true">↪</span> Sign out';
+    }
+  }
+}
+
+$('adminSignOut')?.addEventListener('click', signOutAdmin);
+
+async function establishStaff(session) {
+  if (!session) {
+    lockAdmin();
+    return;
+  }
+
+  if (!supabaseClient) {
+    throw new Error(
+      'The secure login service is unavailable. Check your internet connection, refresh the page and try again.'
+    );
+  }
+
+  const { data: staff, error } = await supabaseClient
+    .from('mizpah_web_staff')
+    .select('role,active')
+    .eq('user_id', session.user.id)
+    .maybeSingle();
+
+  if (error || !staff || !staff.active) {
+    await supabaseClient.auth.signOut();
+    lockAdmin();
+    $('adminAuthError').textContent =
+      'This account is not authorised for Mizpah website administration.';
+    return;
+  }
+
+  currentStaff = staff;
+  unlockAdmin();
+  await loadLiveRecords();
+}
+
+async function loadLiveRecords() {
+  const [productResult, orderResult] = await Promise.all([
+    supabaseClient
+      .from('mizpah_web_products')
+      .select('*')
+      .order('sort_order')
+      .order('name'),
+    supabaseClient
+      .from('mizpah_web_orders')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500)
+  ]);
+
+  if (productResult.error || orderResult.error) {
+    const error = productResult.error || orderResult.error;
+    toast('Unable to load live records: ' + error.message);
+    return;
+  }
+
+  products = (productResult.data || []).map(product => ({
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    price: product.price_ngn ?? 0,
+    stock: product.stock_quantity,
+    threshold: product.low_stock_threshold,
+    published: product.published,
+    emoji: 'day-old-chick-photo',
+    description: product.description,
+    sku: product.sku,
+    image_url: product.image_url,
+    price_on_request: product.price_on_request
+  }));
+
+  orders = (orderResult.data || []).map(order => ({
+    id: order.order_number,
+    dbid: order.id,
+    customer: order.customer_name,
+    email: order.customer_email,
+    items: (order.items || [])
+      .map(item =>
+        (item.name || item.product_name || 'Item') +
+        ' × ' +
+        (item.quantity || item.qty || 1)
+      )
+      .join(', '),
+    date: new Date(order.created_at).toLocaleDateString('en-NG'),
+    total: order.quoted_total_ngn ?? '',
+    staffNotes: order.staff_notes || '',
+    status: order.status
+  }));
+
+  selected.clear();
+  render();
+}
+
+// Register one submit handler and prevent the browser's native form submission.
+const loginForm = $('adminLoginForm');
+
+if (loginForm) {
+  loginForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const errorBox = $('adminAuthError');
+    const button = $('adminLoginButton');
+
+    if (errorBox) errorBox.textContent = '';
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Signing in…';
+    }
+
+    try {
+      if (!window.supabase || !supabaseClient) {
+        throw new Error(
+          'The secure login service did not load. Check your connection and refresh the page.'
+        );
+      }
+
+      const email = $('adminEmail')?.value.trim() || '';
+      const password = $('adminPassword')?.value || '';
+
+      if (!email || !password) {
+        throw new Error('Enter both your email address and your password.');
+      }
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+      if (!data?.session) {
+        throw new Error('Authentication returned no active session. Please try again.');
+      }
+
+      await establishStaff(data.session);
+
+      if (
+        document.body.classList.contains('auth-locked') &&
+        errorBox &&
+        !errorBox.textContent
+      ) {
+        errorBox.textContent =
+          'Your account signed in, but administrator access could not be verified. Check the staff registration and permissions.';
+      }
+    } catch (error) {
+      console.error('Mizpah admin sign-in failed:', error);
+
+      if (errorBox) {
+        errorBox.textContent = error?.message || 'Sign-in failed. Please try again.';
+      }
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = 'Sign in securely';
+      }
+    }
+  });
+} else {
+  console.error('Mizpah admin login form was not found.');
+}
+
+(async function restoreAdminSession() {
+  try {
+    if (!supabaseClient) return;
+
+    const {
+      data: { session },
+      error
+    } = await supabaseClient.auth.getSession();
+
+    if (error) {
+      console.warn('Could not restore admin session:', error.message);
+    }
+
+    if (session) {
+      await establishStaff(session);
+    }
+  } catch (error) {
+    console.error('Admin session initialisation failed:', error);
+  }
+
+  if (supabaseClient) {
+    supabaseClient.auth.onAuthStateChange(event => {
+      if (event === 'SIGNED_OUT') {
+        currentStaff = null;
+        lockAdmin();
+      }
+    });
+  }
+})();;
 
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>'₦'+Number(n||0).toLocaleString('en-NG');
