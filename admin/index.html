@@ -11,15 +11,25 @@
 @media(max-width:1050px){.app{grid-template-columns:205px minmax(0,1fr)}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.lower{grid-template-columns:1fr}.content{padding:24px 20px}.topbar{padding:0 20px}.service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.app{display:block}.sidebar{position:fixed;z-index:8;inset:0 auto 0 0;width:260px;transform:translateX(-105%);transition:transform .22s ease;box-shadow:20px 0 40px #0002}.sidebar.open{transform:translateX(0)}.mobile-menu{display:inline-flex}.topbar{height:64px;padding:0 15px}.content{padding:22px 14px}.page-head{align-items:flex-start}.page-head h1{font-size:23px}.page-head>.btn{font-size:0;padding:10px}.page-head>.btn span{font-size:18px}.stats{gap:10px}.stat{padding:14px}.stat-value{font-size:23px}.stat-top{font-size:11px}.stat-icon{width:30px;height:30px}.panel-head{align-items:flex-start;flex-direction:column;padding:16px}.toolbar{width:100%}.search{flex:1}.search input{width:100%}.toolbar .select{flex:1;min-width:0}.service-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.demo{font-size:10px}.top-right{gap:8px}.lower{gap:14px}}
 
-.auth-shield{position:fixed;inset:0;z-index:1000;background:#f5f8f5;display:grid;place-items:center;padding:20px}
-.auth-card{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 18px 60px #123f2d18}
-.auth-card h1{font-size:23px;margin:0 0 6px;color:var(--green)}
-.auth-card p{color:var(--muted);font-size:13px;margin:0 0 20px}
-.auth-card label{display:block;font-size:12px;font-weight:750;margin:12px 0 6px}
-.auth-card input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px}
-.auth-card button{width:100%;justify-content:center;margin-top:16px}
-.auth-error{color:#a22;font-size:12px;min-height:18px;margin-top:10px}
+.auth-shield{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at 80% 12%,#d9e9dc 0,transparent 38%),linear-gradient(145deg,#f7faf6,#eaf1eb)}
+.auth-card{width:min(460px,100%);position:relative;overflow:hidden;background:#fff;border:1px solid #dce7dd;border-radius:22px;padding:34px;box-shadow:0 28px 90px #103b2b20}
+.auth-card:before{content:"";position:absolute;inset:0 0 auto;height:6px;background:linear-gradient(90deg,#103b2b 0 72%,#c9a34a 72%)}
+.auth-brand{display:flex;align-items:center;gap:13px;padding:5px 0 25px;border-bottom:1px solid #edf1ed}
+.auth-brand img{width:58px;height:58px;object-fit:contain}
+.auth-brand strong{display:block;color:#103b2b;font-size:14px;letter-spacing:.08em}
+.auth-brand small{display:block;color:#75847a;font-size:11px;margin-top:3px}
+.auth-kicker{margin:24px 0 5px;color:#8b7134;font-size:10px;font-weight:850;letter-spacing:.16em;text-transform:uppercase}
+.auth-card h1{font-size:27px;letter-spacing:-.04em;margin:0 0 7px;color:#123b2b}
+.auth-card p{color:#718078;font-size:13px;margin:0 0 22px}
+.auth-card label{display:block;font-size:12px;font-weight:750;margin:15px 0 7px;color:#26392e}
+.auth-card input{width:100%;height:48px;padding:0 13px;border:1px solid #dce5dd;border-radius:10px;background:#fbfdfb;color:#17251e}
+.auth-card input:focus{outline:3px solid #c9a34a35;border-color:#a88b48}
+.auth-card button{width:100%;height:48px;justify-content:center;margin-top:21px;border-radius:10px;font-weight:800}
+.auth-card button:disabled{opacity:.65;cursor:wait}
+.auth-foot{margin-top:20px;padding-top:15px;border-top:1px solid #edf1ed;color:#849087;font-size:10px;text-align:center}
+.auth-error{color:#a22;font-size:12px;min-height:18px;margin-top:11px;line-height:1.5}
 body.auth-locked .app,body.auth-locked .modal-backdrop,body.auth-locked .toast{display:none!important}
+@media(max-width:480px){.auth-card{padding:27px 22px;border-radius:17px}.auth-brand img{width:50px;height:50px}.auth-card h1{font-size:24px}}
 
 /* Mizpah professional admin refinement */
 :root{--green:#123b2b;--green2:#1e6545;--gold:#c9a34a;--ink:#17251e;--muted:#748178;--line:#e7ece7;--paper:#f3f6f3;--shadow:0 10px 30px rgba(18,59,43,.055)}
@@ -528,55 +538,19 @@ label,.field label,.auth-card label{font-size:16px!important}
 </head>
 <body class="auth-locked">
 <div class="auth-shield" id="authShield">
-  <form class="auth-card" id="adminLoginForm" novalidate>
-    <div class="brand" style="padding: 0 0 18px;">
-      <img
-        class="brand-logo"
-        src="../assets/images/logo%202.png"
-        alt="Mizpah Technology logo"
-      >
-      <div>
-        <strong>MIZPAH TECHNOLOGY</strong>
-        <small style="display: block; color: var(--muted);">
-          Secure administrator access
-        </small>
-      </div>
-    </div>
-
-    <h1>Administrator sign in</h1>
-    <p>Sign in with an authorised Mizpah staff account.</p>
-
-    <label for="adminEmail">Email address</label>
-    <input
-      id="adminEmail"
-      name="email"
-      type="email"
-      autocomplete="username"
-      required
-    >
-
-    <label for="adminPassword">Password</label>
-    <input
-      id="adminPassword"
-      name="password"
-      type="password"
-      autocomplete="current-password"
-      required
-    >
-
-    <button
-      class="btn primary"
-      id="adminLoginButton"
-      type="submit"
-    >Sign in securely</button>
-
-    <div
-      class="auth-error"
-      id="adminAuthError"
-      role="alert"
-      aria-live="polite"
-    ></div>
-  </form>
+<form class="auth-card" id="adminLoginForm" novalidate>
+<div class="auth-brand"><img src="../assets/images/logo%202.png" alt="Mizpah Technology logo"><div><strong>MIZPAH TECHNOLOGY</strong><small>Smart Hatchery Administration Portal</small></div></div>
+<div class="auth-kicker">Authorised personnel only</div>
+<h1>Welcome back</h1>
+<p>Sign in with your authorised Mizpah administrator account to manage products, prices, stock and customer orders.</p>
+<label for="adminEmail">Email address</label>
+<input id="adminEmail" name="email" type="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="name@mizpahtechnology.com.ng" required>
+<label for="adminPassword">Password</label>
+<input id="adminPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+<button class="btn primary" id="adminLoginButton" type="submit">Sign in securely</button>
+<div class="auth-error" id="adminAuthError" role="alert" aria-live="assertive"></div>
+<div class="auth-foot">Protected administrator access · Mizpah Technology</div>
+</form>
 </div>
 
 <div class="app">
@@ -852,104 +826,66 @@ async function loadLiveRecords() {
   render();
 }
 
-// Register one submit handler and prevent the browser's native form submission.
+// Fresh single-controller administrator authentication.
 const loginForm = $('adminLoginForm');
-
+const loginButton = $('adminLoginButton');
+const authError = $('adminAuthError');
+let loginInProgress = false;
+function showAuthError(message) { if (authError) authError.textContent = message || ''; }
 if (loginForm) {
-  loginForm.addEventListener('submit', async event => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const errorBox = $('adminAuthError');
-    const button = $('adminLoginButton');
-
-    if (errorBox) errorBox.textContent = '';
-    if (button) {
-      button.disabled = true;
-      button.textContent = 'Signing in…';
-    }
-
-    try {
-      if (!window.supabase || !supabaseClient) {
-        throw new Error(
-          'The secure login service did not load. Check your connection and refresh the page.'
-        );
-      }
-
-      const email = $('adminEmail')?.value.trim() || '';
-      const password = $('adminPassword')?.value || '';
-
-      if (!email || !password) {
-        throw new Error('Enter both your email address and your password.');
-      }
-
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) throw error;
-      if (!data?.session) {
-        throw new Error('Authentication returned no active session. Please try again.');
-      }
-
-      await establishStaff(data.session);
-
-      if (
-        document.body.classList.contains('auth-locked') &&
-        errorBox &&
-        !errorBox.textContent
-      ) {
-        errorBox.textContent =
-          'Your account signed in, but administrator access could not be verified. Check the staff registration and permissions.';
-      }
-    } catch (error) {
-      console.error('Mizpah admin sign-in failed:', error);
-
-      if (errorBox) {
-        errorBox.textContent = error?.message || 'Sign-in failed. Please try again.';
-      }
-    } finally {
-      if (button) {
-        button.disabled = false;
-        button.textContent = 'Sign in securely';
-      }
-    }
-  });
-} else {
-  console.error('Mizpah admin login form was not found.');
-}
-
-(async function restoreAdminSession() {
+ loginForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  if (loginInProgress) return;
+  const email = ($('adminEmail').value || '').trim();
+  const password = $('adminPassword').value || '';
+  showAuthError('');
+  if (!email || !password) { showAuthError('Enter both your email address and password.'); return; }
+  if (!supabaseClient) { showAuthError('Secure sign-in could not load. Check your connection and refresh this page.'); return; }
+  loginInProgress = true;
+  loginButton.disabled = true;
+  loginButton.textContent = 'Verifying account…';
   try {
-    if (!supabaseClient) return;
-
-    const {
-      data: { session },
-      error
-    } = await supabaseClient.auth.getSession();
-
-    if (error) {
-      console.warn('Could not restore admin session:', error.message);
-    }
-
-    if (session) {
-      await establishStaff(session);
-    }
+   const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
+   if (error) throw error;
+   if (!data || !data.session || !data.user) throw new Error('No active session was returned. Please try again.');
+   loginButton.textContent = 'Checking administrator access…';
+   const {data:staff,error:staffError} = await supabaseClient.from('mizpah_web_staff').select('role,active').eq('user_id',data.user.id).maybeSingle();
+   if (staffError) throw new Error('Your account signed in, but staff authorisation could not be checked: '+staffError.message);
+   if (!staff || staff.active !== true) {
+    await supabaseClient.auth.signOut();
+    throw new Error('This account is not authorised for Mizpah website administration.');
+   }
+   currentStaff = staff;
+   unlockAdmin();
+   await loadLiveRecords();
   } catch (error) {
-    console.error('Admin session initialisation failed:', error);
+   console.error('Mizpah administrator sign-in:',error);
+   showAuthError(error && error.message ? error.message : 'Sign-in failed. Please try again.');
+   $('adminPassword').value = '';
+   $('adminPassword').focus();
+  } finally {
+   loginInProgress = false;
+   loginButton.disabled = false;
+   loginButton.textContent = 'Sign in securely';
   }
-
-  if (supabaseClient) {
-    supabaseClient.auth.onAuthStateChange(event => {
-      if (event === 'SIGNED_OUT') {
-        currentStaff = null;
-        lockAdmin();
-      }
-    });
-  }
-})();;
-
+ });
+} else { console.error('Administrator sign-in form is missing.'); }
+(async function restoreAdminSession() {
+ if (!supabaseClient) return;
+ try {
+  const {data,error} = await supabaseClient.auth.getSession();
+  if (error) throw error;
+  if (data && data.session) await establishStaff(data.session);
+ } catch (error) {
+  console.warn('Admin session restore failed:',error);
+  lockAdmin();
+  showAuthError('Your previous session could not be restored. Please sign in again.');
+ }
+ supabaseClient.auth.onAuthStateChange(event => {
+  if (event === 'SIGNED_OUT') { currentStaff = null; lockAdmin(); }
+ });
+})();
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>'₦'+Number(n||0).toLocaleString('en-NG');
 const stockStatus=p=>p.stock<=0?['Out of stock','out']:p.stock<=p.threshold?['Low stock','low']:['In stock','published'];
