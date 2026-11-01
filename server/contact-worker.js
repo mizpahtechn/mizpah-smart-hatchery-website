@@ -32,6 +32,51 @@ function clean(value, max) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
+const MAX_REQUEST_BYTES = 16 * 1024;
+
+async function readJsonBody(request) {
+  const contentLength = Number(request.headers.get("Content-Length") || 0);
+  if (contentLength > MAX_REQUEST_BYTES) {
+    return { error: "too_large" };
+  }
+
+  if (!request.body) {
+    return { error: "invalid_json" };
+  }
+
+  const reader = request.body.getReader();
+  const chunks = [];
+  let total = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > MAX_REQUEST_BYTES) {
+        await reader.cancel();
+        return { error: "too_large" };
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  try {
+    return { body: JSON.parse(new TextDecoder().decode(bytes)) };
+  } catch {
+    return { error: "invalid_json" };
+  }
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -48,12 +93,19 @@ export default {
       return json({ success: false, message: "The enquiry email service is not configured yet." }, 503, origin);
     }
 
-    let body;
-    try {
-      body = await request.json();
-    } catch {
+    const contentType = request.headers.get("Content-Type") || "";
+    if (!/^application\\/json(?:\\s*;|$)/i.test(contentType)) {
+      return json({ success: false, message: "Please submit the form using the website form." }, 415, origin);
+    }
+
+    const parsed = await readJsonBody(request);
+    if (parsed.error === "too_large") {
+      return json({ success: false, message: "Your enquiry is too large. Please shorten your message and try again." }, 413, origin);
+    }
+    if (parsed.error || !parsed.body || typeof parsed.body !== "object" || Array.isArray(parsed.body)) {
       return json({ success: false, message: "Please submit the form again." }, 400, origin);
     }
+    const body = parsed.body;
 
     // Quietly accept honeypot submissions without sending email.
     if (clean(body?._honey, 200)) {
