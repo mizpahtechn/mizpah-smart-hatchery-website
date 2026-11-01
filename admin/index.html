@@ -935,7 +935,27 @@ function orderPill(s){const c=s==='Completed'?'published':s==='Cancelled'?'out':
 function renderOrders(){const q=$('orderSearch').value.toLowerCase(),f=$('orderFilter').value;const list=orders.filter(o=>(o.id+' '+o.customer+' '+o.email+' '+o.items).toLowerCase().includes(q)&&(f==='all'||o.status===f));$('orderRows').innerHTML=list.map((o,i)=>'<tr><td class="order-id">'+esc(o.id)+'</td><td><div class="order-customer customer-with-avatar"><img class="customer-avatar" src="'+customerPortrait(orders.indexOf(o))+'" alt="Customer profile photo" loading="lazy"><span>'+esc(o.customer)+'<small>'+esc(o.email)+'</small></span></div></td><td>'+esc(o.items)+'</td><td>'+esc(o.date)+'</td><td><input class="select" style="width:130px" type="number" min="0" step="0.01" data-quote="'+esc(o.id)+'" value="'+(o.total===''?'':Number(o.total))+'" aria-label="Quotation amount for '+esc(o.id)+'" placeholder="Pending"></td><td>'+orderPill(o.status)+'</td><td><select class="select" data-order="'+esc(o.id)+'" aria-label="Update status for '+esc(o.id)+'">'+['Pending review','Confirmed','Processing','Completed','Cancelled'].map(s=>'<option '+(s===o.status?'selected':'')+'>'+s+'</option>').join('')+'</select></td><td><input class="select" style="width:210px" type="text" maxlength="1000" data-note="'+esc(o.id)+'" value="'+esc(o.staffNotes||'')+'" placeholder="Staff note"><button class="btn small" type="button" data-save-order="'+esc(o.id)+'">Save</button></td></tr>').join('')||noRows(7,'No orders match your search.')}
 function render(){renderStats();renderOverview();renderProducts();renderPrices();renderStock();renderOrders()}
 function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));document.querySelectorAll('.nav [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));const active=document.querySelector('.nav [data-view="'+name+'"]');$('crumb').textContent=active?active.textContent.trim():name;$('sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'})}
-function openModal(id){if(!canManageProducts()){toast('Your staff role cannot manage products.');return}editingId=id||null;const p=id?products.find(x=>String(x.id)===String(id)):null;$('productForm').reset();$('modalTitle').textContent=p?'Edit product':'Add product';$('fName').value=p?p.name:'';$('fCategory').value=p?p.category:'Day-old chicks';$('fPrice').value=p?p.price:'';$('fStock').value=p?p.stock:0;$('fThreshold').value=p?p.threshold:20;$('fDescription').value=p?p.description||:'';$('fSku').value=p?p.sku||:'';$('fImageUrl').value=p?p.image_url||:'';$('fPublished').value=String(p?p.published:true);$('productModal').classList.add('open');setTimeout(()=>$('fName').focus(),30)}
+function openModal(id) {
+  if (!canManageProducts()) {
+    toast('Your staff role cannot manage products.');
+    return;
+  }
+  editingId = id || null;
+  const p = id ? products.find(x => String(x.id) === String(id)) : null;
+  $('productForm').reset();
+  $('modalTitle').textContent = p ? 'Edit product' : 'Add product';
+  $('fName').value = p ? p.name : '';
+  $('fCategory').value = p ? p.category : 'Day-old chicks';
+  $('fPrice').value = p ? p.price : '';
+  $('fStock').value = p ? p.stock : 0;
+  $('fThreshold').value = p ? p.threshold : 20;
+  $('fDescription').value = p ? (p.description || '') : '';
+  $('fSku').value = p ? (p.sku || '') : '';
+  $('fImageUrl').value = p ? (p.image_url || '') : '';
+  $('fPublished').value = String(p ? p.published : true);
+  $('productModal').classList.add('open');
+  setTimeout(() => $('fName').focus(), 30);
+}
 function closeModal(){$('productModal').classList.remove('open')}
 document.addEventListener('click',e=>{const nav=e.target.closest('[data-view]');if(nav){showView(nav.dataset.view);return}const go=e.target.closest('[data-goto]');if(go){showView(go.dataset.goto);return}const edit=e.target.closest('[data-edit]');if(edit){openModal(edit.dataset.edit);return}const del=e.target.closest('[data-delete-product]');if(del){const p=products.find(x=>String(x.id)===String(del.dataset.deleteProduct));if(!p)return;if(!confirm('Delete “'+p.name+'” from the catalogue? This cannot be undone.'))return;del.disabled=true;deleteProductRecord(p.id).then(()=>{products=products.filter(x=>String(x.id)!==String(p.id));selected.delete(p.id);render();toast(p.name+' was deleted from the catalogue.')}).catch(err=>{toast('Product deletion failed: '+err.message);del.disabled=false});return}const tog=e.target.closest('[data-toggle]');if(tog){const p=products.find(x=>String(x.id)===String(tog.dataset.toggle));if(p){const next=!p.published;tog.disabled=true;setProductPublished([p.id],next).then(()=>{p.published=next;render();toast(p.name+' '+(next?'published':'unpublished')+'.')}).catch(err=>{toast('Publication update failed: '+err.message);tog.disabled=false})}return}});
 ['overviewSearch','productSearch','priceSearch','stockSearch','orderSearch'].forEach(id=>$(id).addEventListener('input',render));
