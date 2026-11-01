@@ -1,0 +1,33 @@
+name: Deploy Mizpah enquiry Worker
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "server/contact-worker.js"
+      - "wrangler.jsonc"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mizpah-website-forms-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy existing Cloudflare Worker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+
+      - name: Deploy mizpah-website-forms
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: deploy
