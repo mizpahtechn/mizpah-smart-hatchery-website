@@ -89,6 +89,24 @@ export default {
     if (!SITE_ORIGINS.has(origin)) {
       return json({ success: false, message: "This website origin is not allowed." }, 403, origin);
     }
+
+    // Enable this protection by binding ENQUIRY_RATE_LIMITER in the Worker configuration.
+    // Cloudflare supplies CF-Connecting-IP; do not use an in-memory counter.
+    if (env.ENQUIRY_RATE_LIMITER) {
+      const clientIp = request.headers.get("CF-Connecting-IP");
+      if (!clientIp) {
+        return json({ success: false, message: "The enquiry service could not verify this request." }, 503, origin);
+      }
+      try {
+        const { success } = await env.ENQUIRY_RATE_LIMITER.limit({ key: clientIp });
+        if (!success) {
+          return json({ success: false, message: "Too many enquiries have been submitted. Please wait a minute and try again." }, 429, origin);
+        }
+      } catch {
+        // Fail closed if a configured limiter is unavailable.
+        return json({ success: false, message: "The enquiry service is temporarily unavailable. Please try again shortly." }, 503, origin);
+      }
+    }
     if (!env.RESEND_API_KEY || !env.FROM_EMAIL) {
       return json({ success: false, message: "The enquiry email service is not configured yet." }, 503, origin);
     }
