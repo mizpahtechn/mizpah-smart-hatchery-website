@@ -94,7 +94,7 @@ export default {
     }
 
     const contentType = request.headers.get("Content-Type") || "";
-    if (!/^application\\/json(?:\\s*;|$)/i.test(contentType)) {
+    if (!/^application\/json(?:\s*;|$)/i.test(contentType)) {
       return json({ success: false, message: "Please submit the form using the website form." }, 415, origin);
     }
 
