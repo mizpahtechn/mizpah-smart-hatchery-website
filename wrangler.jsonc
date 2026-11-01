@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+  "name": "mizpah-website-forms",
+  "main": "./server/contact-worker.js",
+  "compatibility_date": "2026-11-01",
+  "upload_source_maps": true,
+  "ratelimits": [
+    {
+      "name": "ENQUIRY_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ]
+}
