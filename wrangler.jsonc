@@ -4,6 +4,11 @@
   "main": "./server/contact-worker.js",
   "compatibility_date": "2026-11-01",
   "upload_source_maps": true,
+  "workers_dev": true,
+  "keep_vars": true,
+  "secrets": {
+    "required": ["RESEND_API_KEY"]
+  },
   "ratelimits": [
     {
       "name": "ENQUIRY_RATE_LIMITER",
