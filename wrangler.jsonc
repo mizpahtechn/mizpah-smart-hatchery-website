@@ -6,6 +6,10 @@
   "upload_source_maps": true,
   "workers_dev": true,
   "keep_vars": true,
+  "vars": {
+    "FROM_EMAIL": "Mizpah Technology <website@mizpahtechnology.com.ng>",
+    "ADMIN_EMAIL": "info@mizpahtechnology.com.ng"
+  },
   "secrets": {
     "required": ["RESEND_API_KEY"]
   },
