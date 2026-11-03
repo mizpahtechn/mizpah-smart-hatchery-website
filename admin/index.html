@@ -828,6 +828,7 @@ async function loadLiveRecords() {
     date: new Date(order.created_at).toLocaleDateString('en-NG'),
     total: order.quoted_total_ngn ?? '',
     staffNotes: order.staff_notes || '',
+    quotationEmailSentAt: order.quotation_email_sent_at || '',
     status: order.status
   }));
 
@@ -933,6 +934,23 @@ async function saveOrderCommercials(orderNo,quotedTotal,staffNotes){
  const {error}=await supabaseClient.from('mizpah_web_orders').update(patch).eq('order_number',orderNo);
  if(error)throw error;
 }
+async function sendCustomerQuotation(orderNo){
+ if(!canManageOrders())throw new Error('Your staff role cannot send customer quotations.');
+ const order=orders.find(item=>item.id===orderNo);
+ if(!order||!Number.isFinite(Number(order.total))||Number(order.total)<=0)throw new Error('Save a quotation amount greater than zero first.');
+ if(['Completed','Cancelled'].includes(order.status))throw new Error('Completed or cancelled orders cannot receive a quotation.');
+ const {data,error}=await supabaseClient.auth.getSession();
+ if(error||!data?.session?.access_token)throw new Error('Your admin session has expired. Sign in again.');
+ const response=await fetch('https://mizpah-website-forms.fineboyeddie073.workers.dev/send-quotation',{
+  method:'POST',
+  headers:{'Content-Type':'application/json','Authorization':'Bearer '+data.session.access_token},
+  body:JSON.stringify({order_number:orderNo})
+ });
+ const result=await response.json().catch(()=>({}));
+ if(!response.ok||result.success!==true)throw new Error(result.message||'The quotation email could not be sent.');
+ if(result.tracking_saved&&result.sent_at)order.quotationEmailSentAt=result.sent_at;
+ return {trackingSaved:result.tracking_saved===true};
+}
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),2600)}
 function renderStats(){$('statProducts').textContent=products.length;$('statPublished').textContent=products.filter(p=>p.published).length;$('statLow').textContent=products.filter(p=>p.stock<=p.threshold).length;$('statOrders').textContent=orders.filter(o=>o.status==='Pending review').length;$('orderNavCount').textContent=orders.filter(o=>o.status==='Pending review').length}
 
@@ -942,7 +960,7 @@ function renderProducts(){const q=$('productSearch').value.toLowerCase(),f=$('pr
 function renderPrices(){const q=$('priceSearch').value.toLowerCase();const list=products.filter(p=>(p.name+' '+p.category).toLowerCase().includes(q));$('priceRows').innerHTML=list.map(p=>'<tr><td>'+productCell(p)+'</td><td>'+esc(p.category)+'</td><td class="money">'+money(p.price)+'</td><td>'+pill(p.published?'Published':'Unpublished',p.published?'published':'draft')+'</td><td><button class="link-btn" data-edit="'+p.id+'">Edit price</button></td></tr>').join('')||noRows(5,'No matching products.')}
 function renderStock(){const q=$('stockSearch').value.toLowerCase();const list=products.filter(p=>(p.name+' '+p.category).toLowerCase().includes(q));$('stockRows').innerHTML=list.map(p=>'<tr><td>'+productCell(p)+'</td><td><b>'+p.stock.toLocaleString()+'</b></td><td>'+p.threshold.toLocaleString()+'</td><td>'+pill(...stockStatus(p))+'</td><td><button class="link-btn" data-edit="'+p.id+'">Update stock</button></td></tr>').join('')||noRows(5,'No matching stock records.')}
 function orderPill(s){const c=s==='Completed'?'published':s==='Cancelled'?'out':s==='Pending review'?'low':'draft';return pill(s,c)}
-function renderOrders(){const q=$('orderSearch').value.toLowerCase(),f=$('orderFilter').value,canEdit=canManageOrders();const list=orders.filter(o=>(o.id+' '+o.customer+' '+o.email+' '+o.phone+' '+o.items).toLowerCase().includes(q)&&(f==='all'||o.status===f));$('orderRows').innerHTML=list.map(o=>'<tr><td class="order-id">'+esc(o.id)+'</td><td><div class="order-customer"><span>'+esc(o.customer)+'<small>'+esc(o.email)+(o.phone?' · '+esc(o.phone):'')+'</small></span></div></td><td>'+esc(o.items)+'</td><td>'+esc(o.date)+'</td><td><input class="select" style="width:130px" type="number" min="0" step="0.01" data-quote="'+esc(o.id)+'" value="'+(o.total===''?'':Number(o.total))+'" aria-label="Quotation amount for '+esc(o.id)+'" placeholder="Pending" '+(canEdit?'':'disabled title="Your staff role has view-only order access"')+'></td><td>'+(canEdit?'<select class="select" data-order="'+esc(o.id)+'" aria-label="Update status for '+esc(o.id)+'">'+['Pending review','Confirmed','Processing','Completed','Cancelled'].map(s=>'<option '+(s===o.status?'selected':'')+'>'+s+'</option>').join('')+'</select>':orderPill(o.status))+'</td><td><input class="select" style="width:210px" type="text" maxlength="1000" data-note="'+esc(o.id)+'" value="'+esc(o.staffNotes||'')+'" placeholder="Staff note" '+(canEdit?'':'disabled title="Your staff role has view-only order access"')+'><button class="btn small" type="button" data-save-order="'+esc(o.id)+'" '+(canEdit?'':'disabled')+'>Save</button></td></tr>').join('')||noRows(8,'No orders match your search.');}
+function renderOrders(){const q=$('orderSearch').value.toLowerCase(),f=$('orderFilter').value,canEdit=canManageOrders();const list=orders.filter(o=>(o.id+' '+o.customer+' '+o.email+' '+o.phone+' '+o.items).toLowerCase().includes(q)&&(f==='all'||o.status===f));$('orderRows').innerHTML=list.map(o=>'<tr><td class="order-id">'+esc(o.id)+'</td><td><div class="order-customer"><span>'+esc(o.customer)+'<small>'+esc(o.email)+(o.phone?' · '+esc(o.phone):'')+'</small></span></div></td><td>'+esc(o.items)+'</td><td>'+esc(o.date)+'</td><td><input class="select" style="width:130px" type="number" min="0" step="0.01" data-quote="'+esc(o.id)+'" value="'+(o.total===''?'':Number(o.total))+'" aria-label="Quotation amount for '+esc(o.id)+'" placeholder="Pending" '+(canEdit?'':'disabled title="Your staff role has view-only order access"')+'></td><td>'+(canEdit?'<select class="select" data-order="'+esc(o.id)+'" aria-label="Update status for '+esc(o.id)+'">'+['Pending review','Confirmed','Processing','Completed','Cancelled'].map(s=>'<option '+(s===o.status?'selected':'')+'>'+s+'</option>').join('')+'</select>':orderPill(o.status))+'</td><td><input class="select" style="width:210px" type="text" maxlength="1000" data-note="'+esc(o.id)+'" value="'+esc(o.staffNotes||'')+'" placeholder="Staff note" '+(canEdit?'':'disabled title="Your staff role has view-only order access"')+'><button class="btn small" type="button" data-save-order="'+esc(o.id)+'" '+(canEdit?'':'disabled')+'>Save</button> <button class="btn small gold" type="button" data-send-quotation="'+esc(o.id)+'" '+(canEdit&&o.total!==''&&Number(o.total)>0&&!['Completed','Cancelled'].includes(o.status)?'':'disabled title="Save a positive quotation first; completed/cancelled orders cannot be quoted"')+'>'+(o.quotationEmailSentAt?'Resend quotation':'Send quotation')+'</button>'+(o.quotationEmailSentAt?'<small style="display:block;color:#237443;margin-top:5px">Email sent '+esc(new Date(o.quotationEmailSentAt).toLocaleString('en-NG'))+'</small>':'')+'</td></tr>').join('')||noRows(8,'No orders match your search.');}
 function render(){renderStats();renderOverview();renderProducts();renderPrices();renderStock();renderOrders()}
 function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));document.querySelectorAll('.nav [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));const active=document.querySelector('.nav [data-view="'+name+'"]');$('crumb').textContent=active?active.textContent.trim():name;$('sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'})}
 function openModal(id) {
@@ -977,7 +995,26 @@ $('productRows').addEventListener('change',e=>{const cb=e.target.closest('[data-
 async function bulk(value){if(!selected.size)return;const ids=[...selected];try{await setProductPublished(ids,value);products.forEach(p=>{if(ids.includes(p.id))p.published=value});selected.clear();render();toast(ids.length+' product(s) '+(value?'published':'unpublished')+' successfully.')}catch(err){toast('Bulk publication failed: '+err.message)}}
 $('bulkPublish').addEventListener('click',()=>bulk(true));$('bulkUnpublish').addEventListener('click',()=>bulk(false));$('clearSelection').addEventListener('click',()=>{selected.clear();renderProducts()});
 $('orderRows').addEventListener('change',async e=>{const sel=e.target.closest('[data-order]');if(!sel)return;const o=orders.find(x=>x.id===sel.dataset.order);if(!o)return;const previous=o.status;sel.disabled=true;try{await updateOrderStatus(o.id,sel.value);o.status=sel.value;render();toast('Order '+o.id+' status saved as '+o.status+'.')}catch(err){sel.value=previous;toast('Order status could not be saved: '+err.message)}finally{sel.disabled=false}});
-$('orderRows').addEventListener('click',async e=>{const btn=e.target.closest('[data-save-order]');if(!btn)return;const id=btn.dataset.saveOrder,o=orders.find(x=>x.id===id);if(!o)return;const quote=$('orderRows').querySelector('[data-quote="'+CSS.escape(id)+'"]'),note=$('orderRows').querySelector('[data-note="'+CSS.escape(id)+'"]');btn.disabled=true;try{await saveOrderCommercials(id,quote.value,note.value.trim());o.total=quote.value===''?'':Number(quote.value);o.staffNotes=note.value.trim();toast('Quotation and staff note saved for '+id+'.')}catch(err){toast('Could not save order details: '+err.message)}finally{btn.disabled=false}});
+$('orderRows').addEventListener('click',async e=>{
+ const send=e.target.closest('[data-send-quotation]');
+ if(send){
+  const id=send.dataset.sendQuotation;
+  send.disabled=true;send.textContent='Sending…';
+  try{
+   const result=await sendCustomerQuotation(id);
+   toast(result.trackingSaved?'Quotation email sent to the customer and recorded for '+id+'.':'Quotation email was accepted, but its sent status could not be recorded. Refresh the order list before retrying.');
+   renderOrders();
+  }catch(err){toast('Quotation email not sent: '+err.message);send.disabled=false;send.textContent='Send quotation'}
+  return;
+ }
+ const btn=e.target.closest('[data-save-order]');if(!btn)return;
+ const id=btn.dataset.saveOrder,o=orders.find(x=>x.id===id);if(!o)return;
+ const quote=$('orderRows').querySelector('[data-quote="'+CSS.escape(id)+'"]'),note=$('orderRows').querySelector('[data-note="'+CSS.escape(id)+'"]');
+ btn.disabled=true;
+ try{await saveOrderCommercials(id,quote.value,note.value.trim());o.total=quote.value===''?'':Number(quote.value);o.staffNotes=note.value.trim();toast('Quotation and staff note saved for '+id+'.');renderOrders()}
+ catch(err){toast('Could not save order details: '+err.message)}
+ finally{btn.disabled=false}
+});
 $('menuToggle').addEventListener('click',()=>$('sidebar').classList.toggle('open'));document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 render();
 })();
