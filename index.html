@@ -159,6 +159,10 @@ body{font-size:17px}
       <input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" required>
     </div>
     <div class="form-field">
+      <label for="contact-phone">Phone Number</label>
+      <input id="contact-phone" name="phone" type="tel" autocomplete="tel" maxlength="30" placeholder="e.g. +234 706 864 5654">
+    </div>
+    <div class="form-field">
       <label for="contact-subject">Subject</label>
       <input id="contact-subject" name="subject" type="text" maxlength="180">
     </div>
@@ -195,6 +199,7 @@ body{font-size:17px}
     const payload = {
       name: form.elements.name.value.trim(),
       email: form.elements.email.value.trim(),
+      phone: form.elements.phone.value.trim(),
       subject: form.elements.subject.value.trim() || "Website enquiry",
       message: form.elements.message.value.trim(),
       website: form.elements.website.value
