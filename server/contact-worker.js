@@ -165,6 +165,8 @@ async function sendQuotation(request, env, origin) {
   const naira = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 2 }).format(amount);
   const safeName = escapeHtml(order.customer_name || "Customer");
   const safeRef = escapeHtml(order.order_number);
+  const opayCheckoutUrl = "https://mizpahtechnology.com.ng/?checkout_order=" + encodeURIComponent(order.order_number) + "&provider=opay#order";
+  const paystackCheckoutUrl = "https://mizpahtechnology.com.ng/?checkout_order=" + encodeURIComponent(order.order_number) + "&provider=paystack#order";
   const text = [
     "Dear " + (order.customer_name || "Customer") + ",",
     "",
@@ -173,7 +175,9 @@ async function sendQuotation(request, env, origin) {
     "Items: " + items.map((item) => (item.name || item.product_name || "Requested item") + " × " + (item.quantity || item.qty || 1)).join("; "),
     "Quotation total: " + naira,
     "",
-    "Please contact our team to confirm availability, fulfilment arrangements and official payment instructions before making any payment.",
+    "Your quotation has been prepared by Mizpah Technology. Use one of the secure checkout links below to pay the quoted amount. Payment is confirmed only after provider verification.",
+    "Pay with OPay: " + opayCheckoutUrl,
+    "Pay with Paystack: " + paystackCheckoutUrl,
     "Phone/WhatsApp: +234 706 864 5654",
     "Email: info@mizpahtechnology.com.ng",
     "",
@@ -186,7 +190,9 @@ async function sendQuotation(request, env, origin) {
     '<h3>Requested items</h3><ul>' + itemLines.map((line) => '<li>' + line + '</li>').join("") + '</ul>' +
     '<div style="background:#f3f7f2;border-left:4px solid #c9a34a;padding:16px;margin:20px 0">' +
     '<div style="font-size:13px">Quotation total</div><strong style="font-size:24px">' + naira + '</strong></div>' +
-    '<p>Please contact our team to confirm availability, fulfilment arrangements and official payment instructions before making any payment.</p>' +
+    '<p>Your quotation has been prepared by Mizpah Technology. Choose a secure payment method below. Your order is marked paid only after payment is verified with the provider.</p>' +
+    '<p><a href="' + opayCheckoutUrl + '" style="display:inline-block;background:#075b28;color:#fff;padding:12px 18px;border-radius:6px;margin:6px 8px 6px 0;font-weight:bold">Pay with OPay</a>' +
+    '<a href="' + paystackCheckoutUrl + '" style="display:inline-block;background:#c9a34a;color:#102b1b;padding:12px 18px;border-radius:6px;margin:6px 0;font-weight:bold">Pay with Paystack</a></p>' +
     '<p>Phone/WhatsApp: <a href="tel:+2347068645654">+234 706 864 5654</a><br>Email: <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></p>' +
     '<p><strong>Mizpah Technology</strong><br>Healthy Chicks | Better Tomorrow</p></div>';
 
