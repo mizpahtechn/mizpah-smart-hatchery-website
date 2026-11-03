@@ -65,10 +65,14 @@ function newReference(orderNumber: string) {
 async function loadOrder(orderNumber: string) {
   if (!/^MZP-[A-Z0-9-]{8,60}$/i.test(orderNumber)) throw new Error("A valid order reference is required.");
   const { data, error } = await db().from("mizpah_web_orders")
-    .select("id,order_number,customer_name,customer_email,customer_phone,items,status,intent,order_total_ngn,payment_status,payment_reference")
+    .select("id,order_number,customer_name,customer_email,customer_phone,items,status,intent,order_total_ngn,quoted_total_ngn,payment_status,payment_reference")
     .eq("order_number", orderNumber).maybeSingle();
   if (error || !data) throw new Error("The order could not be found.");
-  if (data.intent !== "Order request" || data.payment_status === "quote_required" || data.order_total_ngn == null) {
+  const staffQuoted = data.intent === "Quotation request" && Number(data.quoted_total_ngn) > 0;
+  if (data.intent !== "Order request" && !staffQuoted) {
+    throw new Error("This order requires staff pricing before checkout.");
+  }
+  if (data.order_total_ngn == null && !staffQuoted) {
     throw new Error("This order requires staff pricing before checkout.");
   }
   if (data.status === "Cancelled" || data.status === "Completed") throw new Error("This order is not available for payment.");
@@ -79,7 +83,7 @@ async function initialize(req: Request) {
   const order = await loadOrder(String(body.order_number ?? ""));
   const provider = String(body.provider ?? "").toLowerCase();
   if (!["paystack","opay"].includes(provider)) throw new Error("Choose OPay or Paystack.");
-  const total = amountMinor(order.order_total_ngn);
+  const total = amountMinor(order.order_total_ngn ?? order.quoted_total_ngn);
   if (order.payment_status === "paid") throw new Error("This order has already been paid.");
   const client = db();
   const { data: prior } = await client.from("mizpah_web_order_payments")
@@ -156,10 +160,10 @@ async function verifyReference(referenceValue: string) {
     .eq("reference",reference).maybeSingle();
   if (error || !payment) throw new Error("The payment reference was not found.");
   const { data: order, error: orderError } = await client.from("mizpah_web_orders")
-    .select("id,order_number,order_total_ngn,status,payment_status")
+    .select("id,order_number,order_total_ngn,quoted_total_ngn,status,payment_status")
     .eq("id",payment.order_id).maybeSingle();
   if (orderError || !order) throw new Error("The linked order was not found.");
-  const expected = amountMinor(order.order_total_ngn);
+  const expected = amountMinor(order.order_total_ngn ?? order.quoted_total_ngn);
   if (expected !== Number(payment.amount_minor)) throw new Error("The payment amount no longer matches the order total.");
   if (payment.status === "success" || order.payment_status === "paid") return response({success:true,status:"success",reference,orderNumber:order.order_number});
   let verified: Record<string,any>;
