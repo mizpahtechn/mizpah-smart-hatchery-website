@@ -8,7 +8,9 @@
   "keep_vars": true,
   "vars": {
     "FROM_EMAIL": "Mizpah Technology <website@mizpahtechnology.com.ng>",
-    "ADMIN_EMAIL": "info@mizpahtechnology.com.ng"
+    "ADMIN_EMAIL": "info@mizpahtechnology.com.ng",
+    "SUPABASE_URL": "https://ouebgmhtyekqnyrkfrcp.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk"
   },
   "secrets": {
     "required": ["RESEND_API_KEY"]
