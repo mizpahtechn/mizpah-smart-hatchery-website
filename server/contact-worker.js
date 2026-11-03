@@ -17,7 +17,7 @@ function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": SITE_ORIGINS.has(origin) ? origin : "https://mizpahtechnology.com.ng",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Vary": "Origin",
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
@@ -77,6 +77,154 @@ async function readJsonBody(request) {
   }
 }
 
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  })[ch]);
+}
+
+async function sendQuotation(request, env, origin) {
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL || !env.SUPABASE_URL || !env.SUPABASE_PUBLISHABLE_KEY) {
+    return json({ success: false, message: "The quotation service is not fully configured." }, 503, origin);
+  }
+  const auth = request.headers.get("Authorization") || "";
+  if (!/^Bearer\s+[^\s]+$/i.test(auth)) {
+    return json({ success: false, message: "Please sign in again before sending a quotation." }, 401, origin);
+  }
+  const contentType = request.headers.get("Content-Type") || "";
+  if (!/^application\/json(?:\s*;|$)/i.test(contentType)) {
+    return json({ success: false, message: "Please use the admin quotation action." }, 415, origin);
+  }
+  const parsed = await readJsonBody(request);
+  if (parsed.error || !parsed.body || typeof parsed.body !== "object" || Array.isArray(parsed.body)) {
+    return json({ success: false, message: "The quotation request is invalid." }, 400, origin);
+  }
+  const orderNumber = clean(parsed.body.order_number, 64);
+  if (!/^MZP-[A-Z0-9-]{8,60}$/i.test(orderNumber)) {
+    return json({ success: false, message: "A valid order reference is required." }, 400, origin);
+  }
+
+  const headers = { apikey: env.SUPABASE_PUBLISHABLE_KEY, Authorization: auth };
+  const supabaseBase = env.SUPABASE_URL.replace(/\/$/, "");
+  let userResponse;
+  try {
+    userResponse = await fetch(supabaseBase + "/auth/v1/user", { headers });
+  } catch {
+    return json({ success: false, message: "Administrator authentication could not be verified." }, 502, origin);
+  }
+  if (!userResponse.ok) {
+    return json({ success: false, message: "Your administrator session is invalid or expired. Please sign in again." }, 401, origin);
+  }
+  const user = await userResponse.json().catch(() => null);
+  if (!user?.id) return json({ success: false, message: "Administrator identity could not be verified." }, 401, origin);
+
+  const base = supabaseBase + "/rest/v1/";
+  const staffUrl = new URL(base + "mizpah_web_staff");
+  staffUrl.search = new URLSearchParams({ select: "role,active", user_id: "eq." + user.id, limit: "1" });
+  let staffResponse;
+  try { staffResponse = await fetch(staffUrl, { headers }); } catch {
+    return json({ success: false, message: "Administrator permissions could not be checked." }, 502, origin);
+  }
+  const staffRows = await staffResponse.json().catch(() => []);
+  const staff = Array.isArray(staffRows) ? staffRows[0] : null;
+  if (!staffResponse.ok || !staff?.active || !["owner", "admin", "manager"].includes(staff.role)) {
+    return json({ success: false, message: "Your staff account is not authorised to send customer quotations." }, 403, origin);
+  }
+
+  const orderUrl = new URL(base + "mizpah_web_orders");
+  orderUrl.search = new URLSearchParams({
+    select: "order_number,customer_name,customer_email,customer_phone,items,status,quoted_total_ngn",
+    order_number: "eq." + orderNumber,
+    limit: "1",
+  });
+  let orderResponse;
+  try { orderResponse = await fetch(orderUrl, { headers }); } catch {
+    return json({ success: false, message: "The order could not be retrieved." }, 502, origin);
+  }
+  const orderRows = await orderResponse.json().catch(() => []);
+  const order = Array.isArray(orderRows) ? orderRows[0] : null;
+  if (!orderResponse.ok || !order) return json({ success: false, message: "The order was not found or is not accessible." }, 404, origin);
+  if (["Cancelled", "Completed"].includes(order.status)) {
+    return json({ success: false, message: "A quotation cannot be sent for a completed or cancelled order." }, 409, origin);
+  }
+  const amount = Number(order.quoted_total_ngn);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return json({ success: false, message: "Save a quotation amount greater than zero before sending." }, 400, origin);
+  }
+  const customerEmail = clean(order.customer_email, 254);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail) || /[\r\n]/.test(customerEmail)) {
+    return json({ success: false, message: "The customer's email address is invalid." }, 400, origin);
+  }
+  const items = Array.isArray(order.items) ? order.items : [];
+  const itemLines = items.map((item) => {
+    const quantity = Number(item.quantity || item.qty || 1);
+    return escapeHtml(item.name || item.product_name || "Requested item") + " × " + (Number.isInteger(quantity) && quantity > 0 ? quantity : 1);
+  });
+  const naira = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 2 }).format(amount);
+  const safeName = escapeHtml(order.customer_name || "Customer");
+  const safeRef = escapeHtml(order.order_number);
+  const text = [
+    "Dear " + (order.customer_name || "Customer") + ",",
+    "",
+    "Thank you for your order request to Mizpah Technology.",
+    "Order reference: " + order.order_number,
+    "Items: " + items.map((item) => (item.name || item.product_name || "Requested item") + " × " + (item.quantity || item.qty || 1)).join("; "),
+    "Quotation total: " + naira,
+    "",
+    "Please contact our team to confirm availability, fulfilment arrangements and official payment instructions before making any payment.",
+    "Phone/WhatsApp: +234 706 864 5654",
+    "Email: info@mizpahtechnology.com.ng",
+    "",
+    "Mizpah Technology — Healthy Chicks | Better Tomorrow",
+  ].join("\n");
+  const html = '<div style="font-family:Arial,sans-serif;color:#183b2b;line-height:1.6;max-width:640px;margin:auto">' +
+    '<h2 style="color:#103b2b">Your Mizpah Technology quotation</h2>' +
+    '<p>Dear ' + safeName + ',</p><p>Thank you for your order request. Your quotation is below.</p>' +
+    '<p><strong>Order reference:</strong> ' + safeRef + '</p>' +
+    '<h3>Requested items</h3><ul>' + itemLines.map((line) => '<li>' + line + '</li>').join("") + '</ul>' +
+    '<div style="background:#f3f7f2;border-left:4px solid #c9a34a;padding:16px;margin:20px 0">' +
+    '<div style="font-size:13px">Quotation total</div><strong style="font-size:24px">' + naira + '</strong></div>' +
+    '<p>Please contact our team to confirm availability, fulfilment arrangements and official payment instructions before making any payment.</p>' +
+    '<p>Phone/WhatsApp: <a href="tel:+2347068645654">+234 706 864 5654</a><br>Email: <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></p>' +
+    '<p><strong>Mizpah Technology</strong><br>Healthy Chicks | Better Tomorrow</p></div>';
+
+  let providerResponse;
+  try {
+    providerResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: env.FROM_EMAIL,
+        to: [customerEmail],
+        reply_to: env.ADMIN_EMAIL || "info@mizpahtechnology.com.ng",
+        subject: "Your Mizpah Technology quotation — " + order.order_number,
+        text,
+        html,
+      }),
+    });
+  } catch {
+    return json({ success: false, message: "The quotation email service could not be reached. No email was confirmed as sent." }, 502, origin);
+  }
+  if (!providerResponse.ok) {
+    return json({ success: false, message: "The email provider did not accept the quotation. Please try again." }, 502, origin);
+  }
+  const providerData = await providerResponse.json().catch(() => ({}));
+  const sentAt = new Date().toISOString();
+  let trackingSaved = false;
+  try {
+    const patchUrl = new URL(base + "mizpah_web_orders");
+    patchUrl.search = new URLSearchParams({ order_number: "eq." + orderNumber });
+    const patchResponse = await fetch(patchUrl, {
+      method: "PATCH",
+      headers: { ...headers, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ quotation_email_sent_at: sentAt, quotation_email_message_id: providerData.id || null }),
+    });
+    trackingSaved = patchResponse.ok;
+  } catch {}
+  return json({ success: true, accepted: true, sent_at: sentAt, tracking_saved: trackingSaved }, 200, origin);
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -89,6 +237,9 @@ export default {
     if (!SITE_ORIGINS.has(origin)) {
       return json({ success: false, message: "This website origin is not allowed." }, 403, origin);
     }
+
+    const url = new URL(request.url);
+    if (url.pathname === "/send-quotation") return sendQuotation(request, env, origin);
 
     // Enable this protection by binding ENQUIRY_RATE_LIMITER in the Worker configuration.
     // Cloudflare supplies CF-Connecting-IP; do not use an in-memory counter.
