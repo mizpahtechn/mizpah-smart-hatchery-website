@@ -385,7 +385,7 @@ document.getElementById('mizpah-order-form').addEventListener('submit',async e=>
  try{
   const endpoint=SITE_SUPABASE_URL+'/rest/v1/mizpah_web_products';
   const params=new URLSearchParams({
-   select:'id,sku,name,category,description,price_ngn,price_on_request,stock_quantity,minimum_order,sort_order',
+   select:'id,sku,name,category,description,price_ngn,price_on_request,stock_quantity,sort_order',
    published:'eq.true',
    order:'sort_order.asc,name.asc'
   });
