@@ -416,8 +416,9 @@ document.getElementById('mizpah-order-form').addEventListener('submit',async e=>
    method:'GET',
    cache:'no-store',
    headers:{
+    // Supabase publishable keys belong in the apikey header. They are not JWTs,
+    // so do not send them as Bearer tokens in the Authorization header.
     'apikey':SITE_SUPABASE_KEY,
-    'Authorization':'Bearer '+SITE_SUPABASE_KEY,
     'Accept':'application/json',
     'Cache-Control':'no-cache'
    }
