@@ -360,6 +360,49 @@ delivery:['Standard Delivery','Express Delivery'],
 equipment:['Poultry equipment (specify requirements in notes)']
 };
 const category=document.getElementById('order-category'),item=document.getElementById('order-item'),qty=document.getElementById('order-qty'),cartBox=document.getElementById('order-cart'),status=document.getElementById('order-status');
+/* Reliable tap-operated catalogue dropdowns for mobile browsers.
+   Keep the native selects as the data source so existing order logic remains unchanged. */
+function enhanceCatalogueSelect(select,placeholder){
+ if(!select||select.dataset.customDropdown==='1')return;
+ select.dataset.customDropdown='1';
+ const wrap=document.createElement('div');wrap.className='catalog-select-wrap';
+ select.parentNode.insertBefore(wrap,select);wrap.appendChild(select);
+ select.classList.add('catalog-native-select');
+ const trigger=document.createElement('button');trigger.type='button';trigger.className='catalog-select-trigger';
+ trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
+ const menu=document.createElement('div');menu.className='catalog-select-menu';menu.setAttribute('role','listbox');menu.hidden=true;
+ wrap.append(trigger,menu);
+ const close=()=>{menu.hidden=true;trigger.setAttribute('aria-expanded','false');};
+ const render=()=>{
+  const chosen=select.options[select.selectedIndex];
+  trigger.textContent=chosen?chosen.textContent:placeholder;
+  trigger.disabled=select.disabled||select.options.length===0;
+  menu.replaceChildren();
+  [...select.options].forEach((opt,index)=>{
+   const option=document.createElement('button');option.type='button';option.className='catalog-select-option';
+   option.textContent=opt.textContent;option.disabled=opt.disabled||select.disabled;
+   option.setAttribute('role','option');option.setAttribute('aria-selected',String(select.value===opt.value));
+   option.addEventListener('click',()=>{
+    select.selectedIndex=index;select.dispatchEvent(new Event('change',{bubbles:true}));render();close();
+   });
+   menu.appendChild(option);
+  });
+ };
+ trigger.addEventListener('click',()=>{
+  if(trigger.disabled)return;
+  const open=menu.hidden;document.querySelectorAll('.catalog-select-menu').forEach(m=>{m.hidden=true;});
+  document.querySelectorAll('.catalog-select-trigger').forEach(b=>b.setAttribute('aria-expanded','false'));
+  menu.hidden=!open;trigger.setAttribute('aria-expanded',String(open));
+ });
+ document.addEventListener('click',e=>{if(!wrap.contains(e.target))close();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+ select.addEventListener('change',render);
+ new MutationObserver(render).observe(select,{childList:true,subtree:true,attributes:true});
+ render();
+}
+
+enhanceCatalogueSelect(category,'Choose a category');
+enhanceCatalogueSelect(item,'Choose a product or service');
 const SITE_SUPABASE_URL='https://ouebgmhtyekqnyrkfrcp.supabase.co';
 const SITE_SUPABASE_KEY='sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk';
 const WEBSITE_CHECKOUT_URL=SITE_SUPABASE_URL+'/functions/v1/website-checkout';
@@ -481,5 +524,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   color:#17251b!important;color-scheme:light!important;
 }
 #order .order-panel,#order .order-shell{overflow:visible!important}
+</style>
+<style>
+/* Custom tap dropdowns avoid unreliable native select popups in Android webviews. */
+#order .catalog-select-wrap{position:relative!important;display:block!important;width:100%;min-width:0;z-index:30}
+#order .catalog-native-select{position:absolute!important;left:0!important;top:0!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+#order .catalog-select-trigger{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px;width:100%!important;min-height:56px!important;padding:12px 42px 12px 14px!important;border:1px solid #cbd7cc!important;border-radius:8px!important;background:#fff!important;color:#17251b!important;text-align:left!important;font:inherit!important;font-size:16px!important;line-height:1.35!important;white-space:normal!important;position:relative!important;cursor:pointer!important;touch-action:manipulation!important}
+#order .catalog-select-trigger:after{content:"";position:absolute;right:16px;top:50%;width:9px;height:9px;border-right:2px solid #075b28;border-bottom:2px solid #075b28;transform:translateY(-70%) rotate(45deg)}
+#order .catalog-select-trigger[aria-expanded="true"]:after{transform:translateY(-20%) rotate(225deg)}
+#order .catalog-select-trigger:disabled{opacity:.65;cursor:not-allowed}
+#order .catalog-select-menu{position:absolute!important;left:0!important;right:0!important;top:calc(100% + 5px)!important;z-index:99999!important;max-height: min( min(55vh,420px), 420px)!important;overflow-y:auto!important;overscroll-behavior:contain;background:#fff!important;border:1px solid #cbd7cc!important;border-radius:10px!important;box-shadow:0 12px 30px #102d1b30!important;padding:6px!important}
+#order .catalog-select-menu[hidden]{display:none!important}
+#order .catalog-select-option{display:block!important;width:100%!important;min-height:46px!important;padding:11px 12px!important;border:0!important;border-radius:6px!important;background:#fff!important;color:#17251b!important;text-align:left!important;font:inherit!important;font-size:15px!important;line-height:1.35!important;white-space:normal!important;cursor:pointer!important}
+#order .catalog-select-option[aria-selected="true"]{background:#edf6ed!important;color:#075b28!important;font-weight:800!important}
+#order .catalog-select-option:disabled{color:#8a938b!important;background:#f5f6f4!important;cursor:not-allowed!important}
+#order .catalog-select-option:not(:disabled):active{background:#e8f2e8!important}
 </style>
 </body></html>
