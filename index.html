@@ -364,7 +364,7 @@ const category=document.getElementById('order-category'),item=document.getElemen
 const SITE_SUPABASE_URL='https://ouebgmhtyekqnyrkfrcp.supabase.co';
 const SITE_SUPABASE_KEY='sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk';
 const WEBSITE_CHECKOUT_URL=SITE_SUPABASE_URL+'/functions/v1/website-checkout';
-const siteSupabase=window.supabase.createClient(SITE_SUPABASE_URL,SITE_SUPABASE_KEY);
+const siteSupabase=(window.supabase&&typeof window.supabase.createClient==='function')?window.supabase.createClient(SITE_SUPABASE_URL,SITE_SUPABASE_KEY):null;
 
 let cart=[],liveProducts=[];
 const money=value=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",maximumFractionDigits:2}).format(Number(value)||0);
