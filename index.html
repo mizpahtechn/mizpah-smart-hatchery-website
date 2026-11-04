@@ -360,53 +360,11 @@ delivery:['Standard Delivery','Express Delivery'],
 equipment:['Poultry equipment (specify requirements in notes)']
 };
 const category=document.getElementById('order-category'),item=document.getElementById('order-item'),qty=document.getElementById('order-qty'),cartBox=document.getElementById('order-cart'),status=document.getElementById('order-status');
-/* Reliable tap-operated catalogue dropdowns for mobile browsers.
-   Keep the native selects as the data source so existing order logic remains unchanged. */
-function enhanceCatalogueSelect(select,placeholder){
- if(!select||select.dataset.customDropdown==='1')return;
- select.dataset.customDropdown='1';
- const wrap=document.createElement('div');wrap.className='catalog-select-wrap';
- select.parentNode.insertBefore(wrap,select);wrap.appendChild(select);
- select.classList.add('catalog-native-select');
- const trigger=document.createElement('button');trigger.type='button';trigger.className='catalog-select-trigger';
- trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
- const menu=document.createElement('div');menu.className='catalog-select-menu';menu.setAttribute('role','listbox');menu.hidden=true;
- wrap.append(trigger,menu);
- const close=()=>{menu.hidden=true;trigger.setAttribute('aria-expanded','false');};
- const render=()=>{
-  const chosen=select.options[select.selectedIndex];
-  trigger.textContent=chosen?chosen.textContent:placeholder;
-  trigger.disabled=select.disabled||select.options.length===0;
-  menu.replaceChildren();
-  [...select.options].forEach((opt,index)=>{
-   const option=document.createElement('button');option.type='button';option.className='catalog-select-option';
-   option.textContent=opt.textContent;option.disabled=opt.disabled||select.disabled;
-   option.setAttribute('role','option');option.setAttribute('aria-selected',String(select.value===opt.value));
-   option.addEventListener('click',()=>{
-    select.selectedIndex=index;select.dispatchEvent(new Event('change',{bubbles:true}));render();close();
-   });
-   menu.appendChild(option);
-  });
- };
- trigger.addEventListener('click',()=>{
-  if(trigger.disabled)return;
-  const open=menu.hidden;document.querySelectorAll('.catalog-select-menu').forEach(m=>{m.hidden=true;});
-  document.querySelectorAll('.catalog-select-trigger').forEach(b=>b.setAttribute('aria-expanded','false'));
-  menu.hidden=!open;trigger.setAttribute('aria-expanded',String(open));
- });
- document.addEventListener('click',e=>{if(!wrap.contains(e.target))close();});
- document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
- select.addEventListener('change',render);
- new MutationObserver(render).observe(select,{childList:true,subtree:true,attributes:true});
- render();
-}
-
-enhanceCatalogueSelect(category,'Choose a category');
-enhanceCatalogueSelect(item,'Choose a product or service');
+/* Use the browser's native select controls; they provide reliable Android touch interaction. */
 const SITE_SUPABASE_URL='https://ouebgmhtyekqnyrkfrcp.supabase.co';
 const SITE_SUPABASE_KEY='sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk';
 const WEBSITE_CHECKOUT_URL=SITE_SUPABASE_URL+'/functions/v1/website-checkout';
-const siteSupabase=window.supabase?.createClient(SITE_SUPABASE_URL,SITE_SUPABASE_KEY);
+
 let cart=[],liveProducts=[];
 const money=value=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",maximumFractionDigits:2}).format(Number(value)||0);
 const unitPrice=p=>p&&(p.price_on_request===true||p.price_ngn===null||p.price_ngn===undefined||Number(p.price_ngn)<=0)?null:Number(p.price_ngn);
@@ -422,7 +380,47 @@ function buildMessage(orderNo,intent){const v=id=>document.getElementById(id).va
 document.getElementById('mizpah-order-form').addEventListener('submit',async e=>{e.preventDefault();if(!cart.length){status.textContent='Please add at least one available product before submitting.';status.className='status-msg show err';return;}for(const x of cart){const current=liveProducts.find(p=>String(p.id)===String(x.product_id));if(!current||x.qty<Number(current.minimum_order||1)||x.qty>Number(current.stock_quantity)){status.textContent='Availability has changed for '+x.name+'. Please refresh the product list and adjust your quantity before submitting.';status.className='status-msg show err';return;}}if(!siteSupabase){status.textContent='The secure order service is unavailable. Please contact Mizpah by phone or WhatsApp.';status.className='status-msg show err';return;}if(document.getElementById('ord-website').value.trim()){status.textContent='Your request could not be accepted.';status.className='status-msg show err';return;}const btn=document.getElementById('order-submit');btn.disabled=true;btn.textContent='Submitting…';status.className='status-msg';const orderNo='MZP-'+new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14)+'-'+Math.random().toString(36).slice(2,6).toUpperCase();const value=id=>document.getElementById(id).value.trim();const hasQuote=cart.some(x=>x.unit_price===null);const intent=hasQuote?'Quotation request':'Order request';try{const orderRow={order_number:orderNo,customer_name:value('ord-name'),customer_email:value('ord-email'),customer_phone:value('ord-phone'),customer_type:value('ord-customer'),fulfilment:value('ord-method'),preferred_date:value('ord-date')||null,delivery_address:value('ord-address'),state:value('ord-state'),city:value('ord-city'),notes:value('ord-notes'),intent,items:cart.map(x=>({product_id:x.product_id,quantity:x.qty})),status:'Pending review'};const {error:insertError}=await siteSupabase.from('mizpah_web_orders').insert(orderRow);if(insertError)throw new Error('Your order was not saved: '+insertError.message+'. Please try again or contact Mizpah directly.');const emailPayload={name:orderRow.customer_name,email:orderRow.customer_email,subject:'Mizpah '+intent+' — '+orderNo,message:buildMessage(orderNo,intent),website:value('ord-website')};try{await fetch('https://mizpah-website-forms.fineboyeddie073.workers.dev/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(emailPayload)});}catch(_){}if(hasQuote){status.textContent='Your quotation request has been recorded. Reference: '+orderNo+'. Items requiring staff pricing cannot be paid online. Mizpah Technology will review the request and send your quotation.';status.className='status-msg show ok';e.target.reset();cart=[];renderCart();return;}const provider=value('ord-payment-method')||'opay';status.textContent='Order '+orderNo+' saved. Preparing secure '+(provider==='opay'?'OPay':'Paystack')+' checkout…';const paymentResponse=await fetch(WEBSITE_CHECKOUT_URL+'/initialize',{method:'POST',headers:{'Content-Type':'application/json','apikey':SITE_SUPABASE_KEY,'Authorization':'Bearer '+SITE_SUPABASE_KEY},body:JSON.stringify({order_number:orderNo,provider})});const paymentData=await paymentResponse.json().catch(()=>({}));if(!paymentResponse.ok||paymentData.success!==true||!paymentData.checkoutUrl){status.textContent='Your order was saved with reference '+orderNo+', but secure checkout could not be started: '+(paymentData.message||'Please contact Mizpah Technology to continue.');status.className='status-msg show err';return;}status.textContent='Order saved. Redirecting you to '+(provider==='opay'?'OPay':'Paystack')+' secure checkout…';status.className='status-msg show ok';window.location.assign(paymentData.checkoutUrl);}catch(err){status.textContent=err.message||'Your order could not be submitted. Please try again.';status.className='status-msg show err';}finally{btn.disabled=false;btn.textContent='Submit order request';}});
 (async()=>{const params=new URLSearchParams(window.location.search);const paymentState=params.get('payment');const reference=params.get('reference');if(paymentState==='return'&&reference){status.textContent='Checking payment confirmation with the provider…';status.className='status-msg show';try{const r=await fetch(WEBSITE_CHECKOUT_URL+'/verify',{method:'POST',headers:{'Content-Type':'application/json','apikey':SITE_SUPABASE_KEY,'Authorization':'Bearer '+SITE_SUPABASE_KEY},body:JSON.stringify({reference})});const d=await r.json().catch(()=>({}));if(r.ok&&d.success===true&&d.status==='success'){status.textContent='Payment confirmed successfully for order '+(d.orderNumber||'')+'. Your order has been forwarded to Mizpah for processing.';status.className='status-msg show ok';}else{status.textContent=d.message||'Payment is not yet confirmed. Please wait a moment and check again, or contact Mizpah with reference '+reference+'.';status.className='status-msg show err';}}catch(_){status.textContent='We could not verify the payment just now. Please contact Mizpah with payment reference '+reference+'.';status.className='status-msg show err';}history.replaceState({},document.title,window.location.pathname+window.location.hash);}else if(paymentState==='cancelled'){status.textContent='Checkout was cancelled. Your order remains saved and no payment has been confirmed. Please contact Mizpah to retry payment.';status.className='status-msg show err';history.replaceState({},document.title,window.location.pathname+window.location.hash);}else if(params.get('checkout_order')){const orderNumber=params.get('checkout_order');const provider=params.get('provider')==='paystack'?'paystack':'opay';status.textContent='Preparing your approved quotation for secure '+(provider==='opay'?'OPay':'Paystack')+' checkout…';status.className='status-msg show';history.replaceState({},document.title,window.location.pathname+window.location.hash);try{const r=await fetch(WEBSITE_CHECKOUT_URL+'/initialize',{method:'POST',headers:{'Content-Type':'application/json','apikey':SITE_SUPABASE_KEY,'Authorization':'Bearer '+SITE_SUPABASE_KEY},body:JSON.stringify({order_number:orderNumber,provider})});const d=await r.json().catch(()=>({}));if(!r.ok||d.success!==true||!d.checkoutUrl)throw new Error(d.message||'Secure checkout could not be started.');status.textContent='Redirecting to secure '+(provider==='opay'?'OPay':'Paystack')+' checkout…';window.location.assign(d.checkoutUrl);}catch(err){status.textContent=err.message||'Unable to start checkout. Please contact Mizpah with order '+orderNumber+'.';status.className='status-msg show err';}}})();
 
-(async()=>{try{let data=null;if(siteSupabase){const result=await siteSupabase.from('mizpah_web_products').select('id,sku,name,category,description,price_ngn,price_on_request,stock_quantity,minimum_order').eq('published',true).order('sort_order').order('name');if(result.error)throw result.error;data=result.data;}else{const rest=await fetch(SITE_SUPABASE_URL+'/rest/v1/mizpah_web_products?select=id,sku,name,category,description,price_ngn,price_on_request,stock_quantity,minimum_order&published=eq.true&order=sort_order.asc,name.asc',{headers:{apikey:SITE_SUPABASE_KEY,'Authorization':'Bearer '+SITE_SUPABASE_KEY}});if(!rest.ok)throw new Error('Catalogue request failed ('+rest.status+').');data=await rest.json();}liveProducts=data||[];const categories=[...new Set(liveProducts.map(p=>categoryKey(p.category)).filter(Boolean))];category.innerHTML='';categories.forEach(name=>{const o=document.createElement('option');o.value=name;o.textContent=name;category.appendChild(o);});if(categories.length){category.disabled=false;category.value=categories[0];}else{const o=document.createElement('option');o.value='';o.textContent='No products published';category.appendChild(o);category.disabled=false;}fillItems();}catch(err){console.warn('Live Mizpah catalogue could not be loaded.',err);liveProducts=[];category.disabled=false;item.disabled=false;item.innerHTML='<option value="">Catalogue temporarily unavailable — please refresh or contact Mizpah</option>';updateAvailabilityNote();}})();
+(async()=>{
+ try{
+  const endpoint=SITE_SUPABASE_URL+'/rest/v1/mizpah_web_products';
+  const params=new URLSearchParams({
+   select:'id,sku,name,category,description,price_ngn,price_on_request,stock_quantity,minimum_order,sort_order',
+   published:'eq.true',
+   order:'sort_order.asc,name.asc'
+  });
+  const response=await fetch(endpoint+'?'+params.toString(),{
+   method:'GET',
+   cache:'no-store',
+   headers:{'apikey':SITE_SUPABASE_KEY,'Authorization':'Bearer '+SITE_SUPABASE_KEY,'Accept':'application/json'}
+  });
+  if(!response.ok){
+   const detail=await response.text().catch(()=> '');
+   throw new Error('Catalogue request failed ('+response.status+'). '+detail.slice(0,180));
+  }
+  const data=await response.json();
+  if(!Array.isArray(data))throw new Error('The catalogue returned an unexpected response.');
+  liveProducts=data;
+  const categories=[...new Set(liveProducts.map(p=>categoryKey(p.category)).filter(Boolean))];
+  category.innerHTML='';
+  if(categories.length){
+   categories.forEach(name=>{const o=document.createElement('option');o.value=name;o.textContent=name;category.appendChild(o);});
+   category.disabled=false;
+   category.selectedIndex=0;
+  }else{
+   const o=document.createElement('option');o.value='';o.textContent='No products published';category.appendChild(o);category.disabled=true;
+  }
+  fillItems();
+  updateAvailabilityNote();
+ }catch(err){
+  console.error('Mizpah live catalogue load failed:',err);
+  liveProducts=[];
+  category.innerHTML='<option value="">Catalogue unavailable — refresh or contact Mizpah</option>';
+  category.disabled=true;
+  item.innerHTML='<option value="">Products could not be loaded</option>';
+  item.disabled=true;
+  updateAvailabilityNote();
+ }
+})();
 document.getElementById('order-whatsapp').addEventListener('click',()=>{if(!cart.length){status.textContent='Add at least one product or service first.';status.className='status-msg show err';return;}const f=document.getElementById('mizpah-order-form');if(!f.reportValidity())return;const lines=cart.map(x=>x.name+' x '+x.qty).join(', ');const msg='Hello Mizpah Technology. I would like to submit an order/quotation request. Items: '+lines+'. Name: '+document.getElementById('ord-name').value+'. Phone: '+document.getElementById('ord-phone').value+'. Email: '+document.getElementById('ord-email').value+'. Fulfilment: '+document.getElementById('ord-method').value+'. Location: '+document.getElementById('ord-address').value+'. Notes: '+document.getElementById('ord-notes').value;window.open('https://wa.me/2347068645654?text='+encodeURIComponent(msg),'_blank','noopener');});
 })();
 </script>
@@ -525,19 +523,5 @@ document.addEventListener('DOMContentLoaded',()=>{
 }
 #order .order-panel,#order .order-shell{overflow:visible!important}
 </style>
-<style>
-/* Custom tap dropdowns avoid unreliable native select popups in Android webviews. */
-#order .catalog-select-wrap{position:relative!important;display:block!important;width:100%;min-width:0;z-index:30}
-#order .catalog-native-select{position:absolute!important;left:0!important;top:0!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
-#order .catalog-select-trigger{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px;width:100%!important;min-height:56px!important;padding:12px 42px 12px 14px!important;border:1px solid #cbd7cc!important;border-radius:8px!important;background:#fff!important;color:#17251b!important;text-align:left!important;font:inherit!important;font-size:16px!important;line-height:1.35!important;white-space:normal!important;position:relative!important;cursor:pointer!important;touch-action:manipulation!important}
-#order .catalog-select-trigger:after{content:"";position:absolute;right:16px;top:50%;width:9px;height:9px;border-right:2px solid #075b28;border-bottom:2px solid #075b28;transform:translateY(-70%) rotate(45deg)}
-#order .catalog-select-trigger[aria-expanded="true"]:after{transform:translateY(-20%) rotate(225deg)}
-#order .catalog-select-trigger:disabled{opacity:.65;cursor:not-allowed}
-#order .catalog-select-menu{position:absolute!important;left:0!important;right:0!important;top:calc(100% + 5px)!important;z-index:99999!important;max-height: min( min(55vh,420px), 420px)!important;overflow-y:auto!important;overscroll-behavior:contain;background:#fff!important;border:1px solid #cbd7cc!important;border-radius:10px!important;box-shadow:0 12px 30px #102d1b30!important;padding:6px!important}
-#order .catalog-select-menu[hidden]{display:none!important}
-#order .catalog-select-option{display:block!important;width:100%!important;min-height:46px!important;padding:11px 12px!important;border:0!important;border-radius:6px!important;background:#fff!important;color:#17251b!important;text-align:left!important;font:inherit!important;font-size:15px!important;line-height:1.35!important;white-space:normal!important;cursor:pointer!important}
-#order .catalog-select-option[aria-selected="true"]{background:#edf6ed!important;color:#075b28!important;font-weight:800!important}
-#order .catalog-select-option:disabled{color:#8a938b!important;background:#f5f6f4!important;cursor:not-allowed!important}
-#order .catalog-select-option:not(:disabled):active{background:#e8f2e8!important}
-</style>
+
 </body></html>
