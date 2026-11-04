@@ -409,42 +409,65 @@ document.getElementById('mizpah-order-form').addEventListener('submit',async e=>
 (async()=>{
  try{
   const endpoint=SITE_SUPABASE_URL+'/rest/v1/mizpah_web_products';
-  const params=new URLSearchParams({
-   select:'id,sku,name,category,item_type,description,price_ngn,price_on_request,stock_quantity,sort_order',
-   published:'eq.true',
-   order:'sort_order.asc,name.asc'
-  });
+  // Read the published catalogue without naming optional columns. This avoids
+  // breaking the entire dropdown when a deployment has an older table schema.
+  const params=new URLSearchParams({select:'*',published:'eq.true'});
   const response=await fetch(endpoint+'?'+params.toString(),{
    method:'GET',
    cache:'no-store',
-   headers:{'apikey':SITE_SUPABASE_KEY,'Authorization':'Bearer '+SITE_SUPABASE_KEY,'Accept':'application/json'}
+   headers:{
+    'apikey':SITE_SUPABASE_KEY,
+    'Authorization':'Bearer '+SITE_SUPABASE_KEY,
+    'Accept':'application/json',
+    'Cache-Control':'no-cache'
+   }
   });
   if(!response.ok){
    const detail=await response.text().catch(()=> '');
-   throw new Error('Catalogue request failed ('+response.status+'). '+detail.slice(0,180));
+   throw new Error('Catalogue request failed ('+response.status+'). '+detail.slice(0,220));
   }
   const data=await response.json();
   if(!Array.isArray(data))throw new Error('The catalogue returned an unexpected response.');
-  liveProducts=data;
-  const categories=[...new Set(liveProducts.map(p=>categoryKey(p.category)).filter(Boolean))];
-  category.innerHTML='';
-  if(categories.length){
-   categories.forEach(name=>{const o=document.createElement('option');o.value=name;o.textContent=name;category.appendChild(o);});
+  liveProducts=data.filter(p=>p&&p.published===true&&p.name&&p.category)
+   .sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0)||String(a.name).localeCompare(String(b.name)));
+  const categoryNames=[...new Set(liveProducts.map(p=>String(p.category).trim()).filter(Boolean))];
+  category.replaceChildren();
+  if(categoryNames.length){
+   categoryNames.forEach(name=>{
+    const option=document.createElement('option');
+    option.value=name;
+    option.textContent=name;
+    category.appendChild(option);
+   });
    category.disabled=false;
    category.selectedIndex=0;
   }else{
-   const o=document.createElement('option');o.value='';o.textContent='No products published';category.appendChild(o);category.disabled=true;
+   const option=document.createElement('option');
+   option.value='';
+   option.textContent='No published products available';
+   category.appendChild(option);
+   category.disabled=true;
   }
   fillItems();
   updateAvailabilityNote();
  }catch(err){
   console.error('Mizpah live catalogue load failed:',err);
   liveProducts=[];
-  category.innerHTML='<option value="">Catalogue unavailable — refresh or contact Mizpah</option>';
+  category.replaceChildren();
+  const categoryOption=document.createElement('option');
+  categoryOption.value='';
+  categoryOption.textContent='Catalogue unavailable — refresh or contact Mizpah';
+  category.appendChild(categoryOption);
   category.disabled=true;
-  item.innerHTML='<option value="">Products could not be loaded</option>';
+  item.replaceChildren();
+  const itemOption=document.createElement('option');
+  itemOption.value='';
+  itemOption.textContent='Products could not be loaded';
+  item.appendChild(itemOption);
   item.disabled=true;
-  updateAvailabilityNote();
+  const note=document.getElementById('order-availability-note');
+  if(note)note.textContent=err.message||'The product catalogue could not be loaded.';
+  updatePricePreview();
  }
 })();
 document.getElementById('order-whatsapp').addEventListener('click',()=>{if(!cart.length){status.textContent='Add at least one product or service first.';status.className='status-msg show err';return;}const f=document.getElementById('mizpah-order-form');if(!f.reportValidity())return;const lines=cart.map(x=>x.name+' x '+x.qty).join(', ');const msg='Hello Mizpah Technology. I would like to submit an order/quotation request. Items: '+lines+'. Name: '+document.getElementById('ord-name').value+'. Phone: '+document.getElementById('ord-phone').value+'. Email: '+document.getElementById('ord-email').value+'. Fulfilment: '+document.getElementById('ord-method').value+'. Location: '+document.getElementById('ord-address').value+'. Notes: '+document.getElementById('ord-notes').value;window.open('https://wa.me/2347068645654?text='+encodeURIComponent(msg),'_blank','noopener');});
