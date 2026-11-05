@@ -96,8 +96,18 @@ async function ensureOrderReservation(){
  reservationPromise=(async()=>{
   try{
    if(!draftToken){draftToken=sessionStorage.getItem('mizpah_order_draft_token');if(!draftToken){draftToken=crypto.randomUUID();sessionStorage.setItem('mizpah_order_draft_token',draftToken)}}
-   const res=await fetch(CHECKOUT+'/reserve',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({draft_token:draftToken})});
-   const data=await res.json().catch(()=>({}));
+   const reserve=async token=>{
+    const response=await fetch(CHECKOUT+'/reserve',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({draft_token:token})});
+    const payload=await response.json().catch(()=>({}));
+    return {response,payload};
+   };
+   let attempt=await reserve(draftToken);
+   if(attempt.response.status===409&&attempt.payload.code==='DRAFT_ALREADY_CONVERTED'){
+    draftToken=crypto.randomUUID();
+    sessionStorage.setItem('mizpah_order_draft_token',draftToken);
+    attempt=await reserve(draftToken);
+   }
+   const res=attempt.response,data=attempt.payload;
    if(!res.ok||!data.success||!data.order_number)throw new Error(data.message||'We could not reserve your order number. Please try again.');
    reservedOrderNumber=data.order_number;
    document.getElementById('reserved-order-number-value').textContent=reservedOrderNumber;
