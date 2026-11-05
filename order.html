@@ -150,7 +150,7 @@ async function lookupSavedOrder(){
  const resultBox=document.getElementById('resume-result');
  resultBox.classList.add('hidden');resumedOrder=null;
  if(!/^MZP-[A-Z0-9-]{8,60}$/i.test(number)){setStatus(resumeStatus,'Enter a valid Mizpah order number.','error');return}
- if(!/^[^\s@]+@[^\s@]+\\.[^\s@]+$/.test(email)){setStatus(resumeStatus,'Enter the email address used when the order was saved.','error');return}
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){setStatus(resumeStatus,'Enter the email address used when the order was saved.','error');return}
  button.disabled=true;setStatus(resumeStatus,'Securely checking your saved order…');
  try{
   const response=await fetch(CHECKOUT+'/resume',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({order_number:number,email})});
