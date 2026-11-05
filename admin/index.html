@@ -901,7 +901,7 @@ if (loginForm) loginForm.addEventListener('submit', event => { event.preventDefa
 })();
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>'₦'+Number(n||0).toLocaleString('en-NG');
-const displayPrice=p=>p.price===null||p.price_on_request?'Awaiting admin price':displayPrice(p);
+const displayPrice=p=>p.price===null||p.price===undefined||p.price_on_request?'Awaiting admin price':money(p.price);
 const stockStatus=p=>p.stock<=0?['Out of stock','out']:p.stock<=p.threshold?['Low stock','low']:['In stock','published'];
 const pill=(label,cls)=>'<span class="pill '+cls+'">'+esc(label)+'</span>';
 const productPhoto=p=>p.image_url||petersimePhoto; const petersimePhoto='https://www.petersime.com/media/alrnkafz/petersime-chick-store-1.jpg?height=538&rnd=133287212239630000&width=834';
