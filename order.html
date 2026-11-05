@@ -35,7 +35,10 @@
 <label><input type="radio" name="resume-payment-provider" value="paystack" checked> Paystack</label>
 <label><input type="radio" name="resume-payment-provider" value="opay"> OPay</label>
 </div>
+<div class="resume-actions">
 <button class="resume-continue" id="resume-continue" type="button">Continue to payment</button>
+<button class="resume-continue" id="resume-print" type="button" hidden>Print Receipt</button>
+</div>
 </div>
 </section>
 <p class="hint" style="text-align:center;margin:0 0 14px"><strong>New customer?</strong> Start a fresh order using the form below.</p>
@@ -158,15 +161,52 @@ async function lookupSavedOrder(){
   if(!response.ok||!data.success||!data.order)throw new Error(data.message||'We could not retrieve that saved order.');
   resumedOrder=data.order;
   const o=resumedOrder,items=Array.isArray(o.items)?o.items:[];
-  const rows=items.map(item=>'<div class="resume-item"><span>'+esc(item.name)+'<small class="hint">'+Number(item.quantity||0)+' × '+money(item.unit_price_ngn)+'</small></span><strong>'+money(item.line_total_ngn)+'</strong></div>').join('');
-  document.getElementById('resume-order-details').innerHTML='<p><strong>Order number:</strong> <span style="color:var(--green);font-weight:900">'+esc(o.order_number)+'</span></p><p><strong>Customer:</strong> '+esc(o.customer_name)+'</p><p><strong>Order status:</strong> '+esc(o.status||'Pending')+'</p><p><strong>Payment status:</strong> '+esc(o.payment_status||'Pending')+'</p><div class="summary">'+(rows||'<p class="hint">Saved item details are unavailable. Please contact Mizpah for assistance.</p>')+'</div><div class="summary-total"><span>Order total</span><span>'+(o.total_ngn==null?'Awaiting pricing':money(o.total_ngn))+'</span></div>';
+  const rows=items.map(item=>'<div class="resume-item"><span>'+esc(item.name)+'<small class="hint">'+Number(item.quantity||0)+' × '+money(item.unit_price_ngn)+(item.category?' · '+esc(item.category):'')+'</small></span><strong>'+money(item.line_total_ngn)+'</strong></div>').join('');
+  const details=[
+   '<p><strong>Order number:</strong> <span style="color:var(--green);font-weight:900">'+esc(o.order_number)+'</span></p>',
+   '<p><strong>Customer:</strong> '+esc(o.customer_name)+'</p>',
+   '<p><strong>Email:</strong> '+esc(o.customer_email||'Not recorded')+'</p>',
+   '<p><strong>Phone:</strong> '+esc(o.customer_phone||'Not recorded')+'</p>',
+   '<p><strong>Delivery / collection:</strong> '+esc(o.fulfilment||'Not recorded')+'</p>',
+   '<p><strong>Address:</strong> '+esc([o.delivery_address,o.city,o.state,o.country].filter(Boolean).join(', ')||'Not recorded')+'</p>',
+   '<p><strong>Order status:</strong> '+esc(o.status||'Pending')+'</p>',
+   '<p><strong>Payment status:</strong> '+esc(o.payment_status||'Pending')+'</p>'
+  ].join('');
+  document.getElementById('resume-order-details').innerHTML=details+'<div class="summary">'+(rows||'<p class="hint">Saved item details are unavailable. Please contact Mizpah for assistance.</p>')+'</div><div class="summary-total"><span>'+(o.is_paid?'Total paid':'Order total')+'</span><span>'+(o.total_ngn==null?'Awaiting pricing':money(o.total_ngn))+'</span></div>';
   const continueButton=document.getElementById('resume-continue');
+  const printButton=document.getElementById('resume-print');
+  const providerChoice=document.querySelector('.resume-pay-choice');
+  continueButton.hidden=!!o.is_paid||!o.payable;
   continueButton.disabled=!o.payable;
-  continueButton.textContent=o.payment_status==='paid'?'Payment already confirmed':(o.payable?'Continue to payment':'Awaiting Mizpah pricing');
+  continueButton.textContent=o.payable?'Continue to payment':'Payment not available';
+  providerChoice.hidden=!o.payable;
+  printButton.hidden=!o.is_paid;
   resultBox.classList.remove('hidden');
-  setStatus(resumeStatus,o.payment_status==='paid'?'Your saved order has already been paid.':(o.payable?'We found your saved order. Review the details below, then continue when ready.':'Your order was found, but payment is not available yet.'),o.payment_status==='paid'?'success':'');
+  setStatus(resumeStatus,o.is_paid?'Payment confirmed. You can now print the complete receipt.':(o.payable?'We found your saved order. Review the details below, then continue when ready.':'Your order was found, but payment is not available yet.'),o.is_paid?'success':'');
  }catch(err){setStatus(resumeStatus,err.message,'error')}
  finally{button.disabled=false}
+}
+function printSavedReceipt(){
+ if(!resumedOrder||resumedOrder.payment_status!=='paid')return;
+ const o=resumedOrder,items=Array.isArray(o.items)?o.items:[];
+ const escHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const fmt=value=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:2}).format(Number(value)||0);
+ const date=value=>value?new Date(value).toLocaleString('en-NG',{dateStyle:'medium',timeStyle:'short'}):'Not recorded';
+ const rows=items.map((item,i)=>'<tr><td>'+(i+1)+'</td><td>'+escHtml(item.name)+(item.category?'<small>'+escHtml(item.category)+'</small>':'')+'</td><td>'+Number(item.quantity||0)+'</td><td>'+fmt(item.unit_price_ngn)+'</td><td>'+fmt(item.line_total_ngn)+'</td></tr>').join('');
+ const address=[o.delivery_address,o.city,o.state,o.country].filter(Boolean).join(', ');
+ const w=window.open('','_blank','noopener,noreferrer,width=900,height=750');
+ if(!w){setStatus(resumeStatus,'Allow pop-ups for this site to print your receipt.','error');return}
+ const html='<!doctype html><html><head><meta charset="utf-8"><title>Mizpah Receipt '+escHtml(o.order_number)+'</title><style>'+
+ '*{box-sizing:border-box}body{font:14px Arial,sans-serif;color:#18251c;margin:0;padding:32px}.receipt{max-width:850px;margin:auto}.head{background:#064b2a;color:#fff;padding:24px;text-align:center;border-bottom:5px solid #c9a227}.head h1{margin:0;font-size:24px;letter-spacing:1px}.tag{color:#f0d88c;margin-top:7px;font-size:12px}.meta{display:flex;justify-content:space-between;gap:20px;margin:22px 0}.paid{color:#08752e;font-weight:bold;border:1px solid #08752e;padding:8px 12px;display:inline-block}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}.panel{border:1px solid #d8e1d9;padding:14px;border-radius:6px}.panel h3{margin:0 0 10px;color:#064b2a;font-size:14px}.panel p{margin:5px 0;line-height:1.4}table{width:100%;border-collapse:collapse;margin:18px 0}th,td{padding:10px 8px;border-bottom:1px solid #dce4dc;text-align:left}th{background:#eef4ee;color:#064b2a}td:last-child,th:last-child{text-align:right}td small{display:block;color:#66736a;margin-top:4px}.total{text-align:right;font-size:20px;font-weight:bold;color:#064b2a;padding:16px 0;border-top:2px solid #c9a227}.payment{background:#f5f8f4;padding:14px;border:1px solid #d8e1d9}.foot{text-align:center;color:#5c695f;font-size:12px;margin-top:28px}.actions{text-align:center;margin:20px}@media print{body{padding:0}.actions{display:none}.head{-webkit-print-color-adjust:exact;print-color-adjust:exact}th{background:#eef4ee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}@page{size:A4;margin:14mm}'+
+ '</style></head><body><main class="receipt"><header class="head"><h1>MIZPAH SMART HATCHERY</h1><div class="tag">HEALTHY CHICKS | BETTER TOMORROW</div><p style="margin:12px 0 0">info@mizpahtechnology.com.ng · +234 706 864 5654 · +234 803 881 7886</p></header>'+
+ '<div class="meta"><div><h2 style="margin:0 0 6px">PAYMENT RECEIPT</h2><strong>Receipt / Order No:</strong> '+escHtml(o.order_number)+'<br><strong>Order date:</strong> '+date(o.created_at)+'</div><div class="paid">PAYMENT CONFIRMED</div></div>'+
+ '<div class="grid"><section class="panel"><h3>CUSTOMER DETAILS</h3><p><strong>Name:</strong> '+escHtml(o.customer_name)+'</p><p><strong>Email:</strong> '+escHtml(o.customer_email)+'</p><p><strong>Phone:</strong> '+escHtml(o.customer_phone)+'</p><p><strong>Address:</strong> '+escHtml(address||'Not recorded')+'</p><p><strong>Fulfilment:</strong> '+escHtml(o.fulfilment||'Not recorded')+'</p><p><strong>Preferred date:</strong> '+escHtml(o.preferred_date||'Not specified')+'</p></section>'+
+ '<section class="panel"><h3>PAYMENT DETAILS</h3><p><strong>Status:</strong> PAID / SUCCESSFUL</p><p><strong>Method:</strong> '+escHtml((o.payment_method||'').toUpperCase()||'Not recorded')+'</p><p><strong>Reference:</strong> '+escHtml(o.payment_reference||'Not recorded')+'</p><p><strong>Paid on:</strong> '+date(o.paid_at)+'</p><p><strong>Order status:</strong> '+escHtml(o.status||'Confirmed')+'</p></section></div>'+
+ '<h3 style="color:#064b2a">ORDERED PRODUCTS & SERVICES</h3><table><thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Unit price</th><th>Line total</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+ '<div class="total">TOTAL PAID: '+fmt(o.total_ngn)+'</div>'+
+ (o.notes?'<section class="panel"><h3>ORDER NOTES</h3><p>'+escHtml(o.notes)+'</p></section>':'')+
+ '<div class="foot">Thank you for choosing Mizpah Smart Hatchery.<br>Ensuring Customer satisfaction.</div><div class="actions"><button onclick="window.print()">Print receipt</button></div></main></body></html>';
+ w.document.open();w.document.write(html);w.document.close();w.focus();setTimeout(()=>w.print(),350);
 }
 async function continueResumedPayment(){
  if(!resumedOrder||!resumedOrder.payable)return;
@@ -181,6 +221,7 @@ async function continueResumedPayment(){
 }
 document.getElementById('resume-lookup').addEventListener('click',lookupSavedOrder);
 document.getElementById('resume-continue').addEventListener('click',continueResumedPayment);
+document.getElementById('resume-print').addEventListener('click',printSavedReceipt);
 try{const last=localStorage.getItem('mizpah_last_order');if(last)document.getElementById('resume-order-number').value=last}catch(_){}
 const params=new URLSearchParams(location.search);if(params.get('payment')==='return'){const ref=params.get('reference')||'';setStatus(resumeStatus,'Payment return received. We are checking the provider status; do not retry payment until verification completes. Reference: '+ref);fetch(CHECKOUT+'/verify',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({reference:ref})}).then(r=>r.json()).then(d=>setStatus(resumeStatus,d.success?'Payment verified successfully for order '+(d.orderNumber||'')+'.':(d.message||'Payment is not yet confirmed. You can retry verification or contact Mizpah.'),d.success?'success':'')).catch(()=>setStatus(resumeStatus,'We could not confirm the payment status yet. Please contact Mizpah with your payment reference.','error'))}
 loadCatalogue();
