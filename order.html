@@ -107,8 +107,8 @@ document.getElementById('customer-country').addEventListener('change',event=>{
  stateText.disabled=isNigeria;stateText.required=!isNigeria;
  if(isNigeria)stateText.value='';else stateSelect.value='';
 });
-function available(p){return p.published===true&&!p.price_on_request&&p.price_ngn!==null&&Number(p.price_ngn)>0&&(p.item_type==='service'||Number(p.stock_quantity)>0)}
-function optionMarkup(){return '<option value="">Choose an item</option>'+catalogue.map(p=>'<option value="'+p.id+'">'+esc(p.name)+(p.variant_label?' — '+esc(p.variant_label):'')+' · '+money(p.price_ngn)+(p.selling_unit?' / '+esc(p.selling_unit):'')+'</option>').join('')}
+function available(p){return p.published===true&&!p.price_on_request&&p.price_ngn!==null&&Number(p.price_ngn)>0}
+function optionMarkup(){return '<option value="">Choose an item</option>'+catalogue.map(p=>{const outOfStock=p.item_type!=='service'&&Number(p.stock_quantity)<=0;return '<option value="'+p.id+'" '+(outOfStock?'disabled':'')+'>'+esc(p.name)+(p.variant_label?' — '+esc(p.variant_label):'')+' · '+money(p.price_ngn)+(p.selling_unit?' / '+esc(p.selling_unit):'')+(outOfStock?' · OUT OF STOCK':'')+'</option>'}).join('')}
 async function ensureOrderReservation(){
  if(reservedOrderNumber)return reservedOrderNumber;
  if(reservationPromise)return reservationPromise;
