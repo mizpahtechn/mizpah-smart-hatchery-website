@@ -454,20 +454,20 @@ document.getElementById('mizpah-order-form').addEventListener('submit',async e=>
  }catch(err){
   console.error('Mizpah live catalogue load failed:',err);
   liveProducts=[];
-  category.replaceChildren();
-  const categoryOption=document.createElement('option');
-  categoryOption.value='';
-  categoryOption.textContent='Catalogue unavailable — refresh or contact Mizpah';
-  category.appendChild(categoryOption);
-  category.disabled=true;
+  /*
+   * A catalogue/network failure must never disable the category selector.
+   * Keep its initial choices available so the native Android select remains
+   * tappable. Do not invent product records or prices if the API is unavailable.
+   */
+  category.disabled=false;
   item.replaceChildren();
   const itemOption=document.createElement('option');
   itemOption.value='';
-  itemOption.textContent='Products could not be loaded';
+  itemOption.textContent='Catalogue unavailable — refresh or contact Mizpah';
   item.appendChild(itemOption);
-  item.disabled=true;
+  item.disabled=false;
   const note=document.getElementById('order-availability-note');
-  if(note)note.textContent=err.message||'The product catalogue could not be loaded.';
+  if(note)note.textContent='The category selector is available, but live products could not be loaded. '+(err.message||'Please refresh or contact Mizpah.');
   updatePricePreview();
  }
 })();
