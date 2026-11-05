@@ -924,6 +924,13 @@ async function saveProductRecord(values){
 }
 async function setProductPublished(ids,value){
  if(!currentStaff||!['owner','admin','manager'].includes(currentStaff.role))throw new Error('Your staff role cannot manage product publication.');
+ if(value){
+  const {data:records,error:readError}=await supabaseClient.from('mizpah_web_products').select('id,name,price_ngn,price_on_request').in('id',ids);
+  if(readError)throw readError;
+  const blocked=(records||[]).filter(p=>p.price_on_request===true||p.price_ngn===null||!Number.isFinite(Number(p.price_ngn))||Number(p.price_ngn)<=0);
+  if(blocked.length)throw new Error('Add an approved positive price before publishing: '+blocked.map(p=>p.name).join(', ')+'.');
+  if((records||[]).length!==ids.length)throw new Error('One or more catalogue entries could not be verified. Refresh and try again.');
+ }
  const {error}=await supabaseClient.from('mizpah_web_products').update({published:value}).in('id',ids);
  if(error)throw error;
 }
