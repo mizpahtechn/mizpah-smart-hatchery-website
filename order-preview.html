@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#075b28">
+<meta name="description" content="Review your Mizpah Smart Hatchery order before saving or secure payment.">
+<link rel="canonical" href="https://mizpahtechnology.com.ng/order-preview.html">
+<title>Review Your Order | Mizpah Smart Hatchery</title>
+<style>
+:root{--green:#075b28;--deep:#03451f;--gold:#d4af37;--ink:#17251b;--muted:#5e6c61;--line:#dce7dd;--red:#a12626}
+*{box-sizing:border-box}body{margin:0;background:#f5f8f4;color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif}a{color:inherit;text-decoration:none}.top{background:var(--deep);color:#fff;padding:9px 16px;text-align:center;font-size:13px}.top a{text-decoration:underline}.wrap{width:min(900px,calc(100% - 32px));margin:auto}.header{background:#fff;border-bottom:1px solid var(--line)}.header-inner{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-weight:900;color:var(--green);font-size:clamp(18px,3vw,25px);line-height:1.1}.brand small{display:block;color:#98751c;font-size:11px;letter-spacing:.04em;margin-top:5px}.back{font-weight:750;color:var(--green);border:1px solid var(--line);padding:10px 14px;border-radius:24px}.hero{padding:34px 0 24px;text-align:center}.eyebrow{color:#a47b13;font-weight:850;letter-spacing:.14em;font-size:12px}.hero h1{color:var(--green);font-size:clamp(29px,5vw,42px);line-height:1.12;margin:8px 0}.hero p{max-width:680px;margin:0 auto;color:var(--muted)}.card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:18px;padding:clamp(18px,4vw,32px);box-shadow:0 12px 34px #173e1b0c;margin:0 auto 24px}.section-title{display:flex;align-items:center;gap:12px;margin:25px 0 16px;color:var(--green);font-size:20px}.section-title:first-child{margin-top:0}.number{width:30px;height:30px;display:grid;place-items:center;background:#f8f1d7;border-radius:50%;color:#85640e;font-size:14px}.summary{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:12px 0}.summary-head{background:#f4f7ef;color:var(--green);font-weight:850;padding:12px 15px}.summary-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:11px 15px;border-top:1px solid #edf1ec}.summary-row small{display:block;color:var(--muted)}.summary-total{display:flex;justify-content:space-between;gap:12px;padding:15px;background:#f8f4df;border-top:1px solid #e8ddb0;font-weight:900;color:var(--green)}.customer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px}.customer div{min-width:0;overflow-wrap:anywhere}.customer small{display:block;color:var(--muted)}.hint{color:var(--muted);font-size:13px;margin:6px 0 0}.pay-choice{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}.pay-choice label{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:12px 15px;margin:0;font-weight:700}.pay-choice input{width:18px;height:18px;accent-color:var(--green)}.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.actions button{margin:0}.button{width:100%;border:0;border-radius:28px;background:var(--green);color:white;padding:15px 20px;font-size:16px;font-weight:900;cursor:pointer;margin-top:22px}.button:hover{background:var(--deep)}.button:disabled{opacity:.65;cursor:wait}.ghost{border:1px solid var(--green);background:#fff;color:var(--green);border-radius:28px;padding:14px;font-weight:850;cursor:pointer}.notice{background:#fff8df;border-left:4px solid var(--gold);padding:13px 15px;border-radius:5px;color:#4c431e;font-size:13px;margin-top:18px}.status{min-height:24px;font-weight:750;margin:12px 0 0}.status.error{color:var(--red)}.status.success{color:var(--green)}.saved{background:#eef6ed;border:1px solid #c9dfc9;padding:14px;border-radius:10px;overflow-wrap:anywhere}.footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 28px}.footer a{color:var(--green);font-weight:750}.hidden{display:none!important}
+@media(max-width:620px){.header-inner{min-height:72px}.back{font-size:13px;padding:9px 11px}.hero{padding:27px 0 18px}.card{border-radius:14px}.customer{grid-template-columns:1fr}.actions{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top">Mizpah Smart Hatchery · <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></div>
+<header class="header"><div class="wrap header-inner"><a class="brand" href="/">MIZPAH SMART HATCHERY<small>HEALTHY CHICKS | BETTER TOMORROW</small></a><a class="back" href="/order.html">← Back to order form</a></div></header>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">FINAL CHECK BEFORE SUBMISSION</div><h1>Preview Your Order</h1><p>Confirm the selected products or services, quantities, prices and your contact information. You can go back and edit everything before saving or paying.</p></section>
+<section class="card" id="preview-card">
+<h2 class="section-title"><span class="number">1</span> Itemised order summary</h2>
+<div id="preview-items"></div>
+<h2 class="section-title"><span class="number">2</span> Customer and delivery information</h2>
+<div id="preview-customer" class="customer"></div>
+<div class="notice"><strong>Please note:</strong> The displayed total is for the listed items. Any applicable delivery charges must be confirmed by Mizpah. The final order amount is recalculated by the server from the live catalogue before payment.</div>
+<h2 class="section-title"><span class="number">3</span> Payment method</h2>
+<p class="hint">Choose the payment provider you want to use. Payment is confirmed only after the provider is checked by Mizpah's server.</p>
+<div class="pay-choice"><label><input type="radio" name="payment-provider" value="paystack" checked> Paystack</label><label><input type="radio" name="payment-provider" value="opay"> OPay</label></div>
+<div class="actions"><button class="ghost" type="button" id="edit-order">Edit order details</button><button class="ghost" type="button" id="save-pending">Save as pending</button></div>
+<button class="button" type="button" id="proceed-payment">Confirm order and proceed to payment</button>
+<p class="status" id="preview-status" role="status" aria-live="polite"></p>
+</section>
+<section class="card hidden" id="saved-card">
+<h2 class="section-title"><span class="number">✓</span> Your order has been saved</h2>
+<div class="saved"><strong>Order number:</strong> <span id="saved-order-number"></span><p class="hint">Keep this number. You can return to the order page later and enter it to resume payment.</p></div>
+<a class="button" style="display:block;text-align:center" href="/order.html">Return to order page</a>
+</section>
+</main>
+<footer class="footer">© <span id="year"></span> Mizpah Technology · <a href="/">Return to Mizpah Smart Hatchery</a></footer>
+<script>
+(function(){
+const CHECKOUT='https://ouebgmhtyekqnyrkfrcp.supabase.co/functions/v1/website-checkout';
+const API_KEY='sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk';
+const naira=new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:2});
+const status=document.getElementById('preview-status');
+let orderData=null,savedOrder=null;
+document.getElementById('year').textContent=new Date().getFullYear();
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function money(v){return naira.format(Number(v)||0)}
+function setStatus(message,type=''){status.textContent=message;status.className='status'+(type?' '+type:'')}
+function loadDraft(){try{const raw=sessionStorage.getItem('mizpah_order_preview');if(!raw)return null;const d=JSON.parse(raw);if(!d||!Array.isArray(d.items)||!Array.isArray(d.displayItems)||!d.customer||!d.items.length||d.items.length!==d.displayItems.length)return null;return d}catch(_){return null}}
+function render(){const rows=orderData.displayItems;const total=rows.reduce((sum,x)=>sum+Number(x.product.price_ngn)*Number(x.quantity),0);document.getElementById('preview-items').innerHTML='<div class="summary"><div class="summary-head">Selected products and services</div>'+rows.map(x=>'<div class="summary-row"><span>'+esc(x.product.name)+'<small>'+Number(x.quantity)+' × '+money(x.product.price_ngn)+(x.product.selling_unit?' / '+esc(x.product.selling_unit):'')+'</small></span><strong>'+money(Number(x.quantity)*Number(x.product.price_ngn))+'</strong></div>').join('')+'<div class="summary-total"><span>Estimated total for items</span><span>'+money(total)+'</span></div></div>';const c=orderData.customer;const values=[['Full name',c.name],['Phone / WhatsApp',c.phone],['Email',c.email],['Country',c.country],['State / Province',c.state],['Town / City',c.city],['Fulfilment',c.fulfilment],['Delivery / collection address',c.address],['Preferred date',c.preferred_date||'Not specified'],['Additional instructions',c.notes||'None']];document.getElementById('preview-customer').innerHTML=values.map(x=>'<div><small>'+esc(x[0])+'</small><strong>'+esc(x[1])+'</strong></div>').join('')}
+function edit(){if(history.length>1){history.back()}else{location.href='/order.html'}}
+document.getElementById('edit-order').addEventListener('click',edit);
+async function createOrder(){if(savedOrder)return savedOrder;if(!orderData)throw new Error('Your order details are missing. Return to the order form and try again.');const c=orderData.customer;const payload={name:c.name,email:c.email,phone:c.phone,country:c.country,state:c.state,city:c.city,address:c.address,fulfilment:c.fulfilment,preferred_date:c.preferred_date||null,notes:c.notes,items:orderData.items};const response=await fetch(CHECKOUT+'/create',{method:'POST',headers:{'Content-Type':'application/json','apikey':API_KEY},body:JSON.stringify(payload)});const result=await response.json().catch(()=>({}));if(!response.ok||!result.success||!result.order?.order_number)throw new Error(result.message||'Your order could not be saved. Please try again.');savedOrder=result.order;try{localStorage.setItem('mizpah_last_order',savedOrder.order_number)}catch(_){}return savedOrder}
+function showSaved(order){document.getElementById('saved-order-number').textContent=order.order_number;document.getElementById('saved-card').classList.remove('hidden');document.getElementById('preview-card').classList.add('hidden');document.getElementById('saved-card').scrollIntoView({behavior:'smooth',block:'start'})}
+document.getElementById('save-pending').addEventListener('click',async()=>{const b=document.getElementById('save-pending');b.disabled=true;setStatus('Saving your order securely…');try{const order=await createOrder();showSaved(order);setStatus('Your order is saved and pending.','success')}catch(e){setStatus(e.message,'error')}finally{b.disabled=false}});
+async function pay(order){if(order.intent!=='Order request'||order.order_total_ngn==null)throw new Error('This order needs staff pricing before payment. Please contact Mizpah.');const provider=document.querySelector('input[name="payment-provider"]:checked')?.value||'paystack';const response=await fetch(CHECKOUT+'/initialize',{method:'POST',headers:{'Content-Type':'application/json','apikey':API_KEY},body:JSON.stringify({order_number:order.order_number,provider})});const data=await response.json().catch(()=>({}));if(!response.ok||!data.success||!data.checkoutUrl)throw new Error(data.message||'The payment provider could not be opened.');location.assign(data.checkoutUrl)}
+document.getElementById('proceed-payment').addEventListener('click',async()=>{const b=document.getElementById('proceed-payment');b.disabled=true;setStatus('Saving your order and preparing secure checkout…');try{const order=await createOrder();await pay(order)}catch(e){setStatus(e.message,'error');b.disabled=false}});
+orderData=loadDraft();if(!orderData){document.getElementById('preview-card').innerHTML='<h2 class="section-title">No order preview found</h2><p class="hint">Your order details may have expired or this page was opened directly. Return to the order form to create a new preview.</p><a class="button" style="display:block;text-align:center" href="/order.html">Return to order form</a>'}else{render()}
+})();
+</script>
+</body></html>
