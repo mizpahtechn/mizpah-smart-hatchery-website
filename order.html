@@ -181,6 +181,8 @@ async function lookupSavedOrder(){
   continueButton.textContent=o.payable?'Continue to payment':'Payment not available';
   providerChoice.classList.toggle('hidden',!o.payable);
   printButton.textContent=o.is_paid?'Print Receipt':'Print Order Summary';
+  printButton.hidden=false;
+  printButton.removeAttribute('hidden');
   printButton.classList.remove('hidden');
   resultBox.classList.remove('hidden');
   setStatus(resumeStatus,o.is_paid?'Payment confirmed. You can now print the complete receipt.':(o.payable?'We found your saved order. Review the details below, then continue when ready.':'Your order was found, but payment is not available yet.'),o.is_paid?'success':'');
