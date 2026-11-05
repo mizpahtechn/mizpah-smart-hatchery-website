@@ -1,136 +1,123 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#075b28">
-<meta name="description" content="Send a customer order request to Mizpah Smart Hatchery for day-old chicks and poultry services.">
+<meta name="description" content="Order products and services from Mizpah Smart Hatchery with a clear itemised order preview and secure checkout.">
 <link rel="canonical" href="https://mizpahtechnology.com.ng/order.html">
-<title>Customer Order Request | Mizpah Smart Hatchery</title>
+<title>Place an Order | Mizpah Smart Hatchery</title>
 <style>
-:root{--green:#075b28;--deep:#03451f;--gold:#d4af37;--ink:#17251b;--muted:#5e6c61;--line:#dce7dd;--cream:#f8f7ee}
-*{box-sizing:border-box}body{margin:0;background:#f5f8f4;color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif}a{color:inherit;text-decoration:none}.top{background:var(--deep);color:#fff;padding:9px 20px;text-align:center;font-size:13px}.top a{text-decoration:underline}.wrap{width:min(920px,calc(100% - 32px));margin:auto}.header{background:#fff;border-bottom:1px solid var(--line)}.header-inner{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-weight:900;color:var(--green);font-size:clamp(18px,3vw,25px);line-height:1.1}.brand small{display:block;color:#98751c;font-size:11px;letter-spacing:.04em;margin-top:5px}.back{font-weight:750;color:var(--green);border:1px solid var(--line);padding:10px 14px;border-radius:24px}.hero{padding:38px 0 25px;text-align:center}.eyebrow{color:#a47b13;font-weight:850;letter-spacing:.14em;font-size:12px}.hero h1{color:var(--green);font-size:clamp(29px,5vw,42px);line-height:1.12;margin:8px 0}.hero p{max-width:650px;margin:0 auto;color:var(--muted)}.form-card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:18px;padding:clamp(18px,4vw,34px);box-shadow:0 12px 34px #173e1b0c;margin:0 auto 42px}.section-title{display:flex;align-items:center;gap:12px;margin:25px 0 16px;color:var(--green);font-size:20px}.section-title:first-child{margin-top:0}.number{width:30px;height:30px;display:grid;place-items:center;background:#f8f1d7;border-radius:50%;color:#85640e;font-size:14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field{min-width:0}.field.full{grid-column:1/-1}label{display:block;font-weight:750;font-size:14px;margin:0 0 7px}input,select,textarea{width:100%;min-width:0;border:1px solid #cbd8cc;border-radius:9px;background:#fff;color:var(--ink);font:inherit;padding:12px 13px;min-height:48px}textarea{min-height:105px;resize:vertical}input:focus,select:focus,textarea:focus{outline:3px solid #e7d28c;outline-offset:1px;border-color:var(--green)}.hint{color:var(--muted);font-size:12px;margin:6px 0 0}.item-list{display:grid;gap:12px}.order-item{border:1px solid var(--line);background:#fbfcfa;border-radius:12px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 120px auto;gap:12px;align-items:end}.remove{border:1px solid #e2caca;background:#fff;color:#9b2929;border-radius:8px;padding:12px;min-height:48px;font-weight:750;cursor:pointer}.secondary{background:#fff;border:1px solid var(--green);color:var(--green);border-radius:24px;padding:11px 16px;font-weight:800;cursor:pointer;margin-top:12px}.fulfilment{display:flex;gap:18px;flex-wrap:wrap}.fulfilment label{display:flex;align-items:center;gap:8px;font-weight:650;margin:0}.fulfilment input{width:18px;min-height:18px;height:18px;accent-color:var(--green)}.submit{width:100%;border:0;border-radius:28px;background:var(--green);color:white;padding:15px 20px;font-size:16px;font-weight:900;cursor:pointer;margin-top:22px}.submit:hover{background:var(--deep)}.submit:disabled{opacity:.65;cursor:wait}.notice{background:#fff8df;border-left:4px solid var(--gold);padding:13px 15px;border-radius:5px;color:#4c431e;font-size:13px;margin-top:18px}.status{min-height:24px;font-weight:750;margin:12px 0 0}.status.error{color:#a12626}.status.success{color:var(--green)}.honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}.footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 28px}.footer a{color:var(--green);font-weight:750}
-@media(max-width:620px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.order-item{grid-template-columns:minmax(0,1fr) 95px}.order-item .remove{grid-column:1/-1;width:100%;min-height:40px;padding:8px}.header-inner{min-height:72px}.back{font-size:13px;padding:9px 11px}.hero{padding:28px 0 20px}.form-card{border-radius:14px}.fulfilment{gap:12px}}
+:root{--green:#075b28;--deep:#03451f;--gold:#d4af37;--ink:#17251b;--muted:#5e6c61;--line:#dce7dd;--cream:#f8f7ee;--red:#a12626}
+*{box-sizing:border-box}body{margin:0;background:#f5f8f4;color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif}a{color:inherit;text-decoration:none}.top{background:var(--deep);color:#fff;padding:9px 16px;text-align:center;font-size:13px}.top a{text-decoration:underline}.wrap{width:min(960px,calc(100% - 32px));margin:auto}.header{background:#fff;border-bottom:1px solid var(--line)}.header-inner{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-weight:900;color:var(--green);font-size:clamp(18px,3vw,25px);line-height:1.1}.brand small{display:block;color:#98751c;font-size:11px;letter-spacing:.04em;margin-top:5px}.back{font-weight:750;color:var(--green);border:1px solid var(--line);padding:10px 14px;border-radius:24px}.hero{padding:34px 0 24px;text-align:center}.eyebrow{color:#a47b13;font-weight:850;letter-spacing:.14em;font-size:12px}.hero h1{color:var(--green);font-size:clamp(29px,5vw,42px);line-height:1.12;margin:8px 0}.hero p{max-width:680px;margin:0 auto;color:var(--muted)}.form-card,.resume-card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:18px;padding:clamp(18px,4vw,32px);box-shadow:0 12px 34px #173e1b0c;margin:0 auto 24px}.section-title{display:flex;align-items:center;gap:12px;margin:25px 0 16px;color:var(--green);font-size:20px}.section-title:first-child{margin-top:0}.number{width:30px;height:30px;display:grid;place-items:center;background:#f8f1d7;border-radius:50%;color:#85640e;font-size:14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field{min-width:0}.field.full{grid-column:1/-1}label{display:block;font-weight:750;font-size:14px;margin:0 0 7px}input,select,textarea{width:100%;min-width:0;border:1px solid #cbd8cc;border-radius:9px;background:#fff;color:var(--ink);font:inherit;padding:12px 13px;min-height:48px}textarea{min-height:95px;resize:vertical}input:focus,select:focus,textarea:focus{outline:3px solid #e7d28c;outline-offset:1px;border-color:var(--green)}.hint{color:var(--muted);font-size:12px;margin:6px 0 0}.item-list{display:grid;gap:12px}.order-item{border:1px solid var(--line);background:#fbfcfa;border-radius:12px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 110px auto;gap:12px;align-items:end}.remove{border:1px solid #e2caca;background:#fff;color:#9b2929;border-radius:8px;padding:12px;min-height:48px;font-weight:750;cursor:pointer}.remove:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#fff;border:1px solid var(--green);color:var(--green);border-radius:24px;padding:11px 16px;font-weight:800;cursor:pointer;margin-top:12px}.fulfilment{display:flex;gap:18px;flex-wrap:wrap}.fulfilment label{display:flex;align-items:center;gap:8px;font-weight:650;margin:0}.fulfilment input{width:18px;min-height:18px;height:18px;accent-color:var(--green)}.submit,.primary{width:100%;border:0;border-radius:28px;background:var(--green);color:white;padding:15px 20px;font-size:16px;font-weight:900;cursor:pointer;margin-top:22px}.submit:hover,.primary:hover{background:var(--deep)}.submit:disabled,.primary:disabled{opacity:.65;cursor:wait}.notice{background:#fff8df;border-left:4px solid var(--gold);padding:13px 15px;border-radius:5px;color:#4c431e;font-size:13px;margin-top:18px}.status{min-height:24px;font-weight:750;margin:12px 0 0}.status.error{color:var(--red)}.status.success{color:var(--green)}.summary{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:12px 0}.summary-head{background:#f4f7ef;color:var(--green);font-weight:850;padding:12px 15px}.summary-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:11px 15px;border-top:1px solid #edf1ec}.summary-row small{display:block;color:var(--muted)}.summary-total{display:flex;justify-content:space-between;gap:12px;padding:15px;background:#f8f4df;border-top:1px solid #e8ddb0;font-weight:900;color:var(--green)}.customer-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px}.customer-preview div{min-width:0;overflow-wrap:anywhere}.customer-preview small{display:block;color:var(--muted)}.preview-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.preview-actions button{margin:0}.ghost{border:1px solid var(--green);background:#fff;color:var(--green);border-radius:28px;padding:14px;font-weight:850;cursor:pointer}.pay-choice{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}.pay-choice label{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:12px 15px;margin:0}.pay-choice input{width:18px;min-height:18px;height:18px;accent-color:var(--green)}.resume-card{padding:20px}.resume-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}.resume-row button{margin:0;white-space:nowrap}.saved-ref{background:#eef6ed;border:1px solid #c9dfc9;padding:14px;border-radius:10px;overflow-wrap:anywhere}.honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}.footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 28px}.footer a{color:var(--green);font-weight:750}.hidden{display:none!important}
+@media(max-width:620px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.order-item{grid-template-columns:minmax(0,1fr) 88px}.order-item .remove{grid-column:1/-1;width:100%;min-height:40px;padding:8px}.header-inner{min-height:72px}.back{font-size:13px;padding:9px 11px}.hero{padding:27px 0 18px}.form-card{border-radius:14px}.customer-preview{grid-template-columns:1fr}.preview-actions{grid-template-columns:1fr}.resume-row{grid-template-columns:1fr}.resume-row button{width:100%}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
 <div class="top">Mizpah Smart Hatchery · <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></div>
 <header class="header"><div class="wrap header-inner"><a class="brand" href="/">MIZPAH SMART HATCHERY<small>HEALTHY CHICKS | BETTER TOMORROW</small></a><a class="back" href="/">← Back to website</a></div></header>
 <main class="wrap">
-<section class="hero"><div class="eyebrow">CUSTOMER ORDER DESK</div><h1>Submit Your Order Request</h1><p>Tell us what you need and where you need it. Our team will contact you to confirm availability, pricing and arrangements.</p></section>
+<section class="hero"><div class="eyebrow">CUSTOMER ORDER DESK</div><h1>Build Your Order</h1><p>Choose from the live Mizpah catalogue. Review your selected items, prices and customer details before saving your order or proceeding to secure payment.</p></section>
 <form class="form-card" id="customer-order-form">
 <h2 class="section-title"><span class="number">1</span> Products and services</h2>
-<div id="items" class="item-list">
-<div class="order-item">
-<div class="field"><label>Product or service *</label><select name="item" required><option value="">Choose an item</option><optgroup label="Day-old chicks"><option>Broiler DOCs</option><option>Layer DOCs</option><option>Cockerel DOCs</option></optgroup><optgroup label="Hatchery and poultry services"><option>Custom Egg Incubation</option><option>Egg Hatching Service</option><option>Egg Candling & Fertility Assessment</option><option>Poultry Vaccination Support</option><option>Hatchery Biosecurity Consultation</option><option>Poultry Farmer Training</option></optgroup><option value="Other">Other request (specify in notes)</option></select></div>
-<div class="field"><label>Quantity *</label><input name="quantity" type="number" min="1" max="1000000" step="1" inputmode="numeric" placeholder="e.g. 500" required></div>
-<button class="remove" type="button" aria-label="Remove this item" disabled>Remove</button>
-</div>
-</div>
-<button class="secondary" id="add-item" type="button">＋ Add another item</button>
+<div id="items" class="item-list"><p class="hint" id="catalogue-status">Loading the current Mizpah catalogue…</p></div>
+<button class="secondary" id="add-item" type="button" disabled>＋ Add another item</button>
+<div id="live-summary" class="summary hidden" aria-live="polite"></div>
 <h2 class="section-title"><span class="number">2</span> Your contact details</h2>
 <div class="grid">
 <div class="field"><label for="customer-name">Full name *</label><input id="customer-name" name="name" autocomplete="name" maxlength="120" required></div>
-<div class="field"><label for="customer-phone">Phone / WhatsApp number *</label><input id="customer-phone" name="phone" type="tel" autocomplete="tel" maxlength="30" placeholder="+234..." required></div>
+<div class="field"><label for="customer-phone">Phone / WhatsApp number *</label><input id="customer-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" placeholder="+234…" required></div>
 <div class="field full"><label for="customer-email">Email address *</label><input id="customer-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
 </div>
 <h2 class="section-title"><span class="number">3</span> Delivery or collection</h2>
-<div class="field">
-<label>How would you like to receive your order? *</label>
-<div class="fulfilment"><label><input type="radio" name="method" value="Delivery" required> Delivery</label><label><input type="radio" name="method" value="Collection" required> Collection</label></div>
-</div>
+<div class="field"><label>How would you like to receive your order? *</label><div class="fulfilment"><label><input type="radio" name="fulfilment" value="Delivery" required> Delivery</label><label><input type="radio" name="fulfilment" value="Collection" required> Collection</label><label><input type="radio" name="fulfilment" value="To be discussed" required> To be discussed</label></div></div>
 <div class="grid" style="margin-top:16px">
-<div class="field"><label for="customer-state">State *</label><input id="customer-state" name="state" autocomplete="address-level1" maxlength="80" required placeholder="e.g. Akwa Ibom"></div>
+<div class="field"><label for="customer-country">Country *</label><select id="customer-country" name="country" required><option value="Nigeria" selected>Nigeria</option></select></div>
+<div class="field" id="state-select-wrap"><label for="customer-state">State *</label><select id="customer-state" name="state" required><option value="">Choose a state</option></select></div>
+<div class="field hidden" id="state-text-wrap"><label for="customer-state-text">State / Province / Region *</label><input id="customer-state-text" name="state_text" maxlength="80" placeholder="Enter state or province" disabled></div>
 <div class="field"><label for="customer-city">Town / City *</label><input id="customer-city" name="city" autocomplete="address-level2" maxlength="100" required></div>
-<div class="field full"><label for="customer-address">Delivery address / collection details *</label><textarea id="customer-address" name="address" maxlength="1000" required placeholder="Enter the delivery address or any details that will help us arrange collection."></textarea></div>
-<div class="field"><label for="customer-date">Preferred date</label><input id="customer-date" name="date" type="date"></div>
-<div class="field"><label for="customer-notes">Additional instructions</label><textarea id="customer-notes" name="notes" maxlength="2000" placeholder="Chick age/type preferences, timing, or other instructions"></textarea></div>
+<div class="field full"><label for="customer-address">Delivery address / collection details *</label><textarea id="customer-address" name="address" maxlength="300" required placeholder="Enter the delivery address or collection details."></textarea></div>
+<div class="field"><label for="customer-date">Preferred date</label><input id="customer-date" name="preferred_date" type="date"></div>
+<div class="field"><label for="customer-notes">Additional instructions</label><textarea id="customer-notes" name="notes" maxlength="3000" placeholder="Add any relevant instructions."></textarea></div>
 </div>
 <div class="honeypot" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
-<div class="notice"><strong>Important:</strong> This form sends an order request to our team. It does not take payment or automatically confirm stock, price, delivery or an order. Mizpah will contact you to confirm the details and official payment instructions.</div>
-<button class="submit" id="submit-order" type="submit">Send Order Request</button>
+<div class="notice"><strong>Price and payment clarity:</strong> Item prices shown here come from the published Mizpah catalogue. The server recalculates the order total when it is saved. Delivery charges, where applicable, must be confirmed by Mizpah before payment. International orders are currently payable in Nigerian naira (NGN) through the supported checkout providers.</div>
+<button class="submit" id="preview-order" type="submit" disabled>Review Order</button>
 <p class="status" id="form-status" role="status" aria-live="polite"></p>
 </form>
+<section class="form-card hidden" id="preview-card" aria-labelledby="preview-title">
+<h2 class="section-title" id="preview-title"><span class="number">4</span> Preview your order</h2>
+<p class="hint">Check every item, quantity, price and customer detail before saving. Use Edit to return without losing your entries.</p>
+<div id="preview-items"></div>
+<h3 class="section-title">Customer and delivery information</h3>
+<div id="preview-customer" class="customer-preview"></div>
+<div class="field" style="margin-top:18px"><label>Choose payment provider (for checkout)</label><div class="pay-choice"><label><input type="radio" name="payment-provider" value="paystack" checked> Paystack</label><label><input type="radio" name="payment-provider" value="opay"> OPay</label></div><p class="hint">You will be redirected to the selected provider. Payment is only marked successful after server-side verification.</p></div>
+<div class="preview-actions"><button class="ghost" type="button" id="edit-order">Edit details</button><button class="ghost" type="button" id="save-pending">Save pending order</button></div>
+<button class="submit" type="button" id="proceed-payment">Save order and proceed to payment</button>
+<p class="status" id="preview-status" role="status" aria-live="polite"></p>
+</section>
+<section class="resume-card" id="resume-card">
+<h2 style="margin:0 0 6px;color:var(--green)">Resume a saved order</h2>
+<p class="hint">Enter your Mizpah order number to continue to payment later. Your saved order number is also kept in this browser when possible.</p>
+<div class="resume-row"><input id="resume-order-number" placeholder="e.g. MZP-20261105-XXXXXXXXXXXX" autocomplete="off"><button class="submit" id="resume-payment" type="button">Continue to payment</button></div>
+<p class="status" id="resume-status" role="status" aria-live="polite"></p>
+</section>
 </main>
 <footer class="footer">© <span id="year"></span> Mizpah Technology · <a href="/">Return to Mizpah Smart Hatchery</a></footer>
 <script>
 (function(){
-const form=document.getElementById('customer-order-form');
-const items=document.getElementById('items');
-const add=document.getElementById('add-item');
-const submit=document.getElementById('submit-order');
-const status=document.getElementById('form-status');
-const endpoint='https://mizpah-website-forms.fineboyeddie073.workers.dev/';
+const SUPABASE_URL='https://ouebgmhtyekqnyrkfrcp.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk';
+const CHECKOUT='https://ouebgmhtyekqnyrkfrcp.supabase.co/functions/v1/website-checkout';
+const supabase=window.supabase?.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const form=document.getElementById('customer-order-form'),itemsRoot=document.getElementById('items');
+const addButton=document.getElementById('add-item'),previewButton=document.getElementById('preview-order');
+const formStatus=document.getElementById('form-status'),previewCard=document.getElementById('preview-card');
+const previewStatus=document.getElementById('preview-status'),resumeStatus=document.getElementById('resume-status');
+const naira=new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:2});
+const states=['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','Federal Capital Territory','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara'];
+const countries=["Nigeria","Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi","Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Costa Rica","Croatia","Cuba","Cyprus","Czechia","Democratic Republic of the Congo","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France","Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","North Korea","North Macedonia","Norway","Oman","Pakistan","Palau","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe","Kosovo","Palestine"];
+let catalogue=[],previewData=null,savedOrderNumber='',savedOrderData=null;
 document.getElementById('year').textContent=new Date().getFullYear();
-function updateRemoveButtons(){const rows=[...items.querySelectorAll('.order-item')];rows.forEach(row=>{const button=row.querySelector('.remove');button.disabled=rows.length===1;});}
-add.addEventListener('click',()=>{
-const first=items.querySelector('.order-item');
-const clone=first.cloneNode(true);
-clone.querySelector('select').value='';
-clone.querySelector('input').value='';
-clone.querySelector('.remove').disabled=false;
-items.appendChild(clone);
-updateRemoveButtons();
-clone.querySelector('select').focus();
+function money(value){return naira.format(Number(value)||0)}
+function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function setStatus(el,message,type=''){el.textContent=message;el.className='status'+(type?' '+type:'')}
+function fillSelect(select,values,first){select.innerHTML='<option value="">'+first+'</option>'+values.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')}
+fillSelect(document.getElementById('customer-state'),states,'Choose a state');
+fillSelect(document.getElementById('customer-country'),countries,'Choose a country');
+document.getElementById('customer-country').value='Nigeria';
+document.getElementById('customer-country').addEventListener('change',event=>{
+ const isNigeria=event.target.value==='Nigeria';
+ document.getElementById('state-select-wrap').classList.toggle('hidden',!isNigeria);
+ document.getElementById('state-text-wrap').classList.toggle('hidden',isNigeria);
+ const stateSelect=document.getElementById('customer-state'),stateText=document.getElementById('customer-state-text');
+ stateSelect.disabled=!isNigeria;stateSelect.required=isNigeria;
+ stateText.disabled=isNigeria;stateText.required=!isNigeria;
+ if(isNigeria)stateText.value='';else stateSelect.value='';
 });
-items.addEventListener('click',event=>{
-const button=event.target.closest('.remove');
-if(!button)return;
-button.closest('.order-item').remove();
-updateRemoveButtons();
-});
-form.addEventListener('submit',async event=>{
-event.preventDefault();
-status.className='status';
-if(!form.reportValidity())return;
-if(form.elements.website.value)return;
-const orderItems=[...items.querySelectorAll('.order-item')].map(row=>({
-item:row.querySelector('select').value,
-quantity:row.querySelector('input').value
-}));
-if(orderItems.some(item=>!item.item||!item.quantity||Number(item.quantity)<1)){
-status.textContent='Please select an item and enter a valid quantity for every row.';
-status.classList.add('error');return;
-}
-const value=name=>form.elements[name].value.trim();
-const method=form.querySelector('input[name="method"]:checked')?.value||'';
-const summary=[
-'CUSTOMER ORDER REQUEST',
-'',
-'Items:',
-...orderItems.map((item,index)=>(index+1)+'. '+item.item+' — Quantity: '+item.quantity),
-'',
-'Customer: '+value('name'),
-'Phone: '+value('phone'),
-'Email: '+value('email'),
-'Fulfilment: '+method,
-'State: '+value('state'),
-'City/Town: '+value('city'),
-'Address / collection details: '+value('address'),
-'Preferred date: '+(value('date')||'Not specified'),
-'Additional instructions: '+(value('notes')||'None')
-].join('\n');
-submit.disabled=true;submit.textContent='Sending request...';
-status.textContent='Sending your order request securely. Please wait.';
-try{
-const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-name:value('name'),email:value('email'),phone:value('phone'),
-subject:'Customer order request — '+value('name'),
-message:summary,website:value('website')
-})});
-let result={};try{result=await response.json();}catch(_){}
-if(!response.ok||!result.success)throw new Error(result.message||'Your request could not be sent. Please try again or contact us by phone.');
-form.reset();
-items.innerHTML=firstRow();
-updateRemoveButtons();
-status.textContent='Thank you. Your order request has been sent to Mizpah. Our team will contact you to confirm availability, pricing and arrangements.';
-status.classList.add('success');
-}catch(error){status.textContent=error.message||'Unable to send your request. Please try again.';status.classList.add('error');}
-finally{submit.disabled=false;submit.textContent='Send Order Request';}
-});
-function firstRow(){return `<div class="order-item"><div class="field"><label>Product or service *</label><select name="item" required><option value="">Choose an item</option><optgroup label="Day-old chicks"><option>Broiler DOCs</option><option>Layer DOCs</option><option>Cockerel DOCs</option></optgroup><optgroup label="Hatchery and poultry services"><option>Custom Egg Incubation</option><option>Egg Hatching Service</option><option>Egg Candling & Fertility Assessment</option><option>Poultry Vaccination Support</option><option>Hatchery Biosecurity Consultation</option><option>Poultry Farmer Training</option></optgroup><option value="Other">Other request (specify in notes)</option></select></div><div class="field"><label>Quantity *</label><input name="quantity" type="number" min="1" max="1000000" step="1" inputmode="numeric" placeholder="e.g. 500" required></div><button class="remove" type="button" aria-label="Remove this item" disabled>Remove</button></div>`;}
+function available(p){return p.published===true&&!p.price_on_request&&p.price_ngn!==null&&Number(p.price_ngn)>0&&(p.item_type==='service'||Number(p.stock_quantity)>0)}
+function optionMarkup(){return '<option value="">Choose an item</option>'+catalogue.map(p=>'<option value="'+p.id+'">'+esc(p.name)+(p.variant_label?' — '+esc(p.variant_label):'')+' · '+money(p.price_ngn)+(p.selling_unit?' / '+esc(p.selling_unit):'')+'</option>').join('')}
+function makeRow(){const row=document.createElement('div');row.className='order-item';row.innerHTML='<div class="field"><label>Product or service *</label><select class="catalogue-item" required>'+optionMarkup()+'</select><p class="hint item-hint">Select an item to view its approved price.</p></div><div class="field"><label>Quantity *</label><input class="item-quantity" type="number" min="1" step="1" max="1000000" inputmode="numeric" placeholder="Quantity" required></div><button class="remove" type="button">Remove</button>';row.querySelector('.remove').addEventListener('click',()=>{row.remove();updateRows();renderSummary()});row.querySelector('select').addEventListener('change',()=>{const p=catalogue.find(x=>x.id===row.querySelector('select').value);row.querySelector('.item-hint').textContent=p?'Unit price: '+money(p.price_ngn)+(p.selling_unit?' per '+p.selling_unit:'')+(p.minimum_order?' · Minimum order: '+p.minimum_order:''):'Select an item to view its approved price.';renderSummary()});row.querySelector('input').addEventListener('input',renderSummary);return row}
+function updateRows(){const rows=[...itemsRoot.querySelectorAll('.order-item')];rows.forEach(r=>r.querySelector('.remove').disabled=rows.length===1)}
+function selectedItems(){return [...itemsRoot.querySelectorAll('.order-item')].map(row=>{const id=row.querySelector('select').value,p=catalogue.find(x=>x.id===id),q=Number(row.querySelector('input').value);return {row,product:p,quantity:q}})}
+function renderSummary(){const chosen=selectedItems().filter(x=>x.product&&Number.isSafeInteger(x.quantity)&&x.quantity>0);const box=document.getElementById('live-summary');if(!chosen.length){box.classList.add('hidden');return}const total=chosen.reduce((sum,x)=>sum+Number(x.product.price_ngn)*x.quantity,0);box.classList.remove('hidden');box.innerHTML='<div class="summary-head">Your selected items</div>'+chosen.map(x=>'<div class="summary-row"><span>'+esc(x.product.name)+'<small>'+x.quantity+' × '+money(x.product.price_ngn)+(x.product.selling_unit?' / '+esc(x.product.selling_unit):'')+'</small></span><strong>'+money(x.quantity*Number(x.product.price_ngn))+'</strong></div>').join('')+'<div class="summary-total"><span>Estimated item total</span><span>'+money(total)+'</span></div>'}
+async function loadCatalogue(){if(!supabase){itemsRoot.innerHTML='<p class="status error">The secure catalogue connection could not load. Please refresh or contact Mizpah.</p>';return}const {data,error}=await supabase.from('mizpah_web_products').select('id,name,category,description,price_ngn,price_on_request,item_type,stock_quantity,minimum_order,variant_label,selling_unit,published').eq('published',true).order('category').order('name');if(error){itemsRoot.innerHTML='<p class="status error">We could not load the live catalogue. Please refresh or contact Mizpah.</p>';return}catalogue=(data||[]).filter(available);if(!catalogue.length){itemsRoot.innerHTML='<p class="status">There are currently no published items available to order. Please contact Mizpah for assistance.</p>';return}itemsRoot.innerHTML='';itemsRoot.appendChild(makeRow());addButton.disabled=false;previewButton.disabled=false}
+addButton.addEventListener('click',()=>{if(itemsRoot.querySelectorAll('.order-item').length>=30){setStatus(formStatus,'You can add up to 30 different items.','error');return}itemsRoot.appendChild(makeRow());updateRows();itemsRoot.lastElementChild.querySelector('select').focus()});
+function value(name){return String(form.elements[name]?.value??'').trim()}
+function getFormData(){const chosen=selectedItems();if(!chosen.length||chosen.some(x=>!x.product||!Number.isSafeInteger(x.quantity)||x.quantity<1))throw new Error('Select a product or service and enter a whole-number quantity for every row.');if(new Set(chosen.map(x=>x.product.id)).size!==chosen.length)throw new Error('Each product or service should appear once. Increase its quantity in the existing row.');for(const x of chosen){if(x.product.minimum_order&&x.quantity<Number(x.product.minimum_order))throw new Error(x.product.name+' has a minimum order quantity of '+x.product.minimum_order+'.');if(x.product.item_type!=='service'&&x.quantity>Number(x.product.stock_quantity))throw new Error('The requested quantity for '+x.product.name+' exceeds currently listed stock.')}const country=value('country'),state=country==='Nigeria'?value('state'):value('state_text');if(!state)throw new Error('Enter or select your state / province.');return {items:chosen.map(x=>({product_id:x.product.id,quantity:x.quantity})),displayItems:chosen,customer:{name:value('name'),phone:value('phone'),email:value('email'),country,state,city:value('city'),address:value('address'),fulfilment:form.querySelector('input[name="fulfilment"]:checked')?.value||'',preferred_date:value('preferred_date'),notes:value('notes')}}}
+function showPreview(data){previewData=data;const total=data.displayItems.reduce((sum,x)=>sum+Number(x.product.price_ngn)*x.quantity,0);document.getElementById('preview-items').innerHTML='<div class="summary"><div class="summary-head">Itemised order summary</div>'+data.displayItems.map(x=>'<div class="summary-row"><span>'+esc(x.product.name)+'<small>'+x.quantity+' × '+money(x.product.price_ngn)+'</small></span><strong>'+money(x.quantity*Number(x.product.price_ngn))+'</strong></div>').join('')+'<div class="summary-total"><span>Total payable for listed items</span><span>'+money(total)+'</span></div></div>';const c=data.customer;document.getElementById('preview-customer').innerHTML=[['Customer',c.name],['Phone',c.phone],['Email',c.email],['Country',c.country],['State / Province',c.state],['Town / City',c.city],['Fulfilment',c.fulfilment],['Address',c.address],['Preferred date',c.preferred_date||'Not specified'],['Additional instructions',c.notes||'None']].map(x=>'<div><small>'+esc(x[0])+'</small><strong>'+esc(x[1])+'</strong></div>').join('');previewCard.classList.remove('hidden');previewCard.scrollIntoView({behavior:'smooth',block:'start'});setStatus(previewStatus,'Review the details. You can edit, save the order, or continue to payment.')}
+form.addEventListener('submit',e=>{e.preventDefault();setStatus(formStatus,'');if(!form.reportValidity())return;if(form.elements.website.value)return;try{showPreview(getFormData())}catch(err){setStatus(formStatus,err.message,'error')}});
+document.getElementById('edit-order').addEventListener('click',()=>{if(savedOrderData){setStatus(previewStatus,'Your previously saved order '+savedOrderNumber+' remains pending. If you change details, a new order will be saved; keep the earlier order number only if you still intend to pay for that earlier version.','');savedOrderData=null;savedOrderNumber='';}previewCard.classList.add('hidden');form.scrollIntoView({behavior:'smooth',block:'start'})});
+async function createSavedOrder(){if(savedOrderData)return savedOrderData;if(!previewData)throw new Error('Please review your order details first.');const c=previewData.customer;const payload={name:c.name,email:c.email,phone:c.phone,country:c.country,state:c.state,city:c.city,address:c.address,fulfilment:c.fulfilment,preferred_date:c.preferred_date||null,notes:c.notes,items:previewData.items};const res=await fetch(CHECKOUT+'/create',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify(payload)});const result=await res.json().catch(()=>({}));if(!res.ok||!result.success||!result.order?.order_number)throw new Error(result.message||'Your order could not be saved. Please try again.');savedOrderNumber=result.order.order_number;savedOrderData=result.order;try{localStorage.setItem('mizpah_last_order',savedOrderNumber)}catch(_){}document.getElementById('resume-order-number').value=savedOrderNumber;return result.order}
+document.getElementById('save-pending').addEventListener('click',async()=>{const button=document.getElementById('save-pending');button.disabled=true;setStatus(previewStatus,'Saving your order securely…');try{const order=await createSavedOrder();setStatus(previewStatus,'Your order has been saved as pending. Order number: '+order.order_number+'. Keep this number to resume payment later. Server-confirmed item total: '+(order.order_total_ngn==null?'Awaiting price confirmation':money(order.order_total_ngn)), 'success');}catch(err){setStatus(previewStatus,err.message,'error')}finally{button.disabled=false}});
+async function startPayment(orderNumber,provider){const init=await fetch(CHECKOUT+'/initialize',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({order_number:orderNumber,provider})});const data=await init.json().catch(()=>({}));if(!init.ok||!data.success||!data.checkoutUrl)throw new Error(data.message||'The payment provider could not be opened.');window.location.assign(data.checkoutUrl)}
+document.getElementById('proceed-payment').addEventListener('click',async()=>{const button=document.getElementById('proceed-payment');button.disabled=true;setStatus(previewStatus,'Saving your order and preparing secure checkout…');try{const order=await createSavedOrder();if(order.intent!=='Order request'||order.order_total_ngn==null)throw new Error('This order needs staff pricing before payment. Please contact Mizpah.');const provider=document.querySelector('input[name="payment-provider"]:checked')?.value||'paystack';await startPayment(order.order_number,provider)}catch(err){setStatus(previewStatus,err.message,'error');button.disabled=false}});
+async function resumePayment(){const number=document.getElementById('resume-order-number').value.trim();if(!/^MZP-[A-Z0-9-]{8,60}$/i.test(number)){setStatus(resumeStatus,'Enter the order number shown when your order was saved.','error');return}const button=document.getElementById('resume-payment');button.disabled=true;setStatus(resumeStatus,'Checking your saved order and preparing checkout…');try{const provider=document.querySelector('input[name="payment-provider"]:checked')?.value||'paystack';await startPayment(number,provider)}catch(err){setStatus(resumeStatus,err.message,'error');button.disabled=false}}
+document.getElementById('resume-payment').addEventListener('click',resumePayment);
+try{const last=localStorage.getItem('mizpah_last_order');if(last)document.getElementById('resume-order-number').value=last}catch(_){}
+const params=new URLSearchParams(location.search);if(params.get('payment')==='return'){const ref=params.get('reference')||'';setStatus(resumeStatus,'Payment return received. We are checking the provider status; do not retry payment until verification completes. Reference: '+ref);fetch(CHECKOUT+'/verify',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({reference:ref})}).then(r=>r.json()).then(d=>setStatus(resumeStatus,d.success?'Payment verified successfully for order '+(d.orderNumber||'')+'.':(d.message||'Payment is not yet confirmed. You can retry verification or contact Mizpah.'),d.success?'success':'')).catch(()=>setStatus(resumeStatus,'We could not confirm the payment status yet. Please contact Mizpah with your payment reference.','error'))}
+loadCatalogue();
 })();
 </script>
-</body>
-</html>
+</body></html>
