@@ -247,8 +247,8 @@ body{font-size:17px}
     <div class="mzp-about-content">
       <span class="mzp-about-kicker">Who We Are</span>
       <h2>About Mizpah Smart Hatchery</h2>
-      <p>Mizpah Smart Hatchery, a poultry-focused business of Mizpah Technology, provides quality day-old chicks, professional hatchery services and practical poultry solutions for farmers and agribusinesses. We combine careful attention to quality with dependable service and knowledgeable support to help our customers manage their poultry operations with confidence.</p>
-      <p>From incubation and hatching to chick handling, vaccination, biosecurity guidance and technical support, we work to help customers promote healthier flocks, strengthen farm productivity and build more sustainable poultry businesses.</p>
+      <p class="about-description-copy">Mizpah Smart Hatchery, a poultry-focused business of Mizpah Technology, provides quality day-old chicks, professional hatchery services and practical poultry solutions for farmers and agribusinesses. We combine careful attention to quality with dependable service and knowledgeable support to help our customers manage their poultry operations with confidence.</p>
+      <p class="about-description-copy">From incubation and hatching to chick handling, vaccination, biosecurity guidance and technical support, we work to help customers promote healthier flocks, strengthen farm productivity and build more sustainable poultry businesses.</p>
       <a class="mzp-about-link" href="/why-choose-mizpah.html">Why Choose Mizpah <span aria-hidden="true">→</span></a>
     </div>
   </article>
@@ -837,6 +837,22 @@ footer.foot .footer-contact{
     font-size:17px!important;
     line-height:1.75!important;
     font-weight:600!important;
+  }
+}
+</style>
+
+<style id="mizpah-about-description-readable-size">
+/* Apply the requested typography only to the two About Mizpah description paragraphs. */
+.mzp-about-redesign .mzp-about-intro .mzp-about-content p.about-description-copy{
+  font-size:17px!important;
+  font-weight:600!important;
+  line-height:1.8!important;
+}
+@media(max-width:650px){
+  .mzp-about-redesign .mzp-about-intro .mzp-about-content p.about-description-copy{
+    font-size:16px!important;
+    font-weight:600!important;
+    line-height:1.75!important;
   }
 }
 </style>
