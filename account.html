@@ -9,6 +9,36 @@
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Inter,Arial,sans-serif}a{color:var(--green2);font-weight:700;text-decoration:none}.top{background:var(--green);color:#fff;padding:9px 18px;text-align:center;font-size:13px}.header{background:#fff;border-bottom:1px solid var(--line)}.header-inner{width:min(1100px,calc(100% - 32px));min-height:78px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{font-weight:900;color:var(--green);letter-spacing:.04em}.brand small{display:block;color:#98751c;font-size:11px}.header-actions{display:flex;gap:10px;align-items:center}.btn{border:1px solid var(--line);background:#fff;border-radius:25px;padding:10px 15px;font-weight:800;cursor:pointer;color:var(--green)}.btn.primary{background:var(--green);color:#fff;border-color:var(--green)}main{width:min(1100px,calc(100% - 32px));margin:32px auto 50px}.hero{background:linear-gradient(115deg,#103b2b,#1c6847);color:#fff;border-radius:18px;padding:28px 30px;margin-bottom:20px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;right:-45px;top:-90px;width:280px;height:280px;border:24px solid #ffffff12;border-radius:50%}.eyebrow{color:#e3c56e;font-size:11px;letter-spacing:.16em;font-weight:900}.hero h1{margin:7px 0;font-size:clamp(26px,4vw,38px)}.hero p{margin:0;color:#e2eee5;max-width:600px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.card,.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:19px;box-shadow:0 5px 20px #153c2308}.card small{color:var(--muted);font-weight:700}.card strong{display:block;font-size:27px;color:var(--green);margin-top:7px}.referral{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel h2{font-size:18px;color:var(--green);margin:0 0 5px}.muted{color:var(--muted);font-size:13px;margin:0 0 15px}.codebox{background:#f5f8f3;border:1px dashed #b5c8b7;border-radius:12px;padding:18px;margin:14px 0}.code{font-size:27px;letter-spacing:.11em;font-weight:900;color:var(--green);overflow-wrap:anywhere}.linkbox{font-size:13px;overflow-wrap:anywhere;background:#f7f9f6;padding:12px;border-radius:9px;border:1px solid var(--line);margin:10px 0}.actions{display:flex;gap:9px;flex-wrap:wrap}.actions .btn{flex:1;min-width:130px}.table-wrap{overflow:auto;margin-top:12px}table{width:100%;border-collapse:collapse;min-width:580px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #edf1ed;font-size:13px}th{color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase}.pill{display:inline-block;padding:4px 9px;border-radius:20px;background:#edf4ee;color:#216343;font-weight:800;font-size:11px}.status{min-height:22px;color:var(--green2);font-size:13px}.error{color:#a12626}.hidden{display:none!important}.login{max-width:440px;margin:45px auto;background:#fff;border:1px solid var(--line);border-top:5px solid var(--gold);padding:25px;border-radius:16px}.login h1{color:var(--green);margin-top:0}.login label{display:block;font-weight:750;font-size:13px;margin:13px 0 6px}.login input{width:100%;padding:13px;border:1px solid var(--line);border-radius:9px;font:inherit}.login .btn{width:100%;margin-top:12px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 @media(max-width:720px){.cards{grid-template-columns:1fr}.referral{grid-template-columns:1fr}.hero{padding:23px 20px}.header-inner{min-height:68px}.brand{font-size:14px}.header-actions .btn{padding:8px 10px;font-size:12px}}
 </style>
+
+<style id="mizpah-account-login-readable-type">
+/* Increase readability on the customer account sign-in page without changing its layout or behaviour. */
+.top{font-size:16px!important;line-height:1.7!important;font-weight:600!important}
+.brand{font-size:18px!important;line-height:1.5!important}
+.brand small{font-size:14px!important;line-height:1.5!important;font-weight:700!important}
+.header-actions .btn{font-size:15px!important;line-height:1.5!important}
+.login{max-width:520px!important;padding:32px!important}
+.login h1{font-size:clamp(29px,3.5vw,34px)!important;line-height:1.25!important;font-weight:800!important}
+.login .muted{font-size:16px!important;line-height:1.75!important}
+.login label{font-size:17px!important;line-height:1.5!important;font-weight:800!important}
+.login input{font-size:17px!important;line-height:1.6!important;min-height:54px!important;padding:14px 15px!important}
+.login .btn{font-size:19px!important;line-height:1.5!important;padding:14px 18px!important}
+.login .status{font-size:15px!important;line-height:1.6!important}
+.footer{font-size:15px!important;line-height:1.7!important;font-weight:600!important}
+.footer a{font-size:15px!important;font-weight:800!important}
+@media(max-width:720px){
+ .top{font-size:15px!important;line-height:1.65!important}
+ .brand{font-size:16px!important}
+ .brand small{font-size:13px!important}
+ .header-actions .btn{font-size:13px!important}
+ .login{padding:24px 20px!important;margin:30px auto!important}
+ .login h1{font-size:27px!important;line-height:1.3!important}
+ .login .muted{font-size:15px!important;line-height:1.7!important}
+ .login label{font-size:16px!important}
+ .login input{font-size:16px!important;min-height:52px!important}
+ .login .btn{font-size:18px!important}
+ .footer,.footer a{font-size:14px!important}
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
