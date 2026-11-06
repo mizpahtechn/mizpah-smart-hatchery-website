@@ -12,6 +12,75 @@
 @media(max-width:620px){.resume-row{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.order-item{grid-template-columns:minmax(0,1fr) 88px}.order-item .remove{grid-column:1/-1;width:100%;min-height:40px;padding:8px}.header-inner{min-height:72px}.back{font-size:13px;padding:9px 11px}.hero{padding:27px 0 18px}.form-card{border-radius:14px}.customer-preview{grid-template-columns:1fr}.preview-actions{grid-template-columns:1fr}.resume-row{grid-template-columns:1fr}.resume-row button{width:100%}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
+<style id="mizpah-order-page-readable-type">
+/* Improve readability across the order page while preserving its existing layout and checkout behaviour. */
+.top{font-size:16px!important;line-height:1.7!important;font-weight:600!important}
+.brand{font-size:clamp(20px,3vw,27px)!important;line-height:1.2!important}
+.brand small{font-size:14px!important;line-height:1.5!important;font-weight:800!important}
+.back{font-size:16px!important;line-height:1.5!important}
+.eyebrow{font-size:14px!important;line-height:1.5!important}
+.hero h1{font-size:clamp(32px,5vw,46px)!important;line-height:1.18!important}
+.hero p{font-size:19px!important;line-height:1.75!important}
+#resume-heading{font-size:25px!important;line-height:1.35!important}
+.resume-card>p.hint{font-size:17px!important;line-height:1.75!important}
+.section-title{font-size:26px!important;line-height:1.35!important}
+.number{width:34px;height:34px;font-size:16px!important;flex:0 0 34px}
+label{font-size:18px!important;line-height:1.55!important;font-weight:800!important}
+input,select,textarea{font-size:18px!important;line-height:1.6!important;min-height:60px!important;padding:15px 16px!important}
+textarea{min-height:130px!important}
+.hint{font-size:16px!important;line-height:1.7!important}
+.order-item{padding:17px!important;gap:14px!important}
+.remove{font-size:16px!important;line-height:1.5!important;padding:13px 15px!important}
+.secondary{font-size:17px!important;line-height:1.5!important;padding:13px 19px!important}
+.fulfilment label{font-size:17px!important}
+.submit,.primary{font-size:20px!important;line-height:1.5!important;padding:18px 24px!important}
+.notice{font-size:17px!important;line-height:1.75!important;padding:16px 18px!important}
+.status{font-size:16px!important;line-height:1.65!important}
+.summary-head{font-size:18px!important;padding:14px 16px!important}
+.summary-row{font-size:17px!important;line-height:1.65!important;padding:13px 16px!important}
+.summary-row small,.customer-preview small{font-size:15px!important;line-height:1.6!important}
+.summary-total{font-size:19px!important;line-height:1.5!important}
+.customer-preview{font-size:17px!important;line-height:1.65!important}
+.preview-actions button,.ghost{font-size:17px!important}
+.pay-choice label,.resume-pay-choice label{font-size:17px!important}
+.resume-continue{font-size:19px!important;line-height:1.5!important;padding:17px 22px!important}
+.resume-item{font-size:17px!important;line-height:1.65!important}
+.footer{font-size:16px!important;line-height:1.7!important}
+.footer a{font-size:16px!important;font-weight:800!important}
+#reserved-order-number-value{font-size:20px!important}
+@media(max-width:620px){
+ .top{font-size:15px!important;line-height:1.65!important}
+ .brand{font-size:19px!important}
+ .brand small{font-size:13px!important}
+ .back{font-size:14px!important;padding:10px 12px!important}
+ .eyebrow{font-size:13px!important}
+ .hero h1{font-size:32px!important}
+ .hero p{font-size:17px!important;line-height:1.7!important}
+ #resume-heading{font-size:22px!important}
+ .resume-card>p.hint{font-size:16px!important}
+ .section-title{font-size:23px!important}
+ label{font-size:16px!important}
+ input,select,textarea{font-size:16px!important;min-height:56px!important;padding:13px 14px!important}
+ textarea{min-height:116px!important}
+ .hint{font-size:15px!important}
+ .order-item{padding:13px!important;gap:11px!important}
+ .remove{font-size:15px!important}
+ .secondary{font-size:16px!important}
+ .fulfilment label{font-size:16px!important}
+ .submit,.primary{font-size:19px!important}
+ .notice{font-size:15px!important;line-height:1.7!important}
+ .status{font-size:15px!important}
+ .summary-head{font-size:17px!important}
+ .summary-row{font-size:16px!important}
+ .summary-row small,.customer-preview small{font-size:14px!important}
+ .summary-total{font-size:17px!important}
+ .customer-preview{font-size:16px!important}
+ .preview-actions button,.ghost,.pay-choice label,.resume-pay-choice label{font-size:16px!important}
+ .resume-continue{font-size:18px!important}
+ .resume-item{font-size:16px!important}
+ .footer,.footer a{font-size:14px!important}
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
