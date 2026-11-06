@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#103b2b"><title>Referral Management | Mizpah Admin</title>
+<style>
+:root{--g:#103b2b;--g2:#176343;--gold:#c9a34a;--ink:#17251e;--muted:#718078;--line:#e2eae3;--paper:#f3f7f3}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.6 Inter,Arial,sans-serif}.top{background:var(--g);color:white;padding:14px 22px;display:flex;justify-content:space-between;gap:12px;align-items:center}.top a{color:white;text-decoration:none}.wrap{max-width:1400px;margin:30px auto;padding:0 20px}.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}.head h1{margin:0;color:var(--g)}.head p{margin:3px 0;color:var(--muted)}.btn{border:1px solid var(--line);background:#fff;color:var(--g);padding:10px 14px;border-radius:9px;font-weight:800;cursor:pointer;text-decoration:none}.btn.primary{background:var(--g);color:white;border-color:var(--g)}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:18px}.card,.panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:17px;box-shadow:0 5px 20px #153c2308}.card small{color:var(--muted);font-weight:700}.card strong{display:block;color:var(--g);font-size:25px;margin-top:6px}.settings{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.setting{background:#f5f8f4;border-radius:9px;padding:12px}.setting small{display:block;color:var(--muted);font-size:11px}.setting b{color:var(--g)}.panel h2{margin:0 0 5px;color:var(--g);font-size:19px}.muted{color:var(--muted);font-size:13px;margin:0 0 15px}.table-wrap{overflow:auto}table{width:100%;min-width:1000px;border-collapse:collapse}th,td{padding:12px 10px;border-bottom:1px solid #edf1ed;text-align:left;font-size:12px;vertical-align:top}th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.pill{display:inline-block;border-radius:18px;background:#edf4ee;color:#216343;padding:4px 8px;font-weight:800}.notice{padding:13px;background:#fff8e6;border:1px solid #f0dfb2;border-radius:9px;color:#755819;font-size:13px;margin-bottom:16px}.status{min-height:22px;color:var(--g2);font-size:13px}.error{color:#a12626}.login{max-width:430px;margin:70px auto;background:white;padding:25px;border:1px solid var(--line);border-top:5px solid var(--gold);border-radius:15px}.login h1{color:var(--g);margin-top:0}.login label{display:block;margin:12px 0 5px;font-weight:750}.login input{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font:inherit}.login button{width:100%;margin-top:15px}.hidden{display:none!important}@media(max-width:950px){.stats{grid-template-columns:repeat(2,1fr)}.settings{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.head{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.settings{grid-template-columns:1fr 1fr}.top{font-size:12px}}
+</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script></head>
+<body><div class="top"><a href="index.html">← Mizpah Admin Dashboard</a><strong>REFERRAL PROGRAMME MANAGEMENT</strong><button class="btn" id="signout">Sign out</button></div>
+<main class="wrap">
+<section id="login" class="login hidden"><h1>Administrator sign in</h1><p class="muted">Use your authorised Mizpah website administration account.</p><label>Email</label><input id="email" type="email" autocomplete="username"><label>Password</label><input id="password" type="password" autocomplete="current-password"><button class="btn primary" id="signin">Sign in</button><p id="login-status" class="status"></p></section>
+<section id="workspace" class="hidden"><div class="head"><div><h1>Referral programme</h1><p>Monitor customer referrals, verified rewards and reversals.</p></div><button class="btn primary" id="refresh">Refresh data</button></div>
+<div class="notice">This is a monitoring workspace. Referral attribution and wallet rewards are controlled by the existing verified-payment workflow. This page does not provide manual reward or payment-status controls.</div>
+<div class="stats"><div class="card"><small>Customer profiles</small><strong id="customers">—</strong></div><div class="card"><small>Total referrals</small><strong id="referrals">—</strong></div><div class="card"><small>Successful referrals</small><strong id="successful">—</strong></div><div class="card"><small>Pending referrals</small><strong id="pending">—</strong></div><div class="card"><small>Rewards credited</small><strong id="credited">—</strong></div></div>
+<section class="panel" style="margin-bottom:16px"><h2>Active programme settings</h2><p class="muted">Read-only settings currently enforced by the referral engine.</p><div class="settings" id="settings"></div></section>
+<section class="panel"><h2>Referral records</h2><p class="muted">Customer attribution, qualification, reward and reversal history.</p><div class="table-wrap"><table><thead><tr><th>Created</th><th>Referrer</th><th>New customer</th><th>Code</th><th>Referral status</th><th>Reward status</th><th>Reward</th><th>Qualifying order</th><th>Reversed</th></tr></thead><tbody id="rows"><tr><td colspan="9">Loading…</td></tr></tbody></table></div><p id="status" class="status"></p></section>
+</section></main>
+<script>
+(function(){
+const URL='https://ouebgmhtyekqnyrkfrcp.supabase.co',KEY='sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk';
+const db=window.supabase?.createClient(URL,KEY),$=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN'}).format((Number(n)||0)/100);
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function status(el,t,err=false){el.textContent=t;el.classList.toggle('error',err)}
+async function establish(session){
+ if(!session?.user){$('workspace').classList.add('hidden');$('login').classList.remove('hidden');return}
+ const {data:staff,error}=await db.from('mizpah_web_staff').select('role,active').eq('user_id',session.user.id).maybeSingle();
+ if(error||!staff?.active||!['owner','admin','manager'].includes(staff.role)){await db.auth.signOut();throw new Error('This account is not authorised to view referral administration.')}
+ $('login').classList.add('hidden');$('workspace').classList.remove('hidden');await load();
+}
+async function load(){
+ status($('status'),'Loading live referral records…');
+ const {data,error}=await db.rpc('get_mizpah_web_referral_admin_summary');
+ if(error)throw error;
+ const d=data||{},t=d.totals||{},s=d.settings||{};
+ $('customers').textContent=t.customers??0;$('referrals').textContent=t.referrals??0;$('successful').textContent=t.successful??0;$('pending').textContent=t.pending??0;$('credited').textContent=money(t.credited_minor);
+ $('settings').innerHTML=[
+ ['Programme',s.enabled?'Enabled':'Disabled'],
+ ['Minimum qualifying order',money(s.minimum_order_minor)],
+ ['Referrer reward',((Number(s.reward_basis_points)||0)/100).toFixed(2)+'%'],
+ ['Maximum referrer reward',money(s.maximum_reward_minor)],
+ ['New customer reward',money(s.new_customer_reward_minor)],
+ ['Referral validity',(s.referral_valid_days||0)+' days']
+ ].map(x=>'<div class="setting"><small>'+safe(x[0])+'</small><b>'+safe(x[1])+'</b></div>').join('');
+ const records=d.referrals||[];
+ $('rows').innerHTML=records.length?records.map(r=>'<tr><td>'+safe(new Date(r.created_at).toLocaleDateString('en-NG'))+'</td><td>'+safe(r.referrer_name)+'<br><small>'+safe(r.referrer_email)+'</small></td><td>'+safe(r.referred_name)+'<br><small>'+safe(r.referred_email)+'</small></td><td><span class="pill">'+safe(r.code)+'</span></td><td>'+safe(r.status)+'</td><td>'+safe(r.reward_status)+'</td><td>'+money(r.reward_amount_minor)+'</td><td>'+safe(r.qualifying_order_id||'—')+'</td><td>'+safe(r.reversed_at?new Date(r.reversed_at).toLocaleDateString('en-NG'):'—')+'</td></tr>').join(''):'<tr><td colspan="9">No referral records have been recorded.</td></tr>';
+ status($('status'),'Loaded '+records.length+' referral records. No rewards or payment states were modified.');
+}
+$('signin').addEventListener('click',async()=>{status($('login-status'),'Signing in…');const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){status($('login-status'),error.message,true);return}try{await establish(data.session)}catch(e){status($('login-status'),e.message,true)}});
+$('refresh').addEventListener('click',()=>load().catch(e=>status($('status'),e.message,true)));
+$('signout').addEventListener('click',async()=>{await db.auth.signOut();location.reload()});
+if(!db){$('login').classList.remove('hidden');status($('login-status'),'Secure authentication could not load.',true)}else db.auth.getSession().then(({data,error})=>{if(error)throw error;return establish(data.session)}).catch(e=>{ $('login').classList.remove('hidden');status($('login-status'),e.message,true)});
+})();
+</script></body></html>
