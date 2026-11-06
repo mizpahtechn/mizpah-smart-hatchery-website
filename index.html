@@ -687,4 +687,23 @@ document.addEventListener('DOMContentLoaded',()=>{
 @media(max-width:650px){.changes-complaints-card .changes-complaints-copy p{font-size:14.5px;line-height:1.65}}
 </style>
 
+
+<style id="mizpah-final-complaints-copy-typography">
+/* Final override: keep the complaint policy typography larger and bold after all legacy styles. */
+.changes-complaints-card .changes-complaints-copy p{
+  font-size:19px!important;
+  font-weight:700!important;
+  line-height:1.8!important;
+  color:#263b2e!important;
+  margin:0 0 18px!important;
+}
+.changes-complaints-card .changes-complaints-copy p:last-child{margin-bottom:0!important}
+@media(max-width:650px){
+  .changes-complaints-card .changes-complaints-copy p{
+    font-size:18px!important;
+    font-weight:700!important;
+    line-height:1.75!important;
+  }
+}
+</style>
 </body></html>
