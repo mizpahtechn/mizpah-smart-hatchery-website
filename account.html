@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#103b2b">
+<title>My Mizpah Account | Referral Centre</title>
+<style>
+:root{--green:#103b2b;--green2:#176343;--gold:#c9a34a;--ink:#17251e;--muted:#718078;--line:#e2eae3;--paper:#f3f7f3}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Inter,Arial,sans-serif}a{color:var(--green2);font-weight:700;text-decoration:none}.top{background:var(--green);color:#fff;padding:9px 18px;text-align:center;font-size:13px}.header{background:#fff;border-bottom:1px solid var(--line)}.header-inner{width:min(1100px,calc(100% - 32px));min-height:78px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{font-weight:900;color:var(--green);letter-spacing:.04em}.brand small{display:block;color:#98751c;font-size:11px}.header-actions{display:flex;gap:10px;align-items:center}.btn{border:1px solid var(--line);background:#fff;border-radius:25px;padding:10px 15px;font-weight:800;cursor:pointer;color:var(--green)}.btn.primary{background:var(--green);color:#fff;border-color:var(--green)}main{width:min(1100px,calc(100% - 32px));margin:32px auto 50px}.hero{background:linear-gradient(115deg,#103b2b,#1c6847);color:#fff;border-radius:18px;padding:28px 30px;margin-bottom:20px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;right:-45px;top:-90px;width:280px;height:280px;border:24px solid #ffffff12;border-radius:50%}.eyebrow{color:#e3c56e;font-size:11px;letter-spacing:.16em;font-weight:900}.hero h1{margin:7px 0;font-size:clamp(26px,4vw,38px)}.hero p{margin:0;color:#e2eee5;max-width:600px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.card,.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:19px;box-shadow:0 5px 20px #153c2308}.card small{color:var(--muted);font-weight:700}.card strong{display:block;font-size:27px;color:var(--green);margin-top:7px}.referral{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel h2{font-size:18px;color:var(--green);margin:0 0 5px}.muted{color:var(--muted);font-size:13px;margin:0 0 15px}.codebox{background:#f5f8f3;border:1px dashed #b5c8b7;border-radius:12px;padding:18px;margin:14px 0}.code{font-size:27px;letter-spacing:.11em;font-weight:900;color:var(--green);overflow-wrap:anywhere}.linkbox{font-size:13px;overflow-wrap:anywhere;background:#f7f9f6;padding:12px;border-radius:9px;border:1px solid var(--line);margin:10px 0}.actions{display:flex;gap:9px;flex-wrap:wrap}.actions .btn{flex:1;min-width:130px}.table-wrap{overflow:auto;margin-top:12px}table{width:100%;border-collapse:collapse;min-width:580px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #edf1ed;font-size:13px}th{color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase}.pill{display:inline-block;padding:4px 9px;border-radius:20px;background:#edf4ee;color:#216343;font-weight:800;font-size:11px}.status{min-height:22px;color:var(--green2);font-size:13px}.error{color:#a12626}.hidden{display:none!important}.login{max-width:440px;margin:45px auto;background:#fff;border:1px solid var(--line);border-top:5px solid var(--gold);padding:25px;border-radius:16px}.login h1{color:var(--green);margin-top:0}.login label{display:block;font-weight:750;font-size:13px;margin:13px 0 6px}.login input{width:100%;padding:13px;border:1px solid var(--line);border-radius:9px;font:inherit}.login .btn{width:100%;margin-top:12px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:720px){.cards{grid-template-columns:1fr}.referral{grid-template-columns:1fr}.hero{padding:23px 20px}.header-inner{min-height:68px}.brand{font-size:14px}.header-actions .btn{padding:8px 10px;font-size:12px}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div class="top">Mizpah Smart Hatchery · Healthy Chicks | Better Tomorrow</div>
+<header class="header"><div class="header-inner"><a class="brand" href="/">MIZPAH SMART HATCHERY<small>CUSTOMER ACCOUNT CENTRE</small></a><div class="header-actions"><a class="btn" href="/order.html">Place an order</a><button class="btn" id="signout" type="button">Sign out</button></div></div></header>
+<main>
+<section id="login" class="login hidden"><h1>Sign in to your Mizpah account</h1><p class="muted">Use the verified email address linked to your Mizpah customer profile.</p><label>Email address</label><input id="email" type="email" autocomplete="email"><label>Password</label><input id="password" type="password" autocomplete="current-password"><button class="btn primary" id="signin" type="button">Sign in</button><p id="login-status" class="status" role="status"></p><p class="muted">New customer? <a href="/order.html">Create an account while placing your first order.</a></p></section>
+<section id="dashboard" class="hidden">
+<div class="hero"><div class="eyebrow">YOUR MIZPAH ACCOUNT</div><h1>Welcome, <span id="customer-name">Customer</span></h1><p>Share your personal referral code with new customers. Track successful referrals and rewards earned through verified, qualifying payments.</p></div>
+<div class="cards"><article class="card"><small>People you referred</small><strong id="referral-count">0</strong></article><article class="card"><small>Successful referrals</small><strong id="successful-count">0</strong></article><article class="card"><small>Available referral wallet</small><strong id="wallet-balance">₦0.00</strong></article></div>
+<div class="referral">
+<section class="panel"><h2>Your personal referral code</h2><p class="muted">This code is permanent and belongs to your Mizpah customer profile.</p><div class="codebox"><div class="code" id="referral-code">Loading…</div></div><div class="actions"><button class="btn primary" id="copy-code" type="button">Copy code</button><button class="btn" id="share-whatsapp" type="button">Share on WhatsApp</button></div></section>
+<section class="panel"><h2>Your referral link</h2><p class="muted">Anyone who opens this link can use your code when creating their first order.</p><div class="linkbox" id="referral-link"></div><div class="actions"><button class="btn primary" id="copy-link" type="button">Copy referral link</button><button class="btn" id="share-link" type="button">Share link</button></div><p class="muted" style="margin-top:13px">Rewards are credited only after the referred customer's qualifying payment is verified. Cancelled or reversed payments reverse the associated rewards.</p></section>
+</div>
+<section class="panel" style="margin-top:17px"><h2>Referral activity</h2><p class="muted">Your referral history and current qualification status.</p><div class="table-wrap"><table><thead><tr><th>Date</th><th>Referral code</th><th>Status</th><th>Reward status</th><th>Reward</th></tr></thead><tbody id="referral-rows"><tr><td colspan="5">Loading referral activity…</td></tr></tbody></table></div><p id="dashboard-status" class="status" role="status"></p></section>
+</section>
+</main>
+<footer class="footer">© <span id="year"></span> Mizpah Technology · <a href="/">Return to website</a></footer>
+<script>
+(function(){
+const URL='https://ouebgmhtyekqnyrkfrcp.supabase.co';
+const KEY='sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk';
+const db=window.supabase?.createClient(URL,KEY);
+const $=id=>document.getElementById(id);
+$('year').textContent=new Date().getFullYear();
+let profile=null, referralUrl='';
+const money=kobo=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN'}).format((Number(kobo)||0)/100);
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function message(el,text,isError=false){el.textContent=text;el.classList.toggle('error',isError)}
+async function loadAccount(session){
+ if(!session?.user){$('dashboard').classList.add('hidden');$('login').classList.remove('hidden');return}
+ $('login').classList.add('hidden');$('dashboard').classList.remove('hidden');
+ message($('dashboard-status'),'Loading your customer profile…');
+ const {data:profiles,error:profileError}=await db.rpc('link_current_customer_by_verified_email');
+ if(profileError)throw profileError;
+ profile=Array.isArray(profiles)?profiles[0]:profiles;
+ if(!profile?.id)throw new Error('Your verified account does not yet have a customer profile. Please complete your name and phone details on the order page.');
+ $('customer-name').textContent=profile.name||'Customer';
+ $('referral-code').textContent=profile.referral_code||'Not yet assigned';
+ referralUrl=location.origin+'/order.html?ref='+encodeURIComponent(profile.referral_code||'');
+ $('referral-link').textContent=referralUrl;
+ const [referrals,wallet]=await Promise.all([
+   db.from('referrals').select('id,referral_code,status,reward_status,reward_amount_minor,created_at,referrer_customer_id,referred_customer_id').eq('referrer_customer_id',profile.id).order('created_at',{ascending:false}).limit(200),
+   db.from('wallet_accounts').select('balance_minor,currency').eq('customer_id',profile.id).maybeSingle()
+ ]);
+ if(referrals.error)throw referrals.error;
+ if(wallet.error)throw wallet.error;
+ const rows=referrals.data||[];
+ $('referral-count').textContent=rows.length;
+ $('successful-count').textContent=rows.filter(r=>r.status==='successful'&&r.reward_status==='credited').length;
+ $('wallet-balance').textContent=money(wallet.data?.balance_minor||0);
+ $('referral-rows').innerHTML=rows.length?rows.map(r=>'<tr><td>'+safe(new Date(r.created_at).toLocaleDateString('en-NG'))+'</td><td>'+safe(r.referral_code)+'</td><td><span class="pill">'+safe(r.status)+'</span></td><td>'+safe(r.reward_status)+'</td><td>'+money(r.reward_amount_minor)+'</td></tr>').join(''):'<tr><td colspan="5">No referrals have been recorded yet. Share your code to invite a new customer.</td></tr>';
+ message($('dashboard-status'),'Your referral details are up to date.');
+}
+async function copy(text,el){try{await navigator.clipboard.writeText(text);message(el,'Copied successfully.')}catch(e){message(el,'Copy is unavailable in this browser. Select and copy the text manually.',true)}}
+$('copy-code').addEventListener('click',()=>copy(profile?.referral_code||'', $('dashboard-status')));
+$('copy-link').addEventListener('click',()=>copy(referralUrl,$('dashboard-status')));
+$('share-whatsapp').addEventListener('click',()=>window.open('https://wa.me/?text='+encodeURIComponent('Join Mizpah Smart Hatchery using my referral code '+(profile?.referral_code||'')+': '+referralUrl),'_blank','noopener'));
+$('share-link').addEventListener('click',()=>window.open('https://wa.me/?text='+encodeURIComponent('Use my Mizpah referral link: '+referralUrl),'_blank','noopener'));
+$('signin').addEventListener('click',async()=>{message($('login-status'),'Signing in…');const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){message($('login-status'),error.message,true);return}try{await loadAccount(data.session)}catch(e){message($('login-status'),e.message,true)}});
+$('signout').addEventListener('click',async()=>{await db.auth.signOut();location.reload()});
+if(!db){message($('login-status'),'The secure account service could not load. Refresh and try again.',true);$('login').classList.remove('hidden');}
+else db.auth.getSession().then(async({data,error})=>{if(error)throw error;try{await loadAccount(data.session)}catch(e){$('login').classList.remove('hidden');message($('login-status'),e.message,true)}}).catch(e=>message($('login-status'),e.message,true));
+db?.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){profile=null;$('dashboard').classList.add('hidden');$('login').classList.remove('hidden')}});
+})();
+</script>
+</body></html>
