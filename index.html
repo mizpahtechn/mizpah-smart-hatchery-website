@@ -722,5 +722,34 @@ document.addEventListener('DOMContentLoaded',()=>{
     line-height:1.75!important;
   }
 }
+
+/* Match Order confirmation and Order Process copy to the larger, bold policy typography. */
+.order-confirmation-card > p,
+.order-confirmation-card .order-process-steps li span{
+  font-size:19px!important;
+  font-weight:700!important;
+  line-height:1.8!important;
+  color:#263b2e!important;
+}
+.order-confirmation-card .order-process-steps li strong{
+  display:block;
+  font-size:19px!important;
+  font-weight:800!important;
+  line-height:1.5!important;
+  color:#176b3a!important;
+  margin-bottom:5px!important;
+}
+@media(max-width:650px){
+  .order-confirmation-card > p,
+  .order-confirmation-card .order-process-steps li span{
+    font-size:18px!important;
+    font-weight:700!important;
+    line-height:1.75!important;
+  }
+  .order-confirmation-card .order-process-steps li strong{
+    font-size:18px!important;
+    line-height:1.5!important;
+  }
+}
 </style>
 </body></html>
