@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-labelledby="title desc">
+<title id="title">Mizpah poultry equipment image</title><desc id="desc">Illustrated poultry equipment placeholder while the product photograph is unavailable.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7fbf7"/><stop offset="1" stop-color="#e5efe7"/></linearGradient><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e4c45c"/><stop offset="1" stop-color="#b68b20"/></linearGradient></defs>
+<rect width="900" height="620" fill="url(#bg)"/><circle cx="450" cy="260" r="170" fill="#fff" stroke="#d4af37" stroke-width="8"/>
+<path d="M330 330h240l-28-118H358z" fill="#176334" stroke="#0b4524" stroke-width="10" stroke-linejoin="round"/>
+<path d="M360 212q90-90 180 0" fill="none" stroke="url(#gold)" stroke-width="20" stroke-linecap="round"/>
+<path d="M400 340v44m100-44v44" stroke="#176334" stroke-width="16" stroke-linecap="round"/>
+<circle cx="450" cy="260" r="30" fill="url(#gold)"/><path d="M450 230v60m-30-30h60" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
+<text x="450" y="500" text-anchor="middle" fill="#14552d" font-family="Arial,sans-serif" font-size="34" font-weight="700">MIZPAH POULTRY EQUIPMENT</text>
+<text x="450" y="545" text-anchor="middle" fill="#53685a" font-family="Arial,sans-serif" font-size="22">Product photograph temporarily unavailable</text>
+</svg>
