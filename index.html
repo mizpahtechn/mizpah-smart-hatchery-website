@@ -30,6 +30,9 @@ body{font-size:17px}
 .benefit-caption{display:block;font-size:15px;letter-spacing:.1px;line-height:1.4}
 @media(max-width:1000px){.benefits{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:-18px auto 18px}.benefit-image{height:145px;flex-basis:145px}}
 @media(max-width:560px){.benefits{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:calc(100% - 28px);padding-top:14px}.benefit{border-radius:11px;padding:9px}.benefit-image{height:125px;flex-basis:125px;margin-bottom:9px}.benefit-caption{font-size:14px}}
+.benefit:nth-child(2) .benefit-image{height:168px;flex-basis:168px;object-fit:contain;object-position:center;background:#f5f5f0}
+@media(max-width:1000px){.benefit:nth-child(2) .benefit-image{height:170px;flex-basis:170px}}
+@media(max-width:560px){.benefit:nth-child(2) .benefit-image{height:150px;flex-basis:150px}}
 @media(prefers-reduced-motion:reduce){.benefit{transition:none}.benefit:hover{transform:none}}
 
 
