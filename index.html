@@ -503,6 +503,24 @@ body{font-size:17px}
     if (messageField && !messageField.value) {
       messageField.value = "Hello Mizpah Smart Hatchery,\n\nI would like to enquire about: " + selectedProduct + ".\nPlease share current availability, specifications and pricing.\n\nThank you.";
     }
+
+    // Let customers switch from a product enquiry to a general contact message.
+    const generalEnquiryButton = document.createElement("button");
+    generalEnquiryButton.type = "button";
+    generalEnquiryButton.className = "btn";
+    generalEnquiryButton.textContent = "Clear product details — make a general enquiry";
+    generalEnquiryButton.setAttribute("aria-label", "Clear the prefilled product enquiry and make a general enquiry");
+    const subjectFieldContainer = subjectField && subjectField.closest(".form-field");
+    if (subjectFieldContainer) subjectFieldContainer.appendChild(generalEnquiryButton);
+    generalEnquiryButton.addEventListener("click", function () {
+      if (subjectField) subjectField.value = "";
+      if (messageField) messageField.value = "";
+      enquiryParams.delete("product");
+      const cleanUrl = window.location.pathname + (enquiryParams.toString() ? "?" + enquiryParams.toString() : "") + window.location.hash;
+      window.history.replaceState({}, "", cleanUrl);
+      generalEnquiryButton.remove();
+      if (subjectField) subjectField.focus();
+    });
   }
   const endpoint = "https://mizpah-website-forms.fineboyeddie073.workers.dev/";
 
