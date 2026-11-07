@@ -268,10 +268,10 @@ footer.foot{background:#075b28;color:#fff;padding:22px 0;text-align:center}
     <div class="mzp-equipment-intro">
       <span class="mzp-equipment-eyebrow">Mizpah Smart Hatchery · Farmer Resources</span>
       <h2 id="mzp-equipment-gallery-title">Poultry Equipment Gallery</h2>
-      <p>Browse 41 poultry equipment listings selected for hatchery operators and local poultry farmers. The collection combines essential farm-scale tools with selected hatchery equipment. Select a category to find practical feeding, watering, brooding, housing, egg handling, monitoring and biosecurity equipment. Enquire to confirm local availability, specifications and pricing.</p>
+      <p>Browse poultry equipment selected for hatchery operators and local poultry farmers. The collection combines essential farm-scale tools with selected hatchery equipment. Select a category to find practical feeding, watering, brooding, housing, egg handling, monitoring and biosecurity equipment. Enquire to confirm local availability, specifications and pricing.</p>
     </div>
     <div class="mzp-equipment-filters" role="group" aria-label="Filter poultry equipment by function">
-      <button class="mzp-equipment-filter" type="button" data-filter="all" aria-pressed="true">All equipment (41)</button>
+      <button class="mzp-equipment-filter" type="button" data-filter="all" aria-pressed="true">All equipment</button>
       <button class="mzp-equipment-filter" type="button" data-filter="Incubation and hatchery" aria-pressed="false">Egg Incubation & Hatchery</button>
       <button class="mzp-equipment-filter" type="button" data-filter="Egg processing and packing" aria-pressed="false">Egg Grading, Cleaning & Packing</button>
       <button class="mzp-equipment-filter" type="button" data-filter="Feeding equipment" aria-pressed="false">Feed Storage & Distribution</button>
@@ -282,7 +282,7 @@ footer.foot{background:#075b28;color:#fff;padding:22px 0;text-align:center}
       <button class="mzp-equipment-filter" type="button" data-filter="Monitoring instruments" aria-pressed="false">Monitoring & Weighing</button>
       <button class="mzp-equipment-filter" type="button" data-filter="Poultry health equipment" aria-pressed="false">Poultry Health & Biosecurity</button>
     </div>
-    <p class="mzp-equipment-count" id="mzp-equipment-count" aria-live="polite">Showing 41 equipment items</p>
+    <p class="mzp-equipment-count" id="mzp-equipment-count" aria-live="polite">Browse the full equipment collection</p>
     <div class="mzp-equipment-grid"><article class="mzp-equipment-card" data-category="Incubation and hatchery">
   <a class="mzp-equipment-image-link" href="https://hatchingtime.com/cdn/shop/products/Hatching-Time-Egg-Turner-Conturn-60-Set-Setter_a3d6509b-eb7d-4465-a4b3-dea412ed4d6b_1600x.png?v=1711742626" target="_blank" rel="noopener noreferrer" aria-label="Open photo of Mizpah Automatic Egg Turner">
     <img src="https://hatchingtime.com/cdn/shop/products/Hatching-Time-Egg-Turner-Conturn-60-Set-Setter_a3d6509b-eb7d-4465-a4b3-dea412ed4d6b_1600x.png?v=1711742626" alt="Mizpah Automatic Egg Turner poultry equipment" loading="lazy" decoding="async" referrerpolicy="no-referrer">
@@ -479,7 +479,7 @@ footer.foot{background:#075b28;color:#fff;padding:22px 0;text-align:center}
     <img src="https://acdn-us.mitiendanube.com/stores/985/654/products/productos-tiendanube-49-fc25a832d4e7f71af217406794946291-1024-1024.webp" alt="Vaccine Carrier Cooler — supplier reference photograph" loading="lazy" decoding="async">
   </a>
   <div class="mzp-equipment-card-body">
-    <span class="mzp-equipment-number">EQUIPMENT 41 · NEW ADDITION</span>
+    
     <h3>Vaccine Carrier Cooler</h3><p>An insulated carrier for keeping poultry vaccines within the manufacturer-recommended temperature range during transport.</p>
     <p class="mzp-equipment-availability">Ask Mizpah to confirm local availability, suitable capacity and current pricing.</p>
     <a class="mzp-equipment-enquire" href="mailto:info@mizpahtechnology.com.ng?subject=Enquiry%20about%20Vaccine%20Carrier%20Cooler&amp;body=Hello%20Mizpah%20Smart%20Hatchery%2C%0A%0AI%20would%20like%20to%20enquire%20about%3A%20Vaccine%20Carrier%20Cooler.%0APlease%20share%20local%20availability%2C%20suitable%20specifications%20and%20pricing.%0A%0AThank%20you.">Enquire about this item <span aria-hidden="true">↗</span></a>
@@ -721,7 +721,7 @@ footer.foot{background:#075b28;color:#fff;padding:22px 0;text-align:center}
   </div>
 </section></main><footer class="foot"><div class="wrap">© <span id="year"></span> Mizpah Technology. ...Ensuring Customer’s Satisfaction. <span class="footer-contact">Contact: <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="tel:+2348038817886">+234 803 881 7886</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></span></div></footer>
 <script>
-(()=>{const root=document.getElementById('mzp-equipment-gallery');if(!root)return;const buttons=[...root.querySelectorAll('.mzp-equipment-filter')],cards=[...root.querySelectorAll('.mzp-equipment-card')],count=root.querySelector('#mzp-equipment-count');buttons.forEach(button=>button.addEventListener('click',()=>{const filter=button.dataset.filter;buttons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));let visible=0;cards.forEach(card=>{const show=filter==='all'||card.dataset.category===filter;card.hidden=!show;if(show)visible++;});count.textContent='Showing '+visible+' equipment item'+(visible===1?'':'s');}));document.getElementById('year').textContent=new Date().getFullYear();})();
+(()=>{const root=document.getElementById('mzp-equipment-gallery');if(!root)return;const buttons=[...root.querySelectorAll('.mzp-equipment-filter')],cards=[...root.querySelectorAll('.mzp-equipment-card')],count=root.querySelector('#mzp-equipment-count');buttons.forEach(button=>button.addEventListener('click',()=>{const filter=button.dataset.filter;buttons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));let visible=0;cards.forEach(card=>{const show=filter==='all'||card.dataset.category===filter;card.hidden=!show;if(show)visible++;});count.textContent=filter==='all'?'Browse the full equipment collection':'Browse the selected equipment category';}));document.getElementById('year').textContent=new Date().getFullYear();})();
 </script>
 <style id="mizpah-gallery-brand-divider-clearance">
 /* Keep the brand wordmark fully clear of its vertical navigation divider. */
