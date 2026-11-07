@@ -778,4 +778,76 @@ footer.foot{background:#075b28;color:#fff;padding:22px 0;text-align:center}
 }
 </style>
 
+
+<style id="mizpah-gallery-header-compact-fit">
+/* Compact desktop header so the brand, navigation and order action fit on one clean line. */
+@media(min-width:801px){
+  .nav{
+    height:96px!important;
+    gap:12px!important;
+  }
+  .nav > .brand{
+    flex:0 0 auto!important;
+    min-width:0!important;
+    gap:9px!important;
+    padding-right:14px!important;
+  }
+  .nav > .brand .brand-logo{
+    width:76px!important;
+    height:76px!important;
+  }
+  .nav > .brand .brandname{
+    font-size:23px!important;
+    line-height:1.05!important;
+    white-space:nowrap!important;
+  }
+  .nav > .brand .brandname em{
+    font-size:9px!important;
+    margin-top:5px!important;
+    white-space:nowrap!important;
+  }
+  .nav > .links{
+    flex:1 1 auto!important;
+    min-width:0!important;
+    justify-content:space-between!important;
+    gap:9px!important;
+    font-size:13px!important;
+  }
+  .nav > .links>a,
+  .nav > .links .dropdown-trigger{
+    padding:8px 0!important;
+    gap:3px!important;
+  }
+  .nav > .links .active{
+    padding:9px 13px!important;
+  }
+  .nav > .navright{
+    flex:0 0 auto!important;
+    gap:8px!important;
+  }
+  .nav > .navright .order{
+    font-size:13px!important;
+    padding:10px 12px!important;
+    white-space:nowrap!important;
+  }
+}
+@media(min-width:801px) and (max-width:1400px){
+  .nav{gap:8px!important}
+  .nav > .brand{gap:7px!important;padding-right:9px!important}
+  .nav > .brand .brand-logo{width:64px!important;height:64px!important}
+  .nav > .brand .brandname{font-size:19px!important;letter-spacing:0!important}
+  .nav > .brand .brandname em{font-size:8px!important}
+  .nav > .links{gap:5px!important;font-size:11px!important}
+  .nav > .links .active{padding:8px 10px!important}
+  .nav > .navright .order{font-size:11px!important;padding:9px 9px!important}
+}
+@media(min-width:801px) and (max-width:1050px){
+  .nav > .brand .brand-logo{width:56px!important;height:56px!important}
+  .nav > .brand .brandname{font-size:17px!important}
+  .nav > .brand .brandname em{font-size:7px!important}
+  .nav > .links{font-size:10px!important;gap:4px!important}
+  .nav > .navright .order{font-size:10px!important;padding:8px 7px!important}
+}
+</style>
+
 </body></html>
