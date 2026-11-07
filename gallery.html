@@ -553,4 +553,36 @@ footer.foot{background:#075b28;color:#fff;padding:22px 0;text-align:center}
 </section></main><footer class="foot"><div class="wrap">© <span id="year"></span> Mizpah Technology. ...Ensuring Customer’s Satisfaction. <span class="footer-contact">Contact: <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="tel:+2348038817886">+234 803 881 7886</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></span></div></footer>
 <script>
 (()=>{const root=document.getElementById('mzp-equipment-gallery');if(!root)return;const buttons=[...root.querySelectorAll('.mzp-equipment-filter')],cards=[...root.querySelectorAll('.mzp-equipment-card')],count=root.querySelector('#mzp-equipment-count');buttons.forEach(button=>button.addEventListener('click',()=>{const filter=button.dataset.filter;buttons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));let visible=0;cards.forEach(card=>{const show=filter==='all'||card.dataset.category===filter;card.hidden=!show;if(show)visible++;});count.textContent='Showing '+visible+' equipment item'+(visible===1?'':'s');}));document.getElementById('year').textContent=new Date().getFullYear();})();
-</script></body></html>
+</script>
+<style id="mizpah-gallery-brand-divider-clearance">
+/* Keep the brand wordmark fully clear of its vertical navigation divider. */
+.nav > .brand{
+  flex:0 0 auto!important;
+  min-width:max-content!important;
+  gap:12px!important;
+  padding-right:28px!important;
+}
+.nav > .brand .brandname{
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+  display:block!important;
+}
+@media(max-width:1200px) and (min-width:801px){
+  .nav{gap:12px!important}
+  .nav > .brand{padding-right:18px!important;gap:9px!important}
+  .nav > .brand .brand-logo{width:84px!important;height:84px!important}
+  .nav > .brand .brandname{font-size:clamp(19px,2vw,24px)!important}
+  .links{gap:10px!important}
+}
+@media(max-width:800px){
+  .nav > .brand{min-width:0!important;padding-right:0!important;border:0!important;gap:9px!important}
+  .nav > .brand .brand-logo{width:78px!important;height:78px!important}
+  .nav > .brand .brandname{font-size:21px!important;white-space:normal!important}
+}
+@media(max-width:430px){
+  .nav > .brand .brand-logo{width:64px!important;height:64px!important}
+  .nav > .brand .brandname{font-size:18px!important}
+}
+</style>
+
+</body></html>
