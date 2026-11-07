@@ -492,6 +492,18 @@ body{font-size:17px}
 
   const button = document.getElementById("contact-submit");
   const status = document.getElementById("contact-status");
+
+  // Prefill the contact form when a customer arrives from a Gallery product enquiry.
+  const enquiryParams = new URLSearchParams(window.location.search);
+  const selectedProduct = (enquiryParams.get("product") || "").trim();
+  if (selectedProduct) {
+    const subjectField = form.elements.subject;
+    const messageField = form.elements.message;
+    if (subjectField && !subjectField.value) subjectField.value = "Gallery enquiry: " + selectedProduct;
+    if (messageField && !messageField.value) {
+      messageField.value = "Hello Mizpah Smart Hatchery,\\n\\nI would like to enquire about: " + selectedProduct + ".\\nPlease share current availability, specifications and pricing.\\n\\nThank you.";
+    }
+  }
   const endpoint = "https://mizpah-website-forms.fineboyeddie073.workers.dev/";
 
   form.addEventListener("submit", async function (event) {
