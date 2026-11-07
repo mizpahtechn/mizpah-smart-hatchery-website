@@ -25,3 +25,10 @@ drop policy if exists mizpah_customer_reviews_staff_moderate on public.mizpah_cu
 create policy mizpah_customer_reviews_staff_moderate on public.mizpah_customer_reviews for update to authenticated
 using(exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')))
 with check(exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
+
+revoke select on table public.mizpah_customer_reviews from anon;
+grant select (reviewer_name,location,product_or_service,rating,review_text,created_at,status)
+  on public.mizpah_customer_reviews to anon;
+grant select on public.mizpah_customer_reviews to authenticated;
+alter table public.mizpah_customer_reviews
+  add constraint mizpah_customer_reviews_display_name_consent_check check (display_name_consent = true);
