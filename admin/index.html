@@ -935,6 +935,8 @@ async function saveProductRecord(values){
    }else{
     saved=refreshed.data;
    }
+  }else{
+   appSyncWarning='This website product was saved, but no matching app Price List item was found for SKU '+row.sku+'. Create or link the app Price List item before treating both catalogues as synchronised.';
   }
  }
  return appSyncWarning?{...saved,_appSyncWarning:appSyncWarning}:saved;
