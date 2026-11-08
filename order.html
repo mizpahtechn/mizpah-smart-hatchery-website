@@ -314,6 +314,37 @@ main>p.hint strong,
 #customer-order-form .notice strong{color:#805d08!important;-webkit-text-fill-color:#805d08!important}
 </style>
 
+
+<style id="mizpah-order-contact-bar-visibility-fix">
+/* Keep the phone and email readable in the dark-green order-page contact bar.
+   This scoped rule overrides the later site-wide green-link rule. */
+.top{
+  background:#013b1b!important;
+  color:#fff!important;
+  border-bottom:2px solid #c49a28!important;
+}
+.top a,
+.top a:link,
+.top a:visited{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  text-decoration:underline!important;
+  text-decoration-color:#c49a28!important;
+  text-decoration-thickness:2px!important;
+  text-underline-offset:3px!important;
+  font-weight:800!important;
+}
+.top a:hover,
+.top a:focus-visible{
+  color:#f0d88c!important;
+  -webkit-text-fill-color:#f0d88c!important;
+}
+@media(max-width:620px){
+  .top{padding:10px 12px!important;font-size:15px!important;line-height:1.7!important}
+  .top a{overflow-wrap:anywhere}
+}
+</style>
+
 </head>
 <body>
 <div class="top">Mizpah Smart Hatchery · <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></div>
