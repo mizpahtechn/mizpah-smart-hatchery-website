@@ -138,20 +138,20 @@ button,.btn,.button,[role="button"]{color:inherit}
 </section>
 <p class="hint" style="text-align:center;margin:0 0 14px"><strong>New customer?</strong> Start a fresh order using the form below.</p>
 <form class="form-card" id="customer-order-form">
-<h2 class="section-title"><span class="number">1</span> Products and services</h2>
+<h2 class="section-title" id="order-products-heading"><span class="number">1</span> Products and services</h2>
 <div id="items" class="item-list"><p class="hint" id="catalogue-status">Loading the current Mizpah catalogue…</p></div>
 <button class="secondary" id="add-item" type="button" disabled>＋ Add another item</button>
 <div id="reserved-order-number" class="notice hidden" aria-live="polite"><strong>Mizpah Order Number:</strong> <span id="reserved-order-number-value"></span><span id="reservation-status" class="hint"> Reserving your order number…</span></div>
 <div id="live-summary" class="summary hidden" aria-live="polite"></div>
-<h2 class="section-title"><span class="number">2</span> Your contact details</h2>
+<h2 class="section-title" id="order-contact-heading"><span class="number">2</span> Your contact details</h2>
 <div class="grid">
 <div class="field"><label for="customer-name">Full name *</label><input id="customer-name" name="name" autocomplete="name" maxlength="120" required></div>
 <div class="field"><label for="customer-phone">Phone / WhatsApp number *</label><input id="customer-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" placeholder="+234…" required></div>
 <div class="field full"><label for="customer-email">Email address *</label><input id="customer-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
 </div>
 <div class="field full" style="margin-top:16px"><label for="referral-code">Mizpah referral code (optional)</label><input id="referral-code" name="referral_code" maxlength="40" autocomplete="off" placeholder="Enter the referral code you received"><p class="hint">If someone referred you, enter their personal Mizpah code. A code in your referral link will be filled in automatically.</p></div>
-<h2 class="section-title"><span class="number">3</span> Delivery or collection</h2>
-<div class="field"><label>How would you like to receive your order? *</label><div class="fulfilment"><label><input type="radio" name="fulfilment" value="Delivery" required> Delivery</label><label><input type="radio" name="fulfilment" value="Collection" required> Collection</label><label><input type="radio" name="fulfilment" value="To be discussed" required> To be discussed</label></div></div>
+<h2 class="section-title" id="order-delivery-heading"><span class="number">3</span> Delivery or collection</h2>
+<div class="field"><label id="order-fulfilment-question">How would you like to receive your order? *</label><div class="fulfilment"><label><input type="radio" name="fulfilment" value="Delivery" required> Delivery</label><label><input type="radio" name="fulfilment" value="Collection" required> Collection</label><label><input type="radio" name="fulfilment" value="To be discussed" required> To be discussed</label></div></div>
 <div class="grid" style="margin-top:16px">
 <div class="field"><label for="customer-country">Country *</label><select id="customer-country" name="country" required><option value="Nigeria" selected>Nigeria</option></select></div>
 <div class="field" id="state-select-wrap"><label for="customer-state">State *</label><select id="customer-state" name="state" required><option value="">Choose a state</option></select></div>
@@ -335,7 +335,38 @@ function printSavedReceipt(){
  '<h3 style="color:#064b2a">ORDERED PRODUCTS & SERVICES</h3><table><thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Unit price</th><th>Line total</th></tr></thead><tbody>'+rows+'</tbody></table>'+
  '<div class="total">'+(o.is_paid?'TOTAL PAID: ':'ORDER TOTAL: ')+fmt(o.total_ngn)+'</div>'+
  (o.notes?'<section class="panel"><h3>ORDER NOTES</h3><p>'+escHtml(o.notes)+'</p></section>':'')+
- '<div class="foot">Thank you for choosing Mizpah Smart Hatchery.<br>Ensuring Customer satisfaction.</div><div class="actions"><button onclick="window.print()">Print receipt</button></div></main></body></html>';
+ '<div class="foot">Thank you for choosing Mizpah Smart Hatchery.<br>Ensuring Customer satisfaction.</div><div class="actions"><button onclick="window.print()">Print receipt</button></div></main>
+<style id="mizpah-order-requested-green">
+/* Requested Build Your Order page headings, prompts and field labels in Mizpah green. */
+.hero h1,
+#resume-heading,
+#resume-card .field label[for="resume-order-number"],
+#resume-card .field label[for="resume-order-email"],
+#customer-order-form #order-products-heading,
+#customer-order-form #order-contact-heading,
+#customer-order-form #order-delivery-heading,
+#customer-order-form .order-item .field label,
+#customer-order-form #referral-code + p.hint,
+#customer-order-form label[for="customer-address"],
+#customer-order-form #order-fulfilment-question,
+#customer-order-form #reserved-order-number strong,
+#customer-order-form #mizpah-account-state {
+  color:#075b28!important;
+  -webkit-text-fill-color:#075b28!important;
+}
+#customer-order-form #referral-code-label,
+#customer-order-form label[for="referral-code"] {
+  color:#075b28!important;
+  -webkit-text-fill-color:#075b28!important;
+}
+#resume-card + p.hint,
+#resume-card + p.hint strong {
+  color:#075b28!important;
+  -webkit-text-fill-color:#075b28!important;
+}
+</style>
+
+</body></html>';
  w.document.open();w.document.write(html);w.document.close();w.focus();setTimeout(()=>w.print(),350);
 }
 async function continueResumedPayment(){
