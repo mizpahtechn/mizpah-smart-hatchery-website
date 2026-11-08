@@ -228,6 +228,30 @@ body{font-size:17px}
 @media(max-width:800px){.bottom .about>img{flex-basis:clamp(125px,34vw,165px);width:clamp(125px,34vw,165px);height:160px}}
 #mzp-equipment-gallery .mzp-equipment-availability{font-size:13px!important;color:#6b5a24!important;font-weight:700!important;margin-top:0!important}
 </style>
+
+<style id="mizpah-site-wide-readable-text">
+/* Site-wide text contrast improvement. Keeps existing layout, colours, navigation and controls. */
+body{color:#111827!important}
+main p,main li,main label,main small,main td,main th,main dt,main dd,main figcaption,
+article p,article li,article small,section p,section li,section small,
+.content p,.content li,.content label,.content small,.muted,.description,.subtitle,.secondary-text{
+ color:#202b24!important;
+}
+main h1,main h2,main h3,main h4,article h1,article h2,article h3,section h1,section h2,section h3,
+.content h1,.content h2,.content h3,.section-title{
+ color:#103d2b!important;
+}
+input,select,textarea{color:#111827!important}
+input::placeholder,textarea::placeholder{color:#59665e!important;opacity:1!important}
+button,.btn,.button,[role="button"]{font-weight:700}
+header,header p,header small,header nav,header nav a,footer,footer p,footer small,footer a,
+.top,.top a,.nav,.nav a,.navbar,.navbar a,.site-header,.site-header a,.site-footer,.site-footer a,
+.hero[style*="background"],.hero.dark,.dark-section,.dark-bg,.bg-dark{
+ color:#fff;
+}
+header a,footer a,.top a,.nav a,.navbar a,.site-header a,.site-footer a{color:inherit}
+button,.btn,.button,[role="button"]{color:inherit}
+</style>
 </head><style>
 #mzp-equipment-gallery{padding:54px 0 72px;background:#f7f8f3;color:#193c27}
 #mzp-equipment-gallery .mzp-equipment-intro{max-width:800px;margin:0 auto 28px;text-align:center}
