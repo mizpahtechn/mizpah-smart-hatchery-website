@@ -168,7 +168,7 @@ button,.btn,.button,[role="button"]{color:inherit}
 </head>
 <body>
 <div class="top">Mizpah Smart Hatchery · Healthy Chicks | Better Tomorrow</div>
-<header class="header"><div class="header-inner"><a class="brand" href="/">MIZPAH SMART HATCHERY<small>CUSTOMER ACCOUNT CENTRE</small></a><div class="header-actions"><a class="btn" href="/order.html">Place an order</a><button class="btn" id="signout" type="button">Sign out</button></div></div></header>
+<header class="header"><div class="header-inner"><a class="brand" href="/">MIZPAH SMART HATCHERY<small>CUSTOMER ACCOUNT CENTRE</small></a><div class="header-actions"><a class="btn" href="/order.html">Place an order</a><button class="btn hidden" id="signout" type="button">Sign out</button></div></div></header>
 <main>
 <section id="login" class="login hidden"><h1>Sign in to your Mizpah account</h1><p class="muted">Use the verified email address linked to your Mizpah customer profile.</p><label>Email address</label><input id="email" type="email" autocomplete="email"><label>Password</label><input id="password" type="password" autocomplete="current-password"><button class="btn primary" id="signin" type="button">Sign in</button><p id="login-status" class="status" role="status"></p><p class="muted">New customer? <a href="/order.html">Create an account while placing your first order.</a></p></section>
 <section id="dashboard" class="hidden">
@@ -197,9 +197,15 @@ let profile=null, referralUrl='';
 const money=kobo=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN'}).format((Number(kobo)||0)/100);
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function message(el,text,isError=false){el.textContent=text;el.classList.toggle('error',isError)}
+function showAccountView(view){
+ const signedIn=view==='dashboard';
+ $('login').classList.toggle('hidden',signedIn);
+ $('dashboard').classList.toggle('hidden',!signedIn);
+ $('signout').classList.toggle('hidden',!signedIn);
+}
 async function loadAccount(session){
- if(!session?.user){$('dashboard').classList.add('hidden');$('login').classList.remove('hidden');return}
- $('login').classList.add('hidden');$('dashboard').classList.remove('hidden');
+ if(!session?.user){showAccountView('login');return}
+ showAccountView('dashboard');
  message($('dashboard-status'),'Loading your customer profile…');
  const {data:profiles,error:profileError}=await db.rpc('link_current_customer_by_verified_email');
  if(profileError)throw profileError;
@@ -242,11 +248,11 @@ $('copy-code').addEventListener('click',()=>copy(profile?.referral_code||'', $('
 $('copy-link').addEventListener('click',()=>copy(referralUrl,$('dashboard-status')));
 $('share-whatsapp').addEventListener('click',()=>window.open('https://wa.me/?text='+encodeURIComponent('Join Mizpah Smart Hatchery using my referral code '+(profile?.referral_code||'')+': '+referralUrl),'_blank','noopener'));
 $('share-link').addEventListener('click',()=>window.open('https://wa.me/?text='+encodeURIComponent('Use my Mizpah referral link: '+referralUrl),'_blank','noopener'));
-$('signin').addEventListener('click',async()=>{message($('login-status'),'Signing in…');const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){message($('login-status'),error.message,true);return}try{await loadAccount(data.session)}catch(e){message($('login-status'),e.message,true)}});
-$('signout').addEventListener('click',async()=>{await db.auth.signOut();location.reload()});
+$('signin').addEventListener('click',async()=>{message($('login-status'),'Signing in…');const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){showAccountView('login');message($('login-status'),error.message,true);return}try{await loadAccount(data.session)}catch(e){showAccountView('login');message($('login-status'),e.message,true)}});
+$('signout').addEventListener('click',async()=>{showAccountView('login');const {error}=await db.auth.signOut();if(error){message($('login-status'),'Sign out failed: '+error.message,true);return}location.reload()});
 if(!db){message($('login-status'),'The secure account service could not load. Refresh and try again.',true);$('login').classList.remove('hidden');}
-else db.auth.getSession().then(async({data,error})=>{if(error)throw error;try{await loadAccount(data.session)}catch(e){$('login').classList.remove('hidden');message($('login-status'),e.message,true)}}).catch(e=>message($('login-status'),e.message,true));
-db?.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){profile=null;$('dashboard').classList.add('hidden');$('login').classList.remove('hidden')}});
+else db.auth.getSession().then(async({data,error})=>{if(error)throw error;try{await loadAccount(data.session)}catch(e){showAccountView('login');message($('login-status'),e.message,true)}}).catch(e=>{showAccountView('login');message($('login-status'),e.message,true)});
+db?.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){profile=null;showAccountView('login')}else if(event==='SIGNED_IN'&&session){loadAccount(session).catch(e=>{showAccountView('login');message($('login-status'),e.message,true)})}});
 })();
 </script>
 </body></html>
