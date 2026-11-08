@@ -911,7 +911,7 @@ const productCell=p=>'<div class="product"><img class="product-img" src="'+esc(p
 const noRows=(cols,msg)=>'<tr><td colspan="'+cols+'" class="empty">'+msg+'</td></tr>';
 async function saveProductRecord(values){
  if(!currentStaff||!['owner','admin','manager'].includes(currentStaff.role))throw new Error('Your staff role cannot manage products.');
- const row={name:values.name,category:values.category,item_type:values.item_type==='service'?'service':'product',price_ngn:values.price,price_on_request:values.price===null,stock_quantity:values.stock,low_stock_threshold:values.threshold,minimum_order:values.minimum_order,selling_unit:values.selling_unit||null,variant_label:values.variant_label||null,variant_parent_sku:values.variant_parent_sku||null,app_image_path:values.app_image_path||null,specifications:values.specifications||{},published:values.published,description:values.description||'',sku:values.sku||null,image_url:values.image_url||null};
+ const row={name:values.name,category:values.category,item_type:values.item_type==='service'?'service':'product',price_ngn:values.price,price_on_request:values.price===null,stock_quantity:values.stock,low_stock_threshold:values.threshold,minimum_order:values.minimum_order,selling_unit:values.selling_unit||null,variant_label:values.variant_label||null,variant_parent_sku:values.variant_parent_sku||null,app_image_path:values.app_image_path||undefined,specifications:values.specifications||{},published:values.published,description:values.description||'',sku:values.sku||null,image_url:values.image_url||null};
  let result;
  if(editingId){result=await supabaseClient.from('mizpah_web_products').update(row).eq('id',editingId).select('*').single();}
  else{result=await supabaseClient.from('mizpah_web_products').insert(row).select('*').single();}
@@ -925,7 +925,7 @@ async function saveProductRecord(values){
   const {data:synced,error:syncError}=await supabaseClient.rpc('sync_website_product_to_app_price_list',{
    p_id:row.sku,p_name:row.name,p_type:row.category,p_price:Math.round(Number(row.price_ngn)),
    p_published:row.published,p_minimum_order:row.minimum_order,
-   p_image_path:row.app_image_path
+   p_image_path:row.app_image_path||null
   });
   if(syncError){
    appSyncWarning=syncError.message;
