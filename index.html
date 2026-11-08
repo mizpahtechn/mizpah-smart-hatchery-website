@@ -292,11 +292,23 @@ header .navright a.order{
 </style>
 
 
-<style id="mizpah-contact-flock-intro-white">
-/* Make the enquiry-section invitation copy white against the contact background. */
-.contact .contact-intro-emphasis{
+<style id="mizpah-contact-enquiry-section-all-copy-white">
+/* Keep all written content in the homepage enquiry/contact section white.
+   Form-entry text stays dark for readability inside the white fields. */
+.contact,
+.contact h2,
+.contact p,
+.contact label,
+.contact a:not(.btn),
+.contact .note,
+.contact #contact-status{
   color:#fff!important;
   -webkit-text-fill-color:#fff!important;
+}
+.contact input,
+.contact textarea{
+  color:#101b34!important;
+  -webkit-text-fill-color:#101b34!important;
 }
 </style>
 
