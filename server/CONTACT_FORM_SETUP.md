@@ -15,8 +15,8 @@ Official dashboard: https://resend.com/
 ## 2. Create the Worker
 
 1. Sign in to Cloudflare: https://dash.cloudflare.com/
-2. Open **Workers & Pages** and create a Worker named `mizpah-contact`.
-3. Replace the starter code with the full contents of `server/contact-worker.js` from this repository and deploy.
+2. Open **Workers & Pages** and use the existing Worker named `mizpah-website-forms`. Do not create a duplicate Worker.
+3. The GitHub Actions workflow `.github/workflows/deploy-enquiry-worker.yml` deploys `server/contact-worker.js` to that existing Worker when the Worker source or `wrangler.jsonc` changes on `main`.
 4. Open the Worker settings and add:
    - **Secret** `RESEND_API_KEY`: the API key generated in Resend.
    - **Variable** `ADMIN_EMAIL`: `info@mizpahtechnology.com.ng`
