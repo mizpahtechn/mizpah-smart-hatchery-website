@@ -63,7 +63,7 @@ begin
      set name = btrim(p_name), type = btrim(p_type), price = p_price,
          published = coalesce(p_published, false),
          minimum_order = p_minimum_order, updated_at = now(),
-         source = 'Mizpah Website Admin', updated_by = auth.uid()
+         source = 'Mizpah Website Admin'
    where id = btrim(p_id);
   get diagnostics affected = row_count;
   return affected > 0;
