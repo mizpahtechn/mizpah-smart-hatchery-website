@@ -1258,3 +1258,30 @@ a.btn.outline[href="/why-choose-mizpah.html"] {
 }
 </style>
 </body></html>
+
+<style id="mizpah-home-brand-wordmark-clear-of-divider">
+/* Keep the MIZPAH TECHNOLOGY wordmark fully inside the brand area, clear of the vertical divider. */
+header.nav > a.brand{
+  flex:0 0 auto;
+  min-width:0;
+  gap:10px;
+  padding-right:30px;
+}
+header.nav > a.brand .brand-logo{
+  width:88px;
+  height:88px;
+  flex:0 0 88px;
+}
+header.nav > a.brand .brandname{
+  display:block;
+  white-space:nowrap;
+  font-size:25px;
+  letter-spacing:0;
+  line-height:1.08;
+}
+@media(max-width:1200px) and (min-width:801px){
+  header.nav > a.brand{gap:8px;padding-right:20px}
+  header.nav > a.brand .brand-logo{width:70px;height:70px;flex-basis:70px}
+  header.nav > a.brand .brandname{font-size:19px}
+}
+</style>
