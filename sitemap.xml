@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://mizpahtechnology.com.ng/blog.html</loc><lastmod>2026-11-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=start-a-poultry-farm-in-nigeria</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=common-brooding-mistakes-day-old-chicks</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=chick-vaccination-guide-nigeria</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=how-to-select-quality-hatching-eggs</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=incubator-temperature-humidity-turning-guide</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=essential-poultry-equipment-farmers</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/products.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/services.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/gallery.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/why-choose-mizpah.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/product-enquiry.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/service-request.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/order.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/download-app.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/blog.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/blog-article.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=start-a-poultry-farm-in-nigeria</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=common-brooding-mistakes-day-old-chicks</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=chick-vaccination-guide-nigeria</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=how-to-select-quality-hatching-eggs</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=incubator-temperature-humidity-turning-guide</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mizpahtechnology.com.ng/blog-article.html?slug=essential-poultry-equipment-farmers</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>
