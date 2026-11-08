@@ -109,7 +109,7 @@ button,.btn,.button,[role="button"]{color:inherit}
 
 <style id="mizpah-order-requested-light-green-labels">
 /* Soft, bold Mizpah-green treatment for the order-page labels and prompts requested. */
-:root{--mizpah-order-soft-green:#6b9876}
+:root{--mizpah-order-soft-green:#075b28}
 .hero h1,
 #resume-heading,
 #resume-card .field label[for="resume-order-number"],
@@ -268,6 +268,50 @@ header,nav{opacity:1!important}
  color:#075b28!important;-webkit-text-fill-color:#075b28!important
 }
 #customer-order-form .notice strong{color:#805d08!important}
+</style>
+
+
+<style id="mizpah-order-final-active-brand-fix">
+/* Final active page rules: keep all customer prompts and actions in official Mizpah colours. */
+#resume-card + p.hint,
+#resume-card + p.hint strong,
+main>p.hint,
+main>p.hint strong,
+#resume-card h2,
+#resume-card .field label,
+#customer-order-form .section-title,
+#customer-order-form .section-title *,
+#customer-order-form .field>label,
+#customer-order-form #order-fulfilment-question,
+#customer-order-form .order-item .field label,
+#customer-order-form #reserved-order-number strong,
+#customer-order-form #reserved-order-number-value,
+#customer-order-form #mizpah-account-state{
+ color:#075b28!important;-webkit-text-fill-color:#075b28!important
+}
+#customer-order-form .section-title{border-bottom:2px solid #c49a28!important}
+#customer-order-form .section-title .number{
+ background:#075b28!important;color:#fff!important;
+ -webkit-text-fill-color:#fff!important;border:2px solid #c49a28!important
+}
+#customer-order-form #add-item,
+#customer-order-form #preview-order,
+#resume-card #resume-lookup,
+#resume-card .resume-continue{
+ background:#075b28!important;color:#fff!important;
+ -webkit-text-fill-color:#fff!important;border:1px solid #c49a28!important;
+ opacity:1!important;filter:none!important
+}
+#customer-order-form #preview-order:disabled,
+#customer-order-form #add-item:disabled,
+#resume-card #resume-lookup:disabled{
+ background:#075b28!important;color:#fff!important;
+ -webkit-text-fill-color:#fff!important;opacity:1!important
+}
+#customer-order-form .notice{
+ background:#fff8df!important;border-left:4px solid #c49a28!important
+}
+#customer-order-form .notice strong{color:#805d08!important;-webkit-text-fill-color:#805d08!important}
 </style>
 
 </head>
