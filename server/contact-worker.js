@@ -284,13 +284,14 @@ export default {
     const body = parsed.body;
 
     // Quietly accept honeypot submissions without sending email.
-    if (clean(body?._honey, 200)) {
+    if (clean(body?._honey, 200) || clean(body?.website, 200)) {
       return json({ success: true }, 202, origin);
     }
 
     const name = clean(body?.name, 120);
     const email = clean(body?.email, 254);
     const phone = clean(body?.phone, 30);
+    const subject = clean(body?.subject, 180) || "Website enquiry";
     const message = clean(body?.message, 3000);
 
     if (!name || !email || !message) {
@@ -311,6 +312,7 @@ export default {
       "Name: " + name,
       "Email: " + email,
       "Phone: " + (phone || "Not provided"),
+      "Subject: " + subject,
       "",
       "Enquiry:",
       message,
