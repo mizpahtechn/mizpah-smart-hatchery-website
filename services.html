@@ -91,11 +91,11 @@ html{background:var(--cream)}body{position:relative;background:linear-gradient(1
 <style id="mizpah-premium-corporate-theme">
 /* Unified Mizpah Premium Corporate Theme: emerald, warm white and champagne gold */
 :root{
-  --g:#17613d;--deep:#103d2b;--gold:#d3ad50;--ink:#203128;
-  --muted:#58685e;--line:#dce5dc;--cream:#f7f8f4;
+  --g:#075b28;--deep:#013b1b;--gold:#c49a28;--ink:#17251b;
+  --muted:#435548;--line:#d7bd65;--cream:#fbf8ec;
 }
 html{background:var(--cream)}
-body{background:linear-gradient(180deg,#f7f8f4 0%,#f0f4ee 100%);color:var(--ink);font-family:Inter,Arial,Helvetica,sans-serif}
+body{background:linear-gradient(180deg,#fbf8ec 0%,#edf4eb 100%);color:var(--ink);font-family:Inter,Arial,Helvetica,sans-serif}
 .top{background:var(--deep)!important;color:#fff!important;font-size:15px!important;line-height:1.65}
 .top a{color:#fff!important}
 .header{background:var(--deep)!important;color:#fff!important;border-bottom:3px solid var(--gold)!important;box-shadow:0 4px 16px rgba(16,61,43,.10)}
@@ -106,21 +106,21 @@ body{background:linear-gradient(180deg,#f7f8f4 0%,#f0f4ee 100%);color:var(--ink)
 .nav a{font-weight:700!important;transition:color .18s ease}
 .nav a:hover,.nav a:focus-visible{color:#e7cf8b!important;text-decoration-color:var(--gold)!important}
 .nav .order{background:var(--gold)!important;color:#193b2a!important;border:1px solid #ead69d!important;box-shadow:0 3px 10px rgba(0,0,0,.12)}
-.hero{background:linear-gradient(135deg,#f5f3e8 0%,#eaf1e9 100%)!important;border-bottom:1px solid #e2d4a9!important;color:var(--ink)!important}
-.hero h1{color:var(--deep)!important;font-weight:850!important;letter-spacing:-.025em}
+.hero{background:linear-gradient(135deg,#fbf8ec 0%,#eaf1e9 100%)!important;border-bottom:3px solid var(--gold)!important;color:var(--ink)!important}
+.hero h1{color:var(--g)!important;font-weight:850!important;letter-spacing:-.025em}
 .hero p{color:#526459!important}
 .hero .eyebrow{color:#98751f!important;font-weight:850!important;letter-spacing:.12em!important}
 .content{padding-top:clamp(30px,4vw,48px)!important;padding-bottom:clamp(42px,5vw,64px)!important}
 .intro{max-width:900px!important}
-.section-title{color:var(--deep)!important;font-weight:850!important;letter-spacing:-.015em}
-.card{background:#fff!important;border:1px solid var(--line)!important;border-top:4px solid var(--gold)!important;border-radius:16px!important;box-shadow:0 10px 28px rgba(16,61,43,.07)!important;transition:box-shadow .2s ease,transform .2s ease}
-.card h2,.card h3{color:var(--deep)!important;font-weight:800!important}
+.section-title{color:var(--g)!important;font-weight:850!important;letter-spacing:-.015em}
+.card{background:#fff!important;border:1px solid var(--line)!important;border-top:4px solid var(--gold)!important;border-radius:16px!important;box-shadow:0 10px 28px rgba(1,59,27,.10)!important;transition:box-shadow .2s ease,transform .2s ease}
+.card h2,.card h3{color:var(--g)!important;font-weight:800!important}
 .card p{color:#4f6055!important}
-.tag{background:#edf4ed!important;color:var(--deep)!important;border:1px solid #dce8dc!important}
+.tag{background:#edf4ed!important;color:var(--g)!important;border:1px solid var(--gold)!important}
 .price{color:var(--g)!important;font-weight:850!important}
-.btn,.submit{background:var(--g)!important;color:#fff!important;border:1px solid var(--g)!important;border-radius:28px!important;font-weight:800!important;box-shadow:0 4px 12px rgba(23,97,61,.14)!important;transition:background .18s ease,transform .18s ease}
+.btn,.submit{background:var(--g)!important;color:#fff!important;border:1px solid var(--g)!important;border-radius:28px!important;font-weight:800!important;box-shadow:0 4px 12px rgba(7,91,40,.16)!important;transition:background .18s ease,transform .18s ease}
 .btn:hover,.submit:hover{background:var(--deep)!important;transform:translateY(-1px)}
-.btn.gold{background:var(--gold)!important;color:#193b2a!important;border-color:#c39b3e!important}
+.btn.gold{background:var(--gold)!important;color:#17351f!important;-webkit-text-fill-color:#17351f!important;border-color:#a77e16!important}
 .btn.light{background:#fff!important;color:var(--deep)!important;border:1px solid #cbd9cd!important}
 .foot,.footer{background:var(--deep)!important;color:#fff!important;border-top:3px solid var(--gold)!important}
 .foot a,.footer a{color:#f0d994!important}
@@ -129,7 +129,7 @@ input:focus,select:focus,textarea:focus{outline:3px solid rgba(211,173,80,.28)!i
 .service-option{background:#fff!important;border:1px solid var(--line)!important;border-radius:12px!important}
 .service-option:has(input:checked){background:#eff5ee!important;border-color:var(--g)!important;box-shadow:inset 0 0 0 1px var(--g)!important}
 .notice{background:#fbf6e7!important;border-left:4px solid var(--gold)!important;color:#514522!important}
-@media(hover:hover){.card:hover{box-shadow:0 14px 34px rgba(16,61,43,.12)!important;transform:translateY(-2px)}}
+@media(hover:hover){.card:hover{box-shadow:0 14px 34px rgba(1,59,27,.14)!important;transform:translateY(-2px)}}
 @media(max-width:850px){.nav{font-size:14px!important}}
 @media(max-width:620px){
   .top{font-size:14px!important}
@@ -150,34 +150,33 @@ input:focus,select:focus,textarea:focus{outline:3px solid rgba(211,173,80,.28)!i
 /* Site-wide text contrast improvement. Keeps existing layout, colours, navigation and controls. */
 body{color:#111827!important}
 main p,main li,main label,main small,main td,main th,main dt,main dd,main figcaption,article p,article li,article small,section p,section li,section small,.content p,.content li,.content label,.content small,.muted,.description,.subtitle,.secondary-text{color:#202b24!important}
-main h1,main h2,main h3,main h4,article h1,article h2,article h3,section h1,section h2,section h3,.content h1,.content h2,.content h3,.section-title{color:#103d2b!important}
+main h1,main h2,main h3,main h4,article h1,article h2,article h3,section h1,section h2,section h3,.content h1,.content h2,.content h3,.section-title{color:#075b28!important;-webkit-text-fill-color:#075b28!important}
 input,select,textarea{color:#111827!important}
 input::placeholder,textarea::placeholder{color:#59665e!important;opacity:1!important}
 button,.btn,.button,[role="button"]{font-weight:700}
 header,header p,header small,header nav,header nav a,footer,footer p,footer small,footer a,.top,.top a,.nav,.nav a,.navbar,.navbar a,.site-header,.site-header a,.site-footer,.site-footer a{color:#fff}
 header a,footer a,.top a,.nav a,.navbar a,.site-header a,.site-footer a{color:inherit}
 button,.btn,.button,[role="button"]{color:inherit}
-</style></head><body><div class="top">Mizpah Smart Hatchery · <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="tel:+2348038817886">+234 803 881 7886</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></div><header class="header"><div class="wrap header-inner"><a class="brand" href="/">MIZPAH TECHNOLOGY<small>...ENSURING CUSTOMER’S SATISFACTION</small></a><nav class="nav" aria-label="Main navigation"><a href="/">Home</a><a href="/services.html">Our Services</a><a href="/products.html">Our Products</a><a href="/why-choose-mizpah.html">Why Choose Mizpah</a><a href="/order.html" class="order">Place an Order</a></nav></div></header><section class="hero"><div class="wrap"><div class="eyebrow">MIZPAH SMART HATCHERY</div><h1>Our Hatchery & Poultry Services</h1><p>Practical hatchery, poultry health, training and technical support for farmers and poultry businesses. Explore the services below and contact our team to discuss your requirements.</p><div class="actions"><a class="btn gold" href="/service-request.html">Request a Service Quotation</a><a class="btn light" href="/#contact">Contact Us</a></div></div></section><main class="wrap content"><div class="intro"><h2 class="section-title">Services Available to Customers</h2><p>Service availability, scope, schedule and final quotation are confirmed by Mizpah before an order is accepted. Where a price has not been approved, we clearly invite you to enquire rather than display an estimated amount.</p></div><div class="grid"><article class="card"><span class="tag">Hatchery Services</span><h2>Mizpah Custom Egg Incubation</h2><p>Incubation of customer-supplied eggs under managed hatchery conditions. Customers should contact Mizpah with the egg type, quantity and preferred timeline so the team can confirm suitability, handling arrangements and scheduling.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=custom-egg-incubation">Request a Quotation</a></div></article><article class="card"><span class="tag">Hatchery Services</span><h2>Mizpah Egg Hatching Service</h2><p>A service covering the final hatching stage through chick emergence. Contact Mizpah with the egg type, quantity and expected hatch window to discuss the process and arrangements.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=egg-hatching-service">Request a Quotation</a></div></article><article class="card"><span class="tag">Hatchery Services</span><h2>Mizpah Egg Candling & Fertility Assessment</h2><p>Egg inspection to assess fertility and embryo development. Enquire with the number and type of eggs and the stage at which assessment is required.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=egg-candling-fertility-assessment">Request a Quotation</a></div></article><article class="card"><span class="tag">Poultry Health Services</span><h2>Mizpah Poultry Vaccination Support</h2><p>Poultry vaccination assistance. The vaccine, dose, bird coverage, service unit and suitability should be confirmed with the Mizpah team before booking.</p><div class="price">₦1,200 per bird (catalogue price)</div><div class="actions"><a class="btn" href="/service-request.html?service=poultry-vaccination-support">Request a Quotation</a></div></article><article class="card"><span class="tag">Consultancy Services</span><h2>Mizpah Hatchery Biosecurity Consultation</h2><p>Consultation covering hatchery hygiene, sanitation and disease-prevention practices. Contact the team to discuss your facility, concerns and the scope of support required.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=hatchery-biosecurity-consultation">Request a Quotation</a></div></article><article class="card"><span class="tag">Training Services</span><h2>Mizpah Poultry Farmer Training</h2><p>Training support for poultry farmers. Contact Mizpah to discuss the topics you want covered, participant numbers, preferred format and duration.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=poultry-farmer-training">Request a Quotation</a></div></article><article class="card"><span class="tag">Technical Services</span><h2>Mizpah Hatchery Installation and Setup</h2><p>Hatchery equipment installation, configuration and operational testing. The equipment, site requirements and installation scope need to be reviewed before a quotation can be provided.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=hatchery-installation-setup">Request a Quotation</a></div></article><article class="card"><span class="tag">Technical Services</span><h2>Mizpah Hatchery Equipment Maintenance and Repairs</h2><p>Inspection, maintenance and repair of hatchery equipment. Contact the team with the equipment type, make/model and the issue observed so the service scope can be assessed.</p><div class="price">₦50,000 (catalogue price; confirm scope)</div><div class="actions"><a class="btn" href="/service-request.html?service=equipment-maintenance-repairs">Request a Quotation</a></div></article></div><div class="actions"><a class="btn gold" href="/service-request.html">Request a Service Quotation</a><a class="btn light" href="/products.html">Explore Our Products</a></div></main><footer class="foot"><div class="wrap">© <span id="year"></span> Mizpah Technology · ...Ensuring Customer’s Satisfaction · <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></div></footer><script>document.getElementById('year').textContent=new Date().getFullYear();</script>
-<style id="mizpah-services-requested-green-text">
+</style><style id="mizpah-services-requested-green-text">
 /* Apply Mizpah green to the requested Services page headings, labels and notice only. */
 .hero h1,
 .content .section-title,
 .content > .intro > p,
 .content .card > .tag,
 .content .card > h2{
-  color:#17613d!important;
-  -webkit-text-fill-color:#17613d!important;
+  color:#075b28!important;
+  -webkit-text-fill-color:#075b28!important;
 }
 /* Keep the requested call-to-action labels at the specified contrast. */
 .content .actions a.btn.light[href="/products.html"]{
-  color:#17613d!important;
-  -webkit-text-fill-color:#17613d!important;
+  color:#075b28!important;
+  -webkit-text-fill-color:#075b28!important;
 }
 .hero .actions a.btn.gold[href="/service-request.html"],
 .content .actions a.btn.gold[href="/service-request.html"]{
-  color:#fff!important;
-  -webkit-text-fill-color:#fff!important;
+  color:#17351f!important;
+  -webkit-text-fill-color:#17351f!important;
 }
 </style>
-
+</head><body><div class="top">Mizpah Smart Hatchery · <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="tel:+2348038817886">+234 803 881 7886</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></div><header class="header"><div class="wrap header-inner"><a class="brand" href="/">MIZPAH TECHNOLOGY<small>...ENSURING CUSTOMER’S SATISFACTION</small></a><nav class="nav" aria-label="Main navigation"><a href="/">Home</a><a href="/services.html">Our Services</a><a href="/products.html">Our Products</a><a href="/why-choose-mizpah.html">Why Choose Mizpah</a><a href="/order.html" class="order">Place an Order</a></nav></div></header><section class="hero"><div class="wrap"><div class="eyebrow">MIZPAH SMART HATCHERY</div><h1>Our Hatchery & Poultry Services</h1><p>Practical hatchery, poultry health, training and technical support for farmers and poultry businesses. Explore the services below and contact our team to discuss your requirements.</p><div class="actions"><a class="btn gold" href="/service-request.html">Request a Service Quotation</a><a class="btn light" href="/#contact">Contact Us</a></div></div></section><main class="wrap content"><div class="intro"><h2 class="section-title">Services Available to Customers</h2><p>Service availability, scope, schedule and final quotation are confirmed by Mizpah before an order is accepted. Where a price has not been approved, we clearly invite you to enquire rather than display an estimated amount.</p></div><div class="grid"><article class="card"><span class="tag">Hatchery Services</span><h2>Mizpah Custom Egg Incubation</h2><p>Incubation of customer-supplied eggs under managed hatchery conditions. Customers should contact Mizpah with the egg type, quantity and preferred timeline so the team can confirm suitability, handling arrangements and scheduling.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=custom-egg-incubation">Request a Quotation</a></div></article><article class="card"><span class="tag">Hatchery Services</span><h2>Mizpah Egg Hatching Service</h2><p>A service covering the final hatching stage through chick emergence. Contact Mizpah with the egg type, quantity and expected hatch window to discuss the process and arrangements.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=egg-hatching-service">Request a Quotation</a></div></article><article class="card"><span class="tag">Hatchery Services</span><h2>Mizpah Egg Candling & Fertility Assessment</h2><p>Egg inspection to assess fertility and embryo development. Enquire with the number and type of eggs and the stage at which assessment is required.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=egg-candling-fertility-assessment">Request a Quotation</a></div></article><article class="card"><span class="tag">Poultry Health Services</span><h2>Mizpah Poultry Vaccination Support</h2><p>Poultry vaccination assistance. The vaccine, dose, bird coverage, service unit and suitability should be confirmed with the Mizpah team before booking.</p><div class="price">₦1,200 per bird (catalogue price)</div><div class="actions"><a class="btn" href="/service-request.html?service=poultry-vaccination-support">Request a Quotation</a></div></article><article class="card"><span class="tag">Consultancy Services</span><h2>Mizpah Hatchery Biosecurity Consultation</h2><p>Consultation covering hatchery hygiene, sanitation and disease-prevention practices. Contact the team to discuss your facility, concerns and the scope of support required.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=hatchery-biosecurity-consultation">Request a Quotation</a></div></article><article class="card"><span class="tag">Training Services</span><h2>Mizpah Poultry Farmer Training</h2><p>Training support for poultry farmers. Contact Mizpah to discuss the topics you want covered, participant numbers, preferred format and duration.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=poultry-farmer-training">Request a Quotation</a></div></article><article class="card"><span class="tag">Technical Services</span><h2>Mizpah Hatchery Installation and Setup</h2><p>Hatchery equipment installation, configuration and operational testing. The equipment, site requirements and installation scope need to be reviewed before a quotation can be provided.</p><div class="price">Contact us for details</div><div class="actions"><a class="btn" href="/service-request.html?service=hatchery-installation-setup">Request a Quotation</a></div></article><article class="card"><span class="tag">Technical Services</span><h2>Mizpah Hatchery Equipment Maintenance and Repairs</h2><p>Inspection, maintenance and repair of hatchery equipment. Contact the team with the equipment type, make/model and the issue observed so the service scope can be assessed.</p><div class="price">₦50,000 (catalogue price; confirm scope)</div><div class="actions"><a class="btn" href="/service-request.html?service=equipment-maintenance-repairs">Request a Quotation</a></div></article></div><div class="actions"><a class="btn gold" href="/service-request.html">Request a Service Quotation</a><a class="btn light" href="/products.html">Explore Our Products</a></div></main><footer class="foot"><div class="wrap">© <span id="year"></span> Mizpah Technology · ...Ensuring Customer’s Satisfaction · <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></div></footer><script>document.getElementById('year').textContent=new Date().getFullYear();</script>
 </body></html>
