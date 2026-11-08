@@ -323,7 +323,11 @@ db?.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){profile=nu
 })();
 </script>
 <style id="mizpah-account-order-heading-bold">
-/* Emphasise the mobile app order-history column headings only. */
-#dashboard .app-order-history thead th{font-weight:700!important;}
+/* Make the seven mobile app order-history headings unmistakably bold; leave all other tables unchanged. */
+#dashboard .panel .table-wrap table.app-order-history thead th{
+  font-weight:900!important;
+  color:#176343!important;
+  -webkit-text-fill-color:#176343!important;
+}
 </style>
 </body></html>
