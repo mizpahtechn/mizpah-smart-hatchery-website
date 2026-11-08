@@ -345,6 +345,35 @@ main>p.hint strong,
 }
 </style>
 
+<style id="mizpah-order-requested-green">
+/* Requested Build Your Order page headings, prompts and field labels in Mizpah green. */
+.hero h1,
+#resume-heading,
+#resume-card .field label[for="resume-order-number"],
+#resume-card .field label[for="resume-order-email"],
+#customer-order-form #order-products-heading,
+#customer-order-form #order-contact-heading,
+#customer-order-form #order-delivery-heading,
+#customer-order-form .order-item .field label,
+#customer-order-form #referral-code + p.hint,
+#customer-order-form label[for="customer-address"],
+#customer-order-form #order-fulfilment-question,
+#customer-order-form #reserved-order-number strong,
+#customer-order-form #mizpah-account-state {
+  color:#075b28!important;
+  -webkit-text-fill-color:#075b28!important;
+}
+#customer-order-form #referral-code-label,
+#customer-order-form label[for="referral-code"] {
+  color:#075b28!important;
+  -webkit-text-fill-color:#075b28!important;
+}
+#resume-card + p.hint,
+#resume-card + p.hint strong {
+  color:#075b28!important;
+  -webkit-text-fill-color:#075b28!important;
+}
+</style>
 </head>
 <body>
 <div class="top">Mizpah Smart Hatchery · <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="mailto:info@mizpahtechnology.com.ng">info@mizpahtechnology.com.ng</a></div>
@@ -588,38 +617,7 @@ function printSavedReceipt(){
  '<h3 style="color:#064b2a">ORDERED PRODUCTS & SERVICES</h3><table><thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Unit price</th><th>Line total</th></tr></thead><tbody>'+rows+'</tbody></table>'+
  '<div class="total">'+(o.is_paid?'TOTAL PAID: ':'ORDER TOTAL: ')+fmt(o.total_ngn)+'</div>'+
  (o.notes?'<section class="panel"><h3>ORDER NOTES</h3><p>'+escHtml(o.notes)+'</p></section>':'')+
- '<div class="foot">Thank you for choosing Mizpah Smart Hatchery.<br>Ensuring Customer satisfaction.</div><div class="actions"><button onclick="window.print()">Print receipt</button></div></main>
-<style id="mizpah-order-requested-green">
-/* Requested Build Your Order page headings, prompts and field labels in Mizpah green. */
-.hero h1,
-#resume-heading,
-#resume-card .field label[for="resume-order-number"],
-#resume-card .field label[for="resume-order-email"],
-#customer-order-form #order-products-heading,
-#customer-order-form #order-contact-heading,
-#customer-order-form #order-delivery-heading,
-#customer-order-form .order-item .field label,
-#customer-order-form #referral-code + p.hint,
-#customer-order-form label[for="customer-address"],
-#customer-order-form #order-fulfilment-question,
-#customer-order-form #reserved-order-number strong,
-#customer-order-form #mizpah-account-state {
-  color:#075b28!important;
-  -webkit-text-fill-color:#075b28!important;
-}
-#customer-order-form #referral-code-label,
-#customer-order-form label[for="referral-code"] {
-  color:#075b28!important;
-  -webkit-text-fill-color:#075b28!important;
-}
-#resume-card + p.hint,
-#resume-card + p.hint strong {
-  color:#075b28!important;
-  -webkit-text-fill-color:#075b28!important;
-}
-</style>
-
-</body></html>';
+ '<div class="foot">Thank you for choosing Mizpah Smart Hatchery.<br>Ensuring Customer satisfaction.</div><div class="actions"><button onclick="window.print()">Print receipt</button></div></main></body></html>';
  w.document.open();w.document.write(html);w.document.close();w.focus();setTimeout(()=>w.print(),350);
 }
 async function continueResumedPayment(){
