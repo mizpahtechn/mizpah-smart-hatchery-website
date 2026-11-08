@@ -500,7 +500,21 @@ async function ensureOrderReservation(){
  })();
  return reservationPromise;
 }
-function makeRow(){const row=document.createElement('div');row.className='order-item';row.innerHTML='<div class="field"><label>Product or service *</label><select class="catalogue-item" required>'+optionMarkup()+'</select><p class="hint item-hint">Select an item to view its approved price.</p></div><div class="field"><label>Quantity *</label><input class="item-quantity" type="number" min="1" step="1" max="1000000" inputmode="numeric" placeholder="Quantity" required></div><button class="remove" type="button">Remove</button>';row.querySelector('.remove').addEventListener('click',()=>{row.remove();updateRows();renderSummary()});row.querySelector('select').addEventListener('change',async()=>{const p=catalogue.find(x=>x.id===row.querySelector('select').value);row.querySelector('.item-hint').textContent=p?'Unit price: '+money(p.price_ngn)+(p.selling_unit?' per '+p.selling_unit:'')+(p.minimum_order?' · Minimum order: '+p.minimum_order:''):'Select an item to view its approved price.';renderSummary();if(p){setStatus(formStatus,'Reserving your Mizpah order number…');try{await ensureOrderReservation();setStatus(formStatus,'Your order number has been reserved. It will remain the same throughout this order.','success')}catch(e){setStatus(formStatus,e.message,'error')}}});row.querySelector('input').addEventListener('input',renderSummary);return row}
+function makeRow(){
+ const row=document.createElement('div');
+ const rowKey='mizpah-order-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+ row.className='order-item';
+ row.innerHTML='<div class="field"><label for="'+rowKey+'-product">Product or service *</label><select id="'+rowKey+'-product" class="catalogue-item" required>'+optionMarkup()+'</select><p class="hint item-hint">Select an item to view its approved price.</p></div><div class="field"><label for="'+rowKey+'-quantity">Quantity *</label><input id="'+rowKey+'-quantity" class="item-quantity" type="number" min="1" step="1" max="1000000" inputmode="numeric" placeholder="Quantity" required></div><button class="remove" type="button">Remove</button>';
+ row.querySelector('.remove').addEventListener('click',()=>{row.remove();updateRows();renderSummary()});
+ row.querySelector('select').addEventListener('change',async()=>{
+  const p=catalogue.find(x=>x.id===row.querySelector('select').value);
+  row.querySelector('.item-hint').textContent=p?'Unit price: '+money(p.price_ngn)+(p.selling_unit?' per '+p.selling_unit:'')+(p.minimum_order?' · Minimum order: '+p.minimum_order:''):'Select an item to view its approved price.';
+  renderSummary();
+  if(p){setStatus(formStatus,'Reserving your Mizpah order number…');try{await ensureOrderReservation();setStatus(formStatus,'Your order number has been reserved. It will remain the same throughout this order.','success')}catch(e){setStatus(formStatus,e.message,'error')}}
+ });
+ row.querySelector('input').addEventListener('input',renderSummary);
+ return row;
+}
 function updateRows(){const rows=[...itemsRoot.querySelectorAll('.order-item')];rows.forEach(r=>r.querySelector('.remove').disabled=rows.length===1)}
 function selectedItems(){return [...itemsRoot.querySelectorAll('.order-item')].map(row=>{const id=row.querySelector('select').value,p=catalogue.find(x=>x.id===id),q=Number(row.querySelector('input').value);return {row,product:p,quantity:q}})}
 function renderSummary(){const chosen=selectedItems().filter(x=>x.product&&Number.isSafeInteger(x.quantity)&&x.quantity>0);const box=document.getElementById('live-summary');if(!chosen.length){box.classList.add('hidden');return}const total=chosen.reduce((sum,x)=>sum+Number(x.product.price_ngn)*x.quantity,0);box.classList.remove('hidden');box.innerHTML='<div class="summary-head">Your selected items</div>'+chosen.map(x=>'<div class="summary-row"><span>'+esc(x.product.name)+'<small>'+x.quantity+' × '+money(x.product.price_ngn)+(x.product.selling_unit?' / '+esc(x.product.selling_unit):'')+'</small></span><strong>'+money(x.quantity*Number(x.product.price_ngn))+'</strong></div>').join('')+'<div class="summary-total"><span>Estimated item total</span><span>'+money(total)+'</span></div>'}
