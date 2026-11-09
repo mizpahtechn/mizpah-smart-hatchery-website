@@ -2534,37 +2534,114 @@ body > header.nav > a.brand .brandname {
 </style>
 
 
-<script id="mizpah-mobile-gap-correction">
-(function () {
-  function correctMobileHeaderGap() {
-    var topBar = document.querySelector('body > .top');
-    var nav = document.querySelector('body > header.nav');
-    if (!topBar || !nav) return;
 
-    nav.style.removeProperty('margin-top');
-    if (window.matchMedia('(max-width: 800px)').matches) {
-      var topBottom = topBar.getBoundingClientRect().bottom;
-      var navTop = nav.getBoundingClientRect().top;
-      var gap = navTop - topBottom;
-      if (gap > 80) {
-        nav.style.setProperty('margin-top', '-' + Math.ceil(gap) + 'px', 'important');
-      }
-    }
-  }
 
-  function scheduleCorrection() {
-    window.requestAnimationFrame(correctMobileHeaderGap);
+<style id="mizpah-mobile-header-flow-final">
+/* Keep the mobile contact strip, navigation and page content in one compact
+   normal-flow column. This removes reserved/empty header row space while
+   leaving all desktop/laptop breakpoints unchanged. */
+@media screen and (max-width: 800px) {
+  html, body {
+    width: 100% !important;
+    min-width: 320px !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', scheduleCorrection, { once: true });
-  } else {
-    scheduleCorrection();
+  body {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    overflow-x: hidden !important;
   }
-  window.addEventListener('load', scheduleCorrection, { once: true });
-  window.addEventListener('resize', scheduleCorrection);
-  window.addEventListener('orientationchange', scheduleCorrection);
-})();
-</script>
+  body > .top {
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 auto !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+  body > .top > .wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 8px 12px !important;
+    gap: 8px !important;
+  }
+  body > .top .contactline {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: start !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 6px 10px !important;
+  }
+  body > .top .contactline > span {
+    min-width: 0 !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+    overflow-wrap: anywhere !important;
+  }
+  body > .top .top-searchbox {
+    position: static !important;
+    inset: auto !important;
+    display: flex !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+  body > .top .top-searchbox input {
+    min-width: 0 !important;
+    height: 36px !important;
+  }
+  body > header.nav {
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 76px !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 6px 12px !important;
+    transform: none !important;
+  }
+  body > main#home {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+@media screen and (max-width: 420px) {
+  body > .top > .wrap { padding: 7px 10px !important; gap: 7px !important; }
+  body > .top .contactline { gap: 5px 8px !important; }
+  body > header.nav { padding-left: 8px !important; padding-right: 8px !important; }
+}
+</style>
 
 </body></html>
