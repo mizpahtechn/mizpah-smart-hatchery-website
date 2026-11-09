@@ -1106,7 +1106,7 @@ body > header.nav > a.brand {
    copy of the unversioned index.html. Preserve unrelated query parameters and
    the requested in-page hash. Do not strip the version after loading. */
 (function () {
-  var version = "20261109m";
+  var version = "20261109n";
   var params = new URLSearchParams(window.location.search);
   if (params.get("v") !== version) {
     params.set("v", version);
@@ -2842,4 +2842,81 @@ body > header.nav > a.brand .brandname {
   }
 }
 </style>
+
+<style id="mizpah-mobile-services-text-width-fix">
+/* Correct the mobile service labels: earlier rules gave each link width:0 and
+   clipped its text. Restore natural text width and keep the image in its own row. */
+@media screen and (max-width: 800px) {
+  #services .services-body {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 12px !important;
+    overflow: visible !important;
+  }
+  #services .services-body > .service-list {
+    display: block !important;
+    order: 1 !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  #services .services-body > .service-list > li {
+    display: flex !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 2px 0 !important;
+    overflow: visible !important;
+    white-space: normal !important;
+  }
+  #services .services-body > .service-list > li::before {
+    flex: 0 0 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    margin: 1px 8px 0 0 !important;
+  }
+  #services .services-body > .service-list > li > a {
+    display: block !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    text-overflow: clip !important;
+    font-size: 12px !important;
+    line-height: 1.55 !important;
+  }
+  #services .services-body > img {
+    order: 2 !important;
+    display: block !important;
+    position: relative !important;
+    inset: auto !important;
+    float: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 112px !important;
+    min-height: 112px !important;
+    max-height: 112px !important;
+    margin: 0 !important;
+    object-fit: cover !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+}
+</style>
+
 </body></html>
