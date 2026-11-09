@@ -1561,4 +1561,37 @@ header.nav .navright .order {
 @media (min-width:801px) {
   header.nav .navright { margin-right:0 !important; }
 }
+@media (min-width:801px) {
+  /* Desktop: match the order action's height to the navigation link hit-area. */
+  header.nav { align-items:center !important; }
+  header.nav .links { align-items:center !important; }
+  header.nav .links > a,
+  header.nav .links .dropdown-trigger {
+    display:inline-flex !important;
+    align-items:center !important;
+    min-height:52px !important;
+    box-sizing:border-box !important;
+  }
+  header.nav .navright {
+    display:flex !important;
+    align-items:center !important;
+    align-self:center !important;
+    height:52px !important;
+    margin-top:0 !important;
+    margin-bottom:0 !important;
+    transform:none !important;
+  }
+  header.nav .navright .order {
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    height:52px !important;
+    min-height:52px !important;
+    padding:0 20px !important;
+    margin:0 !important;
+    transform:none !important;
+    line-height:1 !important;
+    vertical-align:middle !important;
+  }
+}
 </style></body></html>
