@@ -1106,7 +1106,7 @@ body > header.nav > a.brand {
    copy of the unversioned index.html. Preserve unrelated query parameters and
    the requested in-page hash. Do not strip the version after loading. */
 (function () {
-  var version = "20261109j";
+  var version = "20261109k";
   var params = new URLSearchParams(window.location.search);
   if (params.get("v") !== version) {
     params.set("v", version);
@@ -2787,7 +2787,7 @@ body > header.nav > a.brand .brandname {
     grid-row: 2 !important;
     float: none !important;
     clear: both !important;
-    position: relative !important;
+    position: static !important;
     inset: auto !important;
     right: auto !important;
     top: auto !important;
