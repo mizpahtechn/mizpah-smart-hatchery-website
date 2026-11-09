@@ -377,4 +377,49 @@ db?.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){profile=nu
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addBackToTop,{once:true}); else addBackToTop();
 })();
 </script>
+
+<style id="mizpah-account-green-gold-brand-colours">
+/* Requested Mizpah green and gold account sign-in styling. */
+.header .brand,
+.header .brand:visited,
+.header .brand:hover,
+.header .brand:focus{
+  color:#075b28!important;
+  -webkit-text-fill-color:#075b28!important;
+}
+.header .brand small{
+  color:#c9a34a!important;
+  -webkit-text-fill-color:#c9a34a!important;
+}
+#login h1,
+#login label{
+  color:#075b28!important;
+  -webkit-text-fill-color:#075b28!important;
+}
+.header-actions a.btn[href="/order.html"],
+.header-actions a.btn[href="/order.html"]:visited,
+.header-actions a.btn[href="/order.html"]:hover,
+.header-actions a.btn[href="/order.html"]:focus{
+  background:#c9a34a!important;
+  border-color:#c9a34a!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  font-weight:850!important;
+  box-shadow:0 3px 10px rgba(116,83,15,.18);
+}
+.header-actions a.btn[href="/order.html"]:hover{
+  background:#b88e31!important;
+  border-color:#b88e31!important;
+}
+.header-actions a.btn[href="/order.html"]:focus-visible{
+  outline:3px solid #075b28!important;
+  outline-offset:3px!important;
+}
+@media(max-width:720px){
+  .header-actions a.btn[href="/order.html"]{
+    padding:9px 12px!important;
+    font-size:13px!important;
+  }
+}
+</style>
 </body></html>
