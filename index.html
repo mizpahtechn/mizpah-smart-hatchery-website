@@ -2713,7 +2713,7 @@ body > header.nav > a.brand .brandname {
 
 
 <style id="mizpah-mobile-home-services-alignment">
-/* Mobile-only: keep every homepage service label on one numbered line.
+/* Mobile-only: keep every homepage service label on one aligned line using the original checkmark marker.
    The service photo follows the list so it cannot squeeze or overlap the text.
    Desktop and laptop layouts are intentionally unchanged. */
 @media screen and (max-width: 700px) {
@@ -2731,7 +2731,6 @@ body > header.nav > a.brand .brandname {
     max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
-    counter-reset: mizpah-service !important;
     font-size: 12px !important;
     line-height: 1.55 !important;
   }
@@ -2743,10 +2742,9 @@ body > header.nav > a.brand .brandname {
     margin: 0 !important;
     padding: 2px 0 !important;
     white-space: nowrap !important;
-    counter-increment: mizpah-service !important;
   }
   #services .service-list > li::before {
-    content: counter(mizpah-service) "." !important;
+    content: "✓" !important;
     display: inline-flex !important;
     flex: 0 0 22px !important;
     align-items: center !important;
