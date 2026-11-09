@@ -1099,18 +1099,16 @@ body > header.nav > a.brand {
 </style>
 
 <script id="mizpah-homepage-cache-refresh">
-/* Ensure the canonical homepage fetches the latest deployed HTML rather than
-   reusing an older cached copy. The query is removed from the visible address
-   after the fresh document loads. */
+/* Keep the homepage on a versioned URL so each visit bypasses a stale cached
+   copy of the unversioned index.html. Preserve unrelated query parameters and
+   the requested in-page hash. Do not strip the version after loading. */
 (function () {
-  var version = "20261109b";
+  var version = "20261109c";
   var params = new URLSearchParams(window.location.search);
   if (params.get("v") !== version) {
-    window.location.replace(window.location.pathname + "?v=" + version + window.location.hash);
-    return;
-  }
-  if (window.history && window.history.replaceState) {
-    window.history.replaceState(null, document.title, window.location.pathname + window.location.hash);
+    params.set("v", version);
+    var query = params.toString();
+    window.location.replace(window.location.pathname + (query ? "?" + query : "") + window.location.hash);
   }
 })();
 </script>
