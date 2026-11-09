@@ -2447,4 +2447,77 @@ header.nav .navright .order {
 }
 </style>
 
+
+<style id="mizpah-mobile-header-position-final">
+/* Final high-specificity mobile override. Earlier homepage rules use body >
+   header selectors with !important, so match that specificity here. */
+@media screen and (max-width: 800px) {
+  html, body {
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body > .top {
+    position: relative !important;
+    inset: auto !important;
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+  body > .top > .wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    align-content: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 auto !important;
+    padding: 8px 14px 9px !important;
+    gap: 8px !important;
+    transform: none !important;
+  }
+  body > .top .contactline {
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+  body > .top .top-searchbox {
+    position: static !important;
+    inset: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+  body > header.nav {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    display: flex !important;
+    height: auto !important;
+    min-height: 76px !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 6px 12px !important;
+    transform: none !important;
+    align-self: auto !important;
+  }
+  body > header.nav .navright .account-nav {
+    display: none !important;
+  }
+  body > header.nav > a.brand .brandname {
+    display: block !important;
+    visibility: visible !important;
+  }
+}
+</style>
+
 </body></html>
