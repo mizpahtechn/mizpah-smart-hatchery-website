@@ -1106,7 +1106,7 @@ body > header.nav > a.brand {
    copy of the unversioned index.html. Preserve unrelated query parameters and
    the requested in-page hash. Do not strip the version after loading. */
 (function () {
-  var version = "20261109e";
+  var version = "20261109f";
   var params = new URLSearchParams(window.location.search);
   if (params.get("v") !== version) {
     params.set("v", version);
@@ -2645,51 +2645,68 @@ body > header.nav > a.brand .brandname {
   body > header.nav { padding-left: 8px !important; padding-right: 8px !important; }
 }
 
-/* Align every contact method into a consistent two-column mobile grid.
-   Keep both telephone numbers together and allow long email/address text
-   to wrap inside its own cell instead of pushing other items around. */
+/* Keep contact details on clean, natural inline rows on mobile.
+   Items wrap as whole units; phone numbers and email addresses never break
+   mid-number or mid-address. Desktop/laptop styles remain untouched. */
 @media screen and (max-width: 800px), screen and (max-width: 1100px) and (pointer: coarse) {
   body > .top .contactline {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    align-items: start !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
     column-gap: 14px !important;
-    row-gap: 8px !important;
+    row-gap: 7px !important;
   }
   body > .top .contactline > span {
-    display: flex !important;
-    align-items: flex-start !important;
+    display: inline-flex !important;
+    flex: 0 1 auto !important;
+    align-items: center !important;
+    width: auto !important;
     min-width: 0 !important;
+    margin: 0 !important;
     font-size: 12px !important;
-    line-height: 1.45 !important;
-    overflow-wrap: anywhere !important;
+    line-height: 1.4 !important;
+    overflow-wrap: normal !important;
     word-break: normal !important;
   }
   body > .top .contactline .phone-contact {
-    display: flex !important;
+    display: inline-flex !important;
+    flex: 0 1 auto !important;
+    flex-direction: row !important;
     flex-wrap: wrap !important;
-    align-items: flex-start !important;
-    column-gap: 5px !important;
-    row-gap: 1px !important;
+    align-items: center !important;
+    column-gap: 7px !important;
+    row-gap: 2px !important;
+    white-space: nowrap !important;
   }
   body > .top .contactline .phone-secondary {
-    display: block !important;
-    flex-basis: 100% !important;
-    margin-left: 0 !important;
-  }
-  body > .top .contactline > span:last-child,
-  body > .top .contactline .address-copy,
-  body > .top .contactline .address-state {
     display: inline !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
   }
   body > .top .contactline a {
-    min-width: 0 !important;
-    overflow-wrap: anywhere !important;
+    display: inline !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+  body > .top .contactline .address-copy {
+    display: inline !important;
+    white-space: normal !important;
+  }
+  body > .top .contactline .address-state {
+    display: inline !important;
   }
 }
 @media screen and (max-width: 380px) {
   body > .top .contactline {
-    grid-template-columns: minmax(0, 1fr) !important;
+    column-gap: 10px !important;
     row-gap: 6px !important;
+  }
+  body > .top .contactline > span {
+    font-size: 11px !important;
   }
 }
 </style>
