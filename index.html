@@ -1106,7 +1106,7 @@ body > header.nav > a.brand {
    copy of the unversioned index.html. Preserve unrelated query parameters and
    the requested in-page hash. Do not strip the version after loading. */
 (function () {
-  var version = "20261109c";
+  var version = "20261109e";
   var params = new URLSearchParams(window.location.search);
   if (params.get("v") !== version) {
     params.set("v", version);
@@ -2643,6 +2643,54 @@ body > header.nav > a.brand .brandname {
   body > .top > .wrap { padding: 7px 10px !important; gap: 7px !important; }
   body > .top .contactline { gap: 5px 8px !important; }
   body > header.nav { padding-left: 8px !important; padding-right: 8px !important; }
+}
+
+/* Align every contact method into a consistent two-column mobile grid.
+   Keep both telephone numbers together and allow long email/address text
+   to wrap inside its own cell instead of pushing other items around. */
+@media screen and (max-width: 800px), screen and (max-width: 1100px) and (pointer: coarse) {
+  body > .top .contactline {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: start !important;
+    column-gap: 14px !important;
+    row-gap: 8px !important;
+  }
+  body > .top .contactline > span {
+    display: flex !important;
+    align-items: flex-start !important;
+    min-width: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+  body > .top .contactline .phone-contact {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    column-gap: 5px !important;
+    row-gap: 1px !important;
+  }
+  body > .top .contactline .phone-secondary {
+    display: block !important;
+    flex-basis: 100% !important;
+    margin-left: 0 !important;
+  }
+  body > .top .contactline > span:last-child,
+  body > .top .contactline .address-copy,
+  body > .top .contactline .address-state {
+    display: inline !important;
+  }
+  body > .top .contactline a {
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+  }
+}
+@media screen and (max-width: 380px) {
+  body > .top .contactline {
+    grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: 6px !important;
+  }
 }
 </style>
 
