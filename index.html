@@ -1106,7 +1106,7 @@ body > header.nav > a.brand {
    copy of the unversioned index.html. Preserve unrelated query parameters and
    the requested in-page hash. Do not strip the version after loading. */
 (function () {
-  var version = "20261109k";
+  var version = "20261109m";
   var params = new URLSearchParams(window.location.search);
   if (params.get("v") !== version) {
     params.set("v", version);
@@ -2803,6 +2803,42 @@ body > header.nav > a.brand .brandname {
     object-fit: cover !important;
     mask-image: none !important;
     -webkit-mask-image: none !important;
+  }
+}
+</style>
+<style id="mizpah-mobile-services-image-isolation">
+/* Mobile-only final isolation: service text must never sit beside or over the photo. */
+@media screen and (max-width: 800px) {
+  #services .services-body {
+    display:flex !important; flex-direction:column !important;
+    align-items:stretch !important; justify-content:flex-start !important;
+    gap:10px !important; width:100% !important; min-width:0 !important;
+    min-height:0 !important; height:auto !important; padding:12px !important;
+    overflow:hidden !important; position:relative !important; isolation:isolate !important;
+  }
+  #services .services-body > .service-list {
+    display:block !important; position:relative !important; inset:auto !important;
+    order:1 !important; flex:0 0 auto !important; width:100% !important;
+    max-width:100% !important; min-width:0 !important; margin:0 !important;
+    padding:0 !important; overflow:hidden !important;
+  }
+  #services .services-body > .service-list > li {
+    display:flex !important; align-items:center !important; width:100% !important;
+    max-width:100% !important; min-width:0 !important; overflow:hidden !important;
+    white-space:nowrap !important;
+  }
+  #services .services-body > .service-list > li > a {
+    display:block !important; flex:1 1 0 !important; width:0 !important;
+    min-width:0 !important; max-width:100% !important; overflow:hidden !important;
+    white-space:nowrap !important; text-overflow:clip !important; font-size:11px !important;
+  }
+  #services .services-body > img {
+    display:block !important; position:relative !important; inset:auto !important;
+    float:none !important; order:2 !important; flex:0 0 112px !important;
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+    height:112px !important; min-height:112px !important; max-height:112px !important;
+    margin:0 !important; object-fit:cover !important; mask-image:none !important;
+    -webkit-mask-image:none !important; z-index:0 !important;
   }
 }
 </style>
