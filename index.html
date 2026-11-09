@@ -1045,15 +1045,19 @@ body > header.nav > a.brand {
 </style>
 
 
-<style id="mizpah-home-brand-divider-and-wordmark-v3">
-/* Bring the brand divider closer to the Home navigation item and strengthen the wordmark. */
+<style id="mizpah-home-brand-divider-and-wordmark-v4">
+/* Give the complete wordmark its own space; place the divider immediately before Home. */
 @media (min-width: 1351px) {
   body > header.nav > a.brand {
-    flex: 0 0 260px !important;
-    min-width: 260px !important;
-    max-width: 260px !important;
-    padding-right: 7px !important;
+    flex: 0 0 315px !important;
+    min-width: 315px !important;
+    max-width: 315px !important;
+    box-sizing: border-box !important;
+    padding-right: 8px !important;
     border-right: 1px solid #d8e1d9 !important;
+  }
+  body > header.nav > a.brand .brandname {
+    white-space: nowrap !important;
   }
   body > header.nav > a.brand .brandname {
     font-size: 21px !important;
