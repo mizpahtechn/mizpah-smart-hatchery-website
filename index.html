@@ -2510,14 +2510,45 @@ header.nav .navright .order {
     transform: none !important;
     align-self: auto !important;
   }
-  body > header.nav .navright .account-nav {
-    display: none !important;
-  }
-  body > header.nav > a.brand .brandname {
+body > header.nav > a.brand .brandname {
     display: block !important;
     visibility: visible !important;
   }
 }
 </style>
+
+
+<script id="mizpah-mobile-gap-correction">
+(function () {
+  function correctMobileHeaderGap() {
+    var topBar = document.querySelector('body > .top');
+    var nav = document.querySelector('body > header.nav');
+    if (!topBar || !nav) return;
+
+    nav.style.removeProperty('margin-top');
+    if (window.matchMedia('(max-width: 800px)').matches) {
+      var topBottom = topBar.getBoundingClientRect().bottom;
+      var navTop = nav.getBoundingClientRect().top;
+      var gap = navTop - topBottom;
+      if (gap > 80) {
+        nav.style.setProperty('margin-top', '-' + Math.ceil(gap) + 'px', 'important');
+      }
+    }
+  }
+
+  function scheduleCorrection() {
+    window.requestAnimationFrame(correctMobileHeaderGap);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleCorrection, { once: true });
+  } else {
+    scheduleCorrection();
+  }
+  window.addEventListener('load', scheduleCorrection, { once: true });
+  window.addEventListener('resize', scheduleCorrection);
+  window.addEventListener('orientationchange', scheduleCorrection);
+})();
+</script>
 
 </body></html>
