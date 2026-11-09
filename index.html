@@ -1106,7 +1106,7 @@ body > header.nav > a.brand {
    copy of the unversioned index.html. Preserve unrelated query parameters and
    the requested in-page hash. Do not strip the version after loading. */
 (function () {
-  var version = "20261109h";
+  var version = "20261109j";
   var params = new URLSearchParams(window.location.search);
   if (params.get("v") !== version) {
     params.set("v", version);
@@ -2718,14 +2718,20 @@ body > header.nav > a.brand .brandname {
    Desktop and laptop layouts are intentionally unchanged. */
 @media screen and (max-width: 700px) {
   #services .services-body {
-    display: flex !important;
-    flex-direction: column !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-auto-flow: row !important;
     align-items: stretch !important;
     gap: 8px !important;
     min-height: 0 !important;
+    height: auto !important;
     padding: 12px !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
   }
   #services .services-body > .service-list {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
     order: 1 !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -2777,10 +2783,18 @@ body > header.nav > a.brand .brandname {
     line-height: 1.55 !important;
   }
   #services .services-body > img {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    float: none !important;
+    clear: both !important;
     position: relative !important;
-    order: 2 !important;
-    display: block !important;
     inset: auto !important;
+    right: auto !important;
+    top: auto !important;
+    order: 2 !important;
+    align-self: stretch !important;
+    flex: none !important;
+    display: block !important;
     width: 100% !important;
     max-width: 100% !important;
     height: 112px !important;
