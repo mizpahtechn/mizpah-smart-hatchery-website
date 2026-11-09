@@ -1596,47 +1596,116 @@ header.nav .navright .order {
 }
 </style>
 <style id="mizpah-banner-navigation-fit-fix">
-/* Keep the complete navigation inside the header instead of letting the labels
-   collide with the account/order actions or wrap over the hero banner. */
-@media (min-width: 801px) and (max-width: 1450px) {
+/* Correct the actual cause of the menu displacement: the logo's 330px minimum
+   width plus eight top-level links and two action buttons exceeded the header's
+   available width. Keep desktop links only where they genuinely fit. */
+@media (min-width: 1351px) {
   header.nav { gap: 12px !important; }
-  header.nav > a.brand { padding-right: 12px !important; gap: 7px !important; }
-  header.nav > a.brand .brand-logo { width: 66px !important; height: 66px !important; flex-basis: 66px !important; }
-  header.nav > a.brand .brandname { font-size: 20px !important; }
+  header.nav > a.brand {
+    flex: 0 1 260px !important;
+    min-width: 260px !important;
+    gap: 8px !important;
+    padding-right: 12px !important;
+  }
+  header.nav > a.brand .brand-logo {
+    width: 68px !important;
+    height: 68px !important;
+    flex: 0 0 68px !important;
+  }
+  header.nav > a.brand .brandname { font-size: 19px !important; }
   header.nav > a.brand .brandname em { font-size: 9px !important; }
-  header.nav .links { flex: 1 1 auto !important; min-width: 0 !important; justify-content: center !important; gap: clamp(5px, .65vw, 10px) !important; }
+  header.nav .links {
+    display: flex !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+    gap: clamp(5px, .45vw, 9px) !important;
+  }
   header.nav .links > a,
-  header.nav .links .dropdown-trigger { font-size: clamp(11px, .9vw, 13px) !important; }
-  header.nav .navright { gap: 8px !important; }
-  header.nav .navright .account-nav { padding: 9px 10px !important; font-size: 12px !important; }
+  header.nav .links .dropdown-trigger {
+    font-size: clamp(11px, .82vw, 13px) !important;
+  }
+  header.nav .navright {
+    flex: 0 0 auto !important;
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+  header.nav .navright .account-nav {
+    padding: 9px 10px !important;
+    font-size: 12px !important;
+  }
   header.nav .navright .order { padding: 0 12px !important; font-size: 12px !important; }
+  header.nav .navright .menu { display: none !important; }
 }
-@media (max-width: 1100px) and (min-width: 801px) {
-  header.nav { position: relative !important; height: 88px !important; min-height: 88px !important; }
+/* Use the hamburger on medium desktop/tablet too; don't squeeze the full menu
+   into a header that cannot physically contain it. */
+@media (max-width: 1350px) and (min-width: 801px) {
+  header.nav {
+    position: relative !important;
+    height: 88px !important;
+    min-height: 88px !important;
+    gap: 12px !important;
+  }
+  header.nav > a.brand {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding-right: 12px !important;
+    gap: 8px !important;
+  }
+  header.nav > a.brand .brand-logo {
+    width: 66px !important;
+    height: 66px !important;
+    flex: 0 0 66px !important;
+  }
+  header.nav > a.brand .brandname { font-size: clamp(17px, 1.6vw, 20px) !important; }
   header.nav .links { display: none !important; }
-  header.nav .navright { margin: 0 !important; gap: 10px !important; }
-  header.nav .navright .menu { display: block !important; padding: 4px 8px !important; font-size: 27px !important; }
+  header.nav .navright {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    gap: 10px !important;
+  }
+  header.nav .navright .menu {
+    display: block !important;
+    padding: 4px 8px !important;
+    font-size: 27px !important;
+  }
+  /* mobilemenu is a sibling of header, not its child. It must stay in normal
+     document flow, directly under the white header and above the hero banner. */
   .mobilemenu.open {
     display: grid !important;
-    position: absolute !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
     z-index: 1000 !important;
-    top: 140px !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
+    width: min(100%, 1472px) !important;
     max-height: min(70vh, 560px) !important;
     overflow-y: auto !important;
+    margin: 0 auto !important;
     background: #fff !important;
     padding: 10px 18px !important;
-    box-shadow: 0 10px 24px rgba(0,0,0,.18) !important;
+    box-shadow: 0 10px 24px rgba(0,0,0,.12) !important;
     border-top: 3px solid #d4af37 !important;
+    border-bottom: 1px solid #e8eee8 !important;
   }
-  .mobilemenu a { display: block !important; padding: 12px 10px !important; color: #075b28 !important; border-bottom: 1px solid #e8eee8 !important; font-size: 15px !important; line-height: 1.4 !important; }
+  .mobilemenu a {
+    display: block !important;
+    padding: 12px 10px !important;
+    color: #075b28 !important;
+    border-bottom: 1px solid #e8eee8 !important;
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+  }
 }
-@media (min-width: 1101px) {
-  header.nav .links { flex: 1 1 auto; min-width: 0; justify-content: center; gap: clamp(8px, .9vw, 14px); }
-  header.nav .links > a,
-  header.nav .links .dropdown-trigger { font-size: clamp(12px, .95vw, 15px) !important; }
+@media (max-width: 800px) {
+  .mobilemenu.open {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
 }
 </style>
 </body></html>
