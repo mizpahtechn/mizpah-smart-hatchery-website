@@ -1360,4 +1360,170 @@ a.btn.outline[href="/why-choose-mizpah.html"] {
 @media(max-width:600px){
   body #mizpah-global-back-to-top{right:14px!important;bottom:92px!important}
 }
-</style></body></html>
+</style>
+<style id="mizpah-final-mobile-layout-fix">
+/* Final mobile layout repair: keep the document canvas and each primary section
+   anchored to the device viewport instead of allowing content to shrink or overflow. */
+html, body {
+  width:100% !important;
+  min-width:320px !important;
+  max-width:100% !important;
+  margin:0 !important;
+}
+body {
+  display:block !important;
+  overflow-x:hidden !important;
+}
+body > .top,
+body > header.nav,
+body > main#home,
+body > footer.foot {
+  display:block;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
+main#home {
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+}
+main#home > section,
+main#home > div {
+  min-width:0 !important;
+  max-width:100% !important;
+}
+.wrap {
+  width:min(1472px, calc(100% - 28px)) !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+@media (max-width:800px) {
+  header.nav {
+    display:flex !important;
+    width:100% !important;
+    min-width:0 !important;
+    height:auto !important;
+    min-height:76px !important;
+    padding:6px 12px !important;
+    gap:8px !important;
+    justify-content:space-between !important;
+  }
+  header.nav > a.brand {
+    display:flex !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    max-width:calc(100vw - 150px) !important;
+    gap:6px !important;
+    padding:0 !important;
+    border:0 !important;
+    overflow:hidden !important;
+  }
+  header.nav > a.brand .brand-logo {
+    width:clamp(42px, 13vw, 62px) !important;
+    height:clamp(42px, 13vw, 62px) !important;
+    flex:0 0 clamp(42px, 13vw, 62px) !important;
+  }
+  header.nav > a.brand .brandname {
+    min-width:0 !important;
+    max-width:100% !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+    font-size:clamp(13px, 3.8vw, 19px) !important;
+    line-height:1.05 !important;
+  }
+  header.nav > a.brand .brandname em {
+    font-size:9px !important;
+    line-height:1.2 !important;
+  }
+  header.nav .navright {
+    display:flex !important;
+    flex:0 0 auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    gap:7px !important;
+    align-items:center !important;
+  }
+  header.nav .navright .account-nav { display:none !important; }
+  header.nav .navright .order {
+    display:inline-flex !important;
+    max-width:36vw !important;
+    white-space:normal !important;
+    text-align:center !important;
+    justify-content:center !important;
+    font-size:clamp(10px, 2.9vw, 12px) !important;
+    padding:9px 9px !important;
+  }
+  header.nav .navright .menu {
+    display:block !important;
+    flex:0 0 auto !important;
+    padding:2px !important;
+    font-size:24px !important;
+  }
+  main#home .hero {
+    display:grid !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+  main#home .hero-copy {
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    padding:26px 18px 22px !important;
+  }
+  main#home .hero h1 {
+    font-size:clamp(30px,8vw,42px) !important;
+    overflow-wrap:anywhere !important;
+  }
+  main#home .hero p,
+  main#home .slogan { max-width:100% !important; overflow-wrap:anywhere !important; }
+  main#home .hero-image {
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    min-height:240px !important;
+  }
+  main#home .benefits {
+    width:calc(100% - 28px) !important;
+    max-width:100% !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+  }
+  main#home .benefit,
+  main#home .panel,
+  main#home .product,
+  main#home .bottom > *,
+  main#home .mzp-about-card {
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+  main#home .panels,
+  main#home .bottom.mzp-about-redesign,
+  main#home .moregrid,
+  main#home .contactgrid {
+    width:calc(100% - 28px) !important;
+    max-width:100% !important;
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+  main#home img { max-width:100% !important; }
+}
+@media (max-width:420px) {
+  header.nav { padding-left:9px !important; padding-right:9px !important; }
+  header.nav > a.brand { max-width:calc(100vw - 136px) !important; }
+  header.nav .navright .order { max-width:34vw !important; padding:8px 7px !important; }
+  main#home .wrap,
+  main#home .benefits,
+  main#home .panels,
+  main#home .bottom.mzp-about-redesign,
+  main#home .moregrid,
+  main#home .contactgrid { width:calc(100% - 20px) !important; }
+  main#home .hero-copy { padding-left:14px !important; padding-right:14px !important; }
+}
+</style>
+</body></html>
