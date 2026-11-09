@@ -1526,4 +1526,39 @@ main#home > div {
   main#home .hero-copy { padding-left:14px !important; padding-right:14px !important; }
 }
 </style>
-</body></html>
+<style id="mizpah-homepage-order-button-alignment">
+/* Align the Place an Order control neatly with the right-side navigation controls. */
+header.nav .navright {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:12px !important;
+}
+header.nav .navright .order {
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  align-self:center !important;
+  box-sizing:border-box !important;
+  height:44px !important;
+  min-height:44px !important;
+  margin:0 !important;
+  transform:none !important;
+  vertical-align:middle !important;
+  line-height:1.15 !important;
+  white-space:nowrap !important;
+}
+@media (max-width:800px) {
+  header.nav .navright { gap:8px !important; }
+  header.nav .navright .order {
+    height:auto !important;
+    min-height:40px !important;
+    max-width:36vw !important;
+    white-space:normal !important;
+    padding:8px 10px !important;
+  }
+}
+@media (min-width:801px) {
+  header.nav .navright { margin-right:0 !important; }
+}
+</style></body></html>
