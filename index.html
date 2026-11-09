@@ -2711,4 +2711,81 @@ body > header.nav > a.brand .brandname {
 }
 </style>
 
+
+<style id="mizpah-mobile-home-services-alignment">
+/* Mobile-only: keep every homepage service label on one numbered line.
+   The service photo follows the list so it cannot squeeze or overlap the text.
+   Desktop and laptop layouts are intentionally unchanged. */
+@media screen and (max-width: 700px) {
+  #services .services-body {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    min-height: 0 !important;
+    padding: 12px !important;
+  }
+  #services .services-body > .service-list {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    counter-reset: mizpah-service !important;
+    font-size: 12px !important;
+    line-height: 1.55 !important;
+  }
+  #services .service-list > li {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 2px 0 !important;
+    white-space: nowrap !important;
+    counter-increment: mizpah-service !important;
+  }
+  #services .service-list > li::before {
+    content: counter(mizpah-service) "." !important;
+    display: inline-flex !important;
+    flex: 0 0 22px !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 22px !important;
+    height: auto !important;
+    margin: 0 5px 0 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #075b28 !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+  }
+  #services .service-list > li > a {
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    font-size: 12px !important;
+    line-height: 1.55 !important;
+  }
+  #services .services-body > img {
+    position: relative !important;
+    order: 2 !important;
+    display: block !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 112px !important;
+    min-height: 112px !important;
+    margin: 0 !important;
+    object-fit: cover !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+}
+</style>
 </body></html>
