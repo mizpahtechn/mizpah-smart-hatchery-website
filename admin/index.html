@@ -30,6 +30,13 @@
 .auth-foot{margin-top:20px;padding-top:15px;border-top:1px solid #edf1ed;color:#849087;font-size:10px;text-align:center}
 .auth-error{color:#a22;font-size:12px;min-height:18px;margin-top:11px;line-height:1.5}
 body.auth-locked .app,body.auth-locked .modal-backdrop,body.auth-locked .toast{display:none!important}
+.mfa-overlay{position:fixed;inset:0;z-index:1200;background:#10291dcc;display:none;align-items:center;justify-content:center;padding:18px}
+.mfa-overlay.open{display:flex}.mfa-card{width:min(520px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:24px;box-shadow:0 25px 80px #0004}
+.mfa-card h2{margin:0 0 7px;color:#123b2b}.mfa-card p{color:#68766d;font-size:13px}.mfa-card img{display:block;width:210px;height:210px;margin:16px auto;object-fit:contain;border:1px solid #e7ece7;border-radius:10px;padding:8px}
+.mfa-secret{padding:10px;background:#f3f6f3;border-radius:8px;word-break:break-all;font:12px/1.5 ui-monospace,monospace}
+.mfa-card input{width:100%;padding:12px;border:1px solid #dce5dd;border-radius:9px;margin:8px 0}.mfa-actions{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px}
+.mfa-status{font-size:12px;color:#24613e;margin:12px 0}
+
 @media(max-width:480px){.auth-card{padding:27px 22px;border-radius:17px}.auth-brand img{width:50px;height:50px}.auth-card h1{font-size:24px}}
 
 /* Mizpah professional admin refinement */
@@ -554,6 +561,10 @@ label,.field label,.auth-card label{font-size:16px!important}
 </form>
 </div>
 
+<div class="mfa-overlay" id="mfaOverlay" role="dialog" aria-modal="true" aria-labelledby="mfaTitle">
+ <div class="mfa-card"><h2 id="mfaTitle">Administrator security</h2><p id="mfaDescription">Manage your authenticator-app protection.</p>
+ <div id="mfaBody"></div><div class="mfa-actions"><button class="btn" id="mfaClose" type="button">Close</button></div></div>
+</div>
 <div class="app">
 <aside class="sidebar" id="sidebar">
   <div class="brand sidebar-brand"><img class="brand-logo" src="../assets/images/logo%202.png" alt="Mizpah Technology logo"><strong>MIZPAH TECHNOLOGY</strong><small class="sidebar-brand-subtitle">Smart Hatchery - Admin</small></div>
@@ -569,7 +580,7 @@ label,.field label,.auth-card label{font-size:16px!important}
   <div class="side-note"><b>Operations workspace</b>Secure staff area for hatchery catalogue, pricing, inventory and customer-order administration.</div>
 </aside>
 <main class="main">
-<header class="topbar"><div style="display:flex;align-items:center;gap:12px"><button class="btn mobile-menu" id="menuToggle" aria-label="Open menu">☰</button><div class="crumb">Mizpah Smart Hatchery / <strong id="crumb">Overview</strong></div></div><div class="top-right"><span class="demo" id="demoMode">DEMO MODE</span><div class="avatar" title="Administrator profile"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=85" alt="Administrator profile photo"></div><button class="btn signout-btn" id="adminSignOut" type="button" aria-label="Sign out of administrator account" title="Sign out"><span aria-hidden="true">↪</span> Sign out</button></div></header>
+<header class="topbar"><div style="display:flex;align-items:center;gap:12px"><button class="btn mobile-menu" id="menuToggle" aria-label="Open menu">☰</button><div class="crumb">Mizpah Smart Hatchery / <strong id="crumb">Overview</strong></div></div><div class="top-right"><span class="demo" id="demoMode">DEMO MODE</span><div class="avatar" title="Administrator profile"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=85" alt="Administrator profile photo"></div><button class="btn" id="adminMfaButton" type="button" title="Set up administrator authenticator">🔐 Security / MFA</button><button class="btn signout-btn" id="adminSignOut" type="button" aria-label="Sign out of administrator account" title="Sign out"><span aria-hidden="true">↪</span> Sign out</button></div></header>
 <div class="content">
 <section class="view active" id="view-overview">
   <div class="dash-welcome">
@@ -862,6 +873,19 @@ async function performAdminLogin() {
    const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
    if (error) throw error;
    if (!data || !data.session || !data.user) throw new Error('No active session was returned. Please try again.');
+   loginButton.textContent = 'Checking authenticator…';
+   const {data:factorData,error:factorError}=await supabaseClient.auth.mfa.listFactors();
+   if(factorError) throw new Error('Unable to check authenticator status: '+factorError.message);
+   const verifiedTotp=(factorData?.totp||[]).filter(f=>f.status==='verified');
+   if(verifiedTotp.length){
+     const factor=verifiedTotp[0];
+     const {data:challengeData,error:challengeError}=await supabaseClient.auth.mfa.challenge({factorId:factor.id});
+     if(challengeError) throw new Error('Authenticator challenge could not be started: '+challengeError.message);
+     const code=window.prompt('Enter the 6-digit code from your authenticator app to finish administrator sign-in.');
+     if(!code){await supabaseClient.auth.signOut();throw new Error('Authenticator verification was cancelled. Sign in again when ready.');}
+     const {error:verifyError}=await supabaseClient.auth.mfa.verify({factorId:factor.id,challengeId:challengeData.id,code:String(code).replace(/\\s/g,'')});
+     if(verifyError){await supabaseClient.auth.signOut();throw new Error('Authenticator code was not accepted. Please sign in again and enter the current code.');}
+   }
    loginButton.textContent = 'Checking administrator access…';
    const {data:staff,error:staffError} = await supabaseClient.from('mizpah_web_staff').select('role,active').eq('user_id',data.user.id).maybeSingle();
    if (staffError) throw new Error('Your account signed in, but staff authorisation could not be checked: '+staffError.message);
@@ -883,6 +907,50 @@ async function performAdminLogin() {
    loginButton.textContent = 'Sign in securely';
   }
 }
+
+const mfaOverlay=$('mfaOverlay'),mfaBody=$('mfaBody');
+function closeMfa(){mfaOverlay?.classList.remove('open');if(mfaBody)mfaBody.replaceChildren();}
+$('mfaClose')?.addEventListener('click',closeMfa);
+mfaOverlay?.addEventListener('click',e=>{if(e.target===mfaOverlay)closeMfa();});
+function mfaMessage(message){const p=document.createElement('p');p.className='mfa-status';p.textContent=message;mfaBody.appendChild(p);}
+async function openMfaManager(){
+ if(!currentStaff||!supabaseClient){toast('Sign in as an authorised administrator first.');return;}
+ mfaBody.replaceChildren();$('mfaTitle').textContent='Administrator security';$('mfaDescription').textContent='Use an authenticator app such as Google Authenticator or Microsoft Authenticator.';
+ mfaOverlay.classList.add('open');
+ try{
+  const {data,error}=await supabaseClient.auth.mfa.listFactors();if(error)throw error;
+  const verified=(data?.totp||[]).filter(f=>f.status==='verified');
+  const pending=(data?.totp||[]).filter(f=>f.status!=='verified');
+  const summary=document.createElement('p');summary.textContent=verified.length?'Authenticator protection is enrolled ('+verified.length+' verified factor'+(verified.length===1?'':'s')+').':'No verified authenticator is enrolled for this account.';mfaBody.appendChild(summary);
+  pending.forEach(async f=>{try{await supabaseClient.auth.mfa.unenroll({factorId:f.id});}catch(e){console.warn('Could not clear pending MFA factor',e);}});
+  if(verified.length){mfaMessage('Your account already has an active authenticator. The login flow will request its code after your password.');return;}
+  const btn=document.createElement('button');btn.type='button';btn.className='btn primary';btn.textContent='Set up authenticator';btn.addEventListener('click',beginMfaEnrollment);mfaBody.appendChild(btn);
+ }catch(error){mfaMessage('Unable to load MFA settings: '+error.message);}
+}
+async function beginMfaEnrollment(){
+ mfaBody.replaceChildren();mfaMessage('Generating a secure authenticator setup. Keep the QR code private.');
+ try{
+  const {data,error}=await supabaseClient.auth.mfa.enroll({factorType:'totp',friendlyName:'Mizpah administrator authenticator'});
+  if(error)throw error;
+  const qr=document.createElement('img');qr.alt='Authenticator setup QR code';qr.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(data.totp.qr_code);mfaBody.appendChild(qr);
+  const help=document.createElement('p');help.textContent='Scan this QR code with your authenticator app. If scanning is unavailable, enter this setup key manually:';mfaBody.appendChild(help);
+  const secret=document.createElement('div');secret.className='mfa-secret';secret.textContent=data.totp.secret;mfaBody.appendChild(secret);
+  const label=document.createElement('label');label.textContent='6-digit authenticator code';label.htmlFor='mfaVerifyCode';mfaBody.appendChild(label);
+  const input=document.createElement('input');input.id='mfaVerifyCode';input.inputMode='numeric';input.autocomplete='one-time-code';input.maxLength=6;input.placeholder='000000';mfaBody.appendChild(input);
+  const verifyBtn=document.createElement('button');verifyBtn.type='button';verifyBtn.className='btn primary';verifyBtn.textContent='Verify and enable MFA';mfaBody.appendChild(verifyBtn);
+  verifyBtn.addEventListener('click',async()=>{
+   const code=input.value.trim();if(!/^\\d{6}$/.test(code)){mfaMessage('Enter the current 6-digit code from your authenticator app.');return;}
+   verifyBtn.disabled=true;verifyBtn.textContent='Verifying…';
+   try{
+    const {data:challenge,error:challengeError}=await supabaseClient.auth.mfa.challenge({factorId:data.id});if(challengeError)throw challengeError;
+    const {error:verifyError}=await supabaseClient.auth.mfa.verify({factorId:data.id,challengeId:challenge.id,code});if(verifyError)throw verifyError;
+    mfaBody.replaceChildren();mfaMessage('Authenticator verified successfully. MFA is now enrolled for this administrator account. Keep your authenticator device safe.');
+   }catch(err){mfaMessage('Verification failed: '+err.message);verifyBtn.disabled=false;verifyBtn.textContent='Verify and enable MFA';}
+  });
+ }catch(error){mfaBody.replaceChildren();mfaMessage('Could not start authenticator enrolment: '+error.message);}
+}
+$('adminMfaButton')?.addEventListener('click',openMfaManager);
+
 window.mizpahAdminLogin = performAdminLogin;
 if (loginButton) loginButton.addEventListener('click', performAdminLogin);
 if (loginForm) loginForm.addEventListener('submit', event => { event.preventDefault(); performAdminLogin(); });
