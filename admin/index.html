@@ -883,7 +883,7 @@ async function performAdminLogin() {
      if(challengeError) throw new Error('Authenticator challenge could not be started: '+challengeError.message);
      const code=window.prompt('Enter the 6-digit code from your authenticator app to finish administrator sign-in.');
      if(!code){await supabaseClient.auth.signOut();throw new Error('Authenticator verification was cancelled. Sign in again when ready.');}
-     const {error:verifyError}=await supabaseClient.auth.mfa.verify({factorId:factor.id,challengeId:challengeData.id,code:String(code).replace(/\\s/g,'')});
+     const {error:verifyError}=await supabaseClient.auth.mfa.verify({factorId:factor.id,challengeId:challengeData.id,code:String(code).replace(/\s/g,'')});
      if(verifyError){await supabaseClient.auth.signOut();throw new Error('Authenticator code was not accepted. Please sign in again and enter the current code.');}
    }
    loginButton.textContent = 'Checking administrator access…';
@@ -939,7 +939,7 @@ async function beginMfaEnrollment(){
   const input=document.createElement('input');input.id='mfaVerifyCode';input.inputMode='numeric';input.autocomplete='one-time-code';input.maxLength=6;input.placeholder='000000';mfaBody.appendChild(input);
   const verifyBtn=document.createElement('button');verifyBtn.type='button';verifyBtn.className='btn primary';verifyBtn.textContent='Verify and enable MFA';mfaBody.appendChild(verifyBtn);
   verifyBtn.addEventListener('click',async()=>{
-   const code=input.value.trim();if(!/^\\d{6}$/.test(code)){mfaMessage('Enter the current 6-digit code from your authenticator app.');return;}
+   const code=input.value.trim();if(!/^\d{6}$/.test(code)){mfaMessage('Enter the current 6-digit code from your authenticator app.');return;}
    verifyBtn.disabled=true;verifyBtn.textContent='Verifying…';
    try{
     const {data:challenge,error:challengeError}=await supabaseClient.auth.mfa.challenge({factorId:data.id});if(challengeError)throw challengeError;
