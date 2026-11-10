@@ -647,8 +647,11 @@ async function continueResumedPayment(){
  if(!resumedOrder||!resumedOrder.payable)return;
  const button=document.getElementById('resume-continue');button.disabled=true;
  try{
+  const {data:sessionData,error:sessionError}=await supabase.auth.getSession();
+  const session=sessionData?.session;
+  if(sessionError||!session?.access_token)throw new Error('Please sign in again to continue with payment.');
   const provider=document.querySelector('input[name="resume-payment-provider"]:checked')?.value||'paystack';
-  const response=await fetch(CHECKOUT+'/initialize',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({order_number:resumedOrder.order_number,provider})});
+  const response=await fetch(CHECKOUT+'/initialize',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({order_number:resumedOrder.order_number,provider})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok||!data.success||!data.checkoutUrl)throw new Error(data.message||'The payment provider could not be opened.');
   location.assign(data.checkoutUrl);
