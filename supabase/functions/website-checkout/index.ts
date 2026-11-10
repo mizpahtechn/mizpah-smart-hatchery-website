@@ -256,7 +256,8 @@ async function createOrder(req: Request) {
   }
   const customer = {
     name:customer_name,email:customer_email,phone:customer_phone,country,state,city,
-    address:delivery_address,notes,fulfilment,customer_type,preferred_date
+    address:delivery_address,notes,fulfilment,customer_type,preferred_date,
+    auth_user_id:authenticatedCustomer.id
   };
   const { data, error } = await db().rpc("create_mizpah_web_order_from_draft", {
     p_draft_token:draft_token,p_order_number:order_number,p_customer:customer,p_items:items
@@ -268,11 +269,6 @@ async function createOrder(req: Request) {
       : "We could not save this order. Please check your details and try again.");
   }
   const client = db();
-  const { error: ownershipError } = await client.from("mizpah_web_orders")
-    .update({customer_auth_user_id:authenticatedCustomer.id})
-    .eq("order_number",order_number)
-    .eq("customer_email",customer_email);
-  if (ownershipError) throw new Error("Your order was saved but account ownership could not be linked. Please contact Mizpah before retrying.");
   const { data: matchingCustomers, error: customerLookupError } = await client.from("customers")
     .select("id,auth_user_id").eq("email",customer_email).eq("phone",customer_phone).limit(2);
   if (customerLookupError) throw new Error("Your order was saved but your existing customer profile could not be checked.");
