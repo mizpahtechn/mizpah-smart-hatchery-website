@@ -325,11 +325,14 @@ async function resumeSavedOrder(req: Request) {
   if (!/^MZP-[A-Z0-9-]{8,60}$/.test(orderNumber) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new Error("Enter a valid Mizpah order number and the email address used for that order.");
   }
+  const authenticatedCustomer = await requireVerifiedCustomer(req, email);
   const { data, error } = await db().from("mizpah_web_orders")
-    .select("order_number,customer_name,customer_email,customer_phone,country,state,city,delivery_address,fulfilment,preferred_date,notes,items,status,intent,order_total_ngn,quoted_total_ngn,payment_status,payment_method,payment_reference,paid_at,created_at")
+    .select("customer_auth_user_id,order_number,customer_name,customer_email,customer_phone,country,state,city,delivery_address,fulfilment,preferred_date,notes,items,status,intent,order_total_ngn,quoted_total_ngn,payment_status,payment_method,payment_reference,paid_at,created_at")
     .eq("order_number", orderNumber).maybeSingle();
-  if (error || !data || String(data.customer_email || "").trim().toLowerCase() !== email) {
-    throw new Error("We could not find an order matching those details. Check the order number and email address.");
+  if (error || !data ||
+      String(data.customer_email || "").trim().toLowerCase() !== email ||
+      String(data.customer_auth_user_id || "") !== authenticatedCustomer.id) {
+    throw new Error("We could not find an order matching your signed-in account, order number and email address.");
   }
   const total = data.order_total_ngn ?? data.quoted_total_ngn;
   const items = Array.isArray(data.items) ? data.items.map((item: any) => ({
