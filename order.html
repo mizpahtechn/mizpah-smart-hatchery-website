@@ -401,7 +401,7 @@ main>p.hint strong,
 <section class="hero"><div class="eyebrow">CUSTOMER ORDER DESK</div><h1>Build Your Order</h1><p>Choose from the live Mizpah catalogue. Review your selected items, prices and customer details before saving your order or proceeding to secure payment.</p></section>
 <section class="resume-card" id="resume-card" aria-labelledby="resume-heading">
 <h2 id="resume-heading" style="margin:0 0 6px;color:var(--green)">Returning customer? Resume your saved order</h2>
-<p class="hint">Enter the Mizpah order number and the email address used when the order was saved. We will display the saved items and order status before you choose to continue.</p>
+<p class="hint">Sign in to the verified Mizpah customer account linked to your order, then enter the order number and email address used when it was saved.</p>
 <div class="resume-row" style="margin-top:14px">
 <div class="field"><label for="resume-order-number">Mizpah order number</label><input id="resume-order-number" placeholder="e.g. MZP-20261105-XXXXXXXXXXXX" autocomplete="off"></div>
 <div class="field"><label for="resume-order-email">Email address used for the order</label><input id="resume-order-email" type="email" placeholder="Your order email address" autocomplete="email"></div>
@@ -583,7 +583,11 @@ async function lookupSavedOrder(){
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){setStatus(resumeStatus,'Enter the email address used when the order was saved.','error');return}
  button.disabled=true;setStatus(resumeStatus,'Securely checking your saved order…');
  try{
-  const response=await fetch(CHECKOUT+'/resume',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({order_number:number,email})});
+  if(!supabase)throw new Error('Customer account service is unavailable. Please refresh and try again.');
+  const {data:sessionData,error:sessionError}=await supabase.auth.getSession();
+  const session=sessionData?.session;
+  if(sessionError||!session?.access_token)throw new Error('Please sign in to the verified Mizpah customer account linked to this order before retrieving it.');
+  const response=await fetch(CHECKOUT+'/resume',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({order_number:number,email})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok||!data.success||!data.order)throw new Error(data.message||'We could not retrieve that saved order.');
   resumedOrder=data.order;
