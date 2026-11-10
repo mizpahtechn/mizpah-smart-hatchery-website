@@ -951,7 +951,7 @@ async function beginMfaEnrollment(){
  try{
   const {data,error}=await supabaseClient.auth.mfa.enroll({factorType:'totp',friendlyName:'Mizpah administrator authenticator'});
   if(error)throw error;
-  const qr=document.createElement('img');qr.alt='Authenticator setup QR code';qr.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(data.totp.qr_code);mfaBody.appendChild(qr);
+  const qr=document.createElement('img');qr.alt='Authenticator setup QR code';qr.loading='eager';qr.decoding='sync';const qrValue=String(data?.totp?.qr_code||'').trim();if(!qrValue)throw new Error('Supabase did not return a QR code. Use the setup key below if it is available, or try again.');qr.src=/^data:image\//i.test(qrValue)?qrValue:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(qrValue);qr.addEventListener('error',()=>{qr.remove();mfaMessage('The QR image could not be rendered in this browser. You can still add the authenticator manually using the setup key shown below.');},{once:true});mfaBody.appendChild(qr);
   const help=document.createElement('p');help.textContent='Scan this QR code with your authenticator app. If scanning is unavailable, enter this setup key manually:';mfaBody.appendChild(help);
   const secret=document.createElement('div');secret.className='mfa-secret';secret.textContent=data.totp.secret;mfaBody.appendChild(secret);
   const label=document.createElement('label');label.textContent='6-digit authenticator code';label.htmlFor='mfaVerifyCode';mfaBody.appendChild(label);
