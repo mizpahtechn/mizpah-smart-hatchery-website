@@ -164,8 +164,8 @@ async function sendQuotation(request, env, origin) {
   const naira = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 2 }).format(amount);
   const safeName = escapeHtml(order.customer_name || "Customer");
   const safeRef = escapeHtml(order.order_number);
-  const opayCheckoutUrl = "https://mizpahtechnology.com.ng/?checkout_order=" + encodeURIComponent(order.order_number) + "&provider=opay#order";
-  const paystackCheckoutUrl = "https://mizpahtechnology.com.ng/?checkout_order=" + encodeURIComponent(order.order_number) + "&provider=paystack#order";
+  const opayCheckoutUrl = "https://mizpahtechnology.com.ng/order.html?order_number=" + encodeURIComponent(order.order_number) + "&provider=opay#resume-card";
+  const paystackCheckoutUrl = "https://mizpahtechnology.com.ng/order.html?order_number=" + encodeURIComponent(order.order_number) + "&provider=paystack#resume-card";
   const text = [
     "Dear " + (order.customer_name || "Customer") + ",",
     "",
