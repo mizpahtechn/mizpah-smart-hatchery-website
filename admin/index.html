@@ -977,7 +977,7 @@ async function sendCustomerQuotation(orderNo){
  if(!canManageOrders())throw new Error('Your staff role cannot send customer quotations.');
  const order=orders.find(item=>item.id===orderNo);
  if(!order||!Number.isFinite(Number(order.total))||Number(order.total)<=0)throw new Error('Save a quotation amount greater than zero first.');
- if(order.status==='Cancelled'||(order.status==='Completed'&&orderNo!=='MZP-20261103171843-OIBJ'))throw new Error('This order is not eligible for quotation sending.');
+ if(order.status==='Cancelled'||order.status==='Completed')throw new Error('This order is not eligible for quotation sending.');
  const {data,error}=await supabaseClient.auth.getSession();
  if(error||!data?.session?.access_token)throw new Error('Your admin session has expired. Sign in again.');
  const response=await fetch('https://mizpah-website-forms.fineboyeddie073.workers.dev/send-quotation',{
