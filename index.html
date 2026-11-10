@@ -2919,4 +2919,30 @@ body > header.nav > a.brand .brandname {
 }
 </style>
 
+
+<style id="mizpah-mobile-services-photo-clean-crop">
+/* Mobile-only: crop the text accidentally baked into the left edge of the
+   homepage service photograph. Keep the incubator/eggs visible on the right.
+   Desktop and laptop presentation are unchanged. */
+@media screen and (max-width: 800px) {
+  #services .services-body {
+    overflow: hidden !important;
+  }
+  #services .services-body > img {
+    width: 156% !important;
+    max-width: none !important;
+    height: 112px !important;
+    min-height: 112px !important;
+    max-height: 112px !important;
+    margin-left: -56% !important;
+    margin-right: 0 !important;
+    object-fit: cover !important;
+    object-position: right center !important;
+    transform: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+}
+</style>
+
 </body></html>
