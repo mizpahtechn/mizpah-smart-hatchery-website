@@ -706,6 +706,23 @@ try{
 }catch(initError){console.error('Mizpah authentication client initialisation failed:',initError)}
 let currentStaff = null;
 
+async function requireStaffMfa(){
+  const {data:factorData,error:factorError}=await supabaseClient.auth.mfa.listFactors();
+  if(factorError) throw new Error('Unable to check authenticator status: '+factorError.message);
+  const verifiedTotp=(factorData?.totp||[]).filter(f=>f.status==='verified');
+  if(!verifiedTotp.length) return;
+  const {data:aalData,error:aalError}=await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
+  if(aalError) throw new Error('Unable to verify administrator assurance level: '+aalError.message);
+  if(aalData?.currentLevel==='aal2') return;
+  const factor=verifiedTotp[0];
+  const {data:challengeData,error:challengeError}=await supabaseClient.auth.mfa.challenge({factorId:factor.id});
+  if(challengeError) throw new Error('Authenticator challenge could not be started: '+challengeError.message);
+  const code=window.prompt('Enter the 6-digit code from your authenticator app to finish administrator sign-in.');
+  if(!code){await supabaseClient.auth.signOut();throw new Error('Authenticator verification was cancelled. Sign in again when ready.');}
+  const {error:verifyError}=await supabaseClient.auth.mfa.verify({factorId:factor.id,challengeId:challengeData.id,code:String(code).replace(/\s/g,'')});
+  if(verifyError){await supabaseClient.auth.signOut();throw new Error('Authenticator code was not accepted. Please sign in again and enter the current code.');}
+}
+
 function lockAdmin() {
   document.body.classList.add('auth-locked');
   $('authShield').style.display = 'grid';
@@ -763,6 +780,8 @@ async function establishStaff(session) {
       'The secure login service is unavailable. Check your internet connection, refresh the page and try again.'
     );
   }
+
+  await requireStaffMfa();
 
   const { data: staff, error } = await supabaseClient
     .from('mizpah_web_staff')
@@ -874,18 +893,7 @@ async function performAdminLogin() {
    if (error) throw error;
    if (!data || !data.session || !data.user) throw new Error('No active session was returned. Please try again.');
    loginButton.textContent = 'Checking authenticator…';
-   const {data:factorData,error:factorError}=await supabaseClient.auth.mfa.listFactors();
-   if(factorError) throw new Error('Unable to check authenticator status: '+factorError.message);
-   const verifiedTotp=(factorData?.totp||[]).filter(f=>f.status==='verified');
-   if(verifiedTotp.length){
-     const factor=verifiedTotp[0];
-     const {data:challengeData,error:challengeError}=await supabaseClient.auth.mfa.challenge({factorId:factor.id});
-     if(challengeError) throw new Error('Authenticator challenge could not be started: '+challengeError.message);
-     const code=window.prompt('Enter the 6-digit code from your authenticator app to finish administrator sign-in.');
-     if(!code){await supabaseClient.auth.signOut();throw new Error('Authenticator verification was cancelled. Sign in again when ready.');}
-     const {error:verifyError}=await supabaseClient.auth.mfa.verify({factorId:factor.id,challengeId:challengeData.id,code:String(code).replace(/\s/g,'')});
-     if(verifyError){await supabaseClient.auth.signOut();throw new Error('Authenticator code was not accepted. Please sign in again and enter the current code.');}
-   }
+   await requireStaffMfa();
    loginButton.textContent = 'Checking administrator access…';
    const {data:staff,error:staffError} = await supabaseClient.from('mizpah_web_staff').select('role,active').eq('user_id',data.user.id).maybeSingle();
    if (staffError) throw new Error('Your account signed in, but staff authorisation could not be checked: '+staffError.message);
