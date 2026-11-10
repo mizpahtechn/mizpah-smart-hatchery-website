@@ -462,7 +462,7 @@ async function verifyReference(referenceValue: string) {
   if (order.status === "Cancelled" || order.status === "Completed") throw new Error("This order is not available for payment verification.");
   const expected = amountMinor(order.order_total_ngn ?? order.quoted_total_ngn);
   if (expected !== Number(payment.amount_minor)) throw new Error("The payment amount no longer matches the order total.");
-  if (payment.status === "success" || order.payment_status === "paid") {
+  if (payment.status === "success") {
     await sendOrderEmail(order,"payment_success",{provider:payment.provider,reference,amountMinor:expected});
     return response({success:true,status:"success",reference,orderNumber:order.order_number});
   }
@@ -482,15 +482,14 @@ async function verifyReference(referenceValue: string) {
   } else {
     throw new Error("Unsupported payment provider.");
   }
-  const now = new Date().toISOString();
-  const { error: orderUpdateError } = await client.from("mizpah_web_orders").update({
-    payment_status:"paid",status:"Confirmed",paid_at:now,payment_updated_at:now
-  }).eq("id",order.id).neq("payment_status","paid");
-  if (orderUpdateError) throw new Error("Payment was verified but the order status could not be updated. Please contact Mizpah with reference "+reference+".");
-  const { error: paymentUpdateError } = await client.from("mizpah_web_order_payments").update({
-    status:"success",raw_verify:verified,verified_at:now
-  }).eq("reference",reference);
-  if (paymentUpdateError) throw new Error("Payment was verified but its audit record could not be updated. Please contact Mizpah with reference "+reference+".");
+  const { data: settlement, error: settlementError } = await client.rpc("settle_mizpah_web_order_payment", {
+    p_reference:reference,
+    p_raw_verify:verified
+  });
+  if (settlementError || !settlement) {
+    console.error("Atomic website payment settlement failed:",settlementError?.message ?? "no result");
+    throw new Error("Payment was verified but could not yet be reconciled safely. Please contact Mizpah with reference "+reference+".");
+  }
   await sendOrderEmail(order,"payment_success",{provider:payment.provider,reference,amountMinor:expected});
   return response({success:true,status:"success",reference,orderNumber:order.order_number});
 }
