@@ -928,9 +928,20 @@ async function openMfaManager(){
  try{
   const {data,error}=await supabaseClient.auth.mfa.listFactors();if(error)throw error;
   const verified=(data?.totp||[]).filter(f=>f.status==='verified');
-  const pending=(data?.totp||[]).filter(f=>f.status!=='verified');
+  const pending=(data?.totp||[]).filter(f=>f.status==='unverified'&&f.friendly_name==='Mizpah administrator authenticator');
+  // Remove only abandoned, unverified factors created by this setup flow. Await each
+  // removal before allowing a new enrollment to avoid the duplicate-name race.
+  for(const factor of pending){
+   const {error:removeError}=await supabaseClient.auth.mfa.unenroll({factorId:factor.id});
+   if(removeError)throw new Error('An unfinished authenticator setup could not be cleared: '+removeError.message);
+  }
+  if(pending.length){
+   const {data:refreshed,error:refreshError}=await supabaseClient.auth.mfa.listFactors();
+   if(refreshError)throw refreshError;
+   const stillPending=(refreshed?.totp||[]).some(f=>f.status==='unverified'&&f.friendly_name==='Mizpah administrator authenticator');
+   if(stillPending)throw new Error('The unfinished authenticator setup is still registered. Refresh this page and try again.');
+  }
   const summary=document.createElement('p');summary.textContent=verified.length?'Authenticator protection is enrolled ('+verified.length+' verified factor'+(verified.length===1?'':'s')+').':'No verified authenticator is enrolled for this account.';mfaBody.appendChild(summary);
-  pending.forEach(async f=>{try{await supabaseClient.auth.mfa.unenroll({factorId:f.id});}catch(e){console.warn('Could not clear pending MFA factor',e);}});
   if(verified.length){mfaMessage('Your account already has an active authenticator. The login flow will request its code after your password.');return;}
   const btn=document.createElement('button');btn.type='button';btn.className='btn primary';btn.textContent='Set up authenticator';btn.addEventListener('click',beginMfaEnrollment);mfaBody.appendChild(btn);
  }catch(error){mfaMessage('Unable to load MFA settings: '+error.message);}
