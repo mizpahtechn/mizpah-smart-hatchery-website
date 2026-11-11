@@ -690,7 +690,10 @@ async function syncRefund(req:Request) {
   const {data:refund,error}=await client.from("mizpah_web_refunds").select("*")
     .eq("refund_reference",refundReference).maybeSingle();
   if(error||!refund) throw new Error("Refund record not found.");
-  if(refund.status==="processed") return response({success:true,status:"processed",refund_reference:refundReference});
+  if(refund.status==="processed"){
+    await sendRefundEmail(refundReference,"processed");
+    return response({success:true,status:"processed",refund_reference:refundReference});
+  }
   let raw:Record<string,any>;
   if(refund.provider==="paystack"){
     if(refund.provider_refund_id){
