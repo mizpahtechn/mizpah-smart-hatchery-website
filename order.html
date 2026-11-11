@@ -593,6 +593,7 @@ async function lookupSavedOrder(){
   resumedOrder=data.order;
   const o=resumedOrder,items=Array.isArray(o.items)?o.items:[];
   const isQuotation=o.intent==='Quotation request'||o.payment_status==='quote_required'||(o.total_ngn==null&&items.some(item=>item.price_on_request||item.unit_price_ngn==null));
+  const paymentLabel=o.payment_status==='refunded'?'REFUNDED':o.payment_status==='partially_refunded'?'PARTIALLY REFUNDED':o.payment_status==='paid'?'PAID / SUCCESSFUL':o.payment_status==='quote_required'?'QUOTATION REQUIRED · NO PAYMENT DUE':String(o.payment_status||'PENDING / NOT PAID').toUpperCase();
  const rows=items.map(item=>{const quote=isQuotation&&(item.price_on_request||item.unit_price_ngn==null);return '<div class="resume-item"><span>'+esc(item.name)+'<small class="hint">'+Number(item.quantity||0)+' × '+(quote?'Price on request':money(item.unit_price_ngn))+(item.category?' · '+esc(item.category):'')+'</small></span><strong>'+(quote?'To be quoted':money(item.line_total_ngn))+'</strong></div>'}).join('');
   const details=[
    '<p><strong>Order number:</strong> <span style="color:var(--green);font-weight:900">'+esc(o.order_number)+'</span></p>',
@@ -625,6 +626,7 @@ function printSavedReceipt(){
  if(!resumedOrder)return;
  const o=resumedOrder,items=Array.isArray(o.items)?o.items:[];
  const isQuotation=o.intent==='Quotation request'||o.payment_status==='quote_required'||(o.total_ngn==null&&items.some(item=>item.price_on_request||item.unit_price_ngn==null));
+  const paymentLabel=o.payment_status==='refunded'?'REFUNDED':o.payment_status==='partially_refunded'?'PARTIALLY REFUNDED':o.payment_status==='paid'?'PAID / SUCCESSFUL':o.payment_status==='quote_required'?'QUOTATION REQUIRED · NO PAYMENT DUE':String(o.payment_status||'PENDING / NOT PAID').toUpperCase();
  const escHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const fmt=value=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:2}).format(Number(value)||0);
  const date=value=>value?new Date(value).toLocaleString('en-NG',{dateStyle:'medium',timeStyle:'short'}):'Not recorded';
@@ -638,9 +640,9 @@ function printSavedReceipt(){
  '</style></head><body><main class="receipt"><header class="head"><h1>MIZPAH SMART HATCHERY</h1><div class="tag">HEALTHY CHICKS | BETTER TOMORROW</div><p style="margin:12px 0 0">info@mizpahtechnology.com.ng · +234 706 864 5654 · +234 803 881 7886</p></header>'+
  '<div class="meta"><div><h2 style="margin:0 0 6px">'+(o.is_paid?'PAYMENT RECEIPT':(isQuotation?'QUOTATION REQUEST':'ORDER SUMMARY'))+'</h2><strong>Receipt / Order No:</strong> '+escHtml(o.order_number)+'<br><strong>Order date:</strong> '+date(o.created_at)+'</div><div class="paid">'+(o.is_paid?'PAYMENT CONFIRMED':(isQuotation?'QUOTATION REQUEST · NO PAYMENT DUE':'ORDER PLACED · PAYMENT PENDING'))+'</div></div>'+
  '<div class="grid"><section class="panel"><h3>CUSTOMER DETAILS</h3><p><strong>Name:</strong> '+escHtml(o.customer_name)+'</p><p><strong>Email:</strong> '+escHtml(o.customer_email)+'</p><p><strong>Phone:</strong> '+escHtml(o.customer_phone)+'</p><p><strong>Address:</strong> '+escHtml(address||'Not recorded')+'</p><p><strong>Fulfilment:</strong> '+escHtml(o.fulfilment||'Not recorded')+'</p><p><strong>Preferred date:</strong> '+escHtml(o.preferred_date||'Not specified')+'</p></section>'+
- '<section class="panel"><h3>PAYMENT DETAILS</h3><p><strong>Status:</strong> '+(o.is_paid?'PAID / SUCCESSFUL':(isQuotation?'QUOTATION REQUIRED · NO PAYMENT DUE':'PENDING / NOT PAID'))+'</p><p><strong>Method:</strong> '+escHtml((o.payment_method||'').toUpperCase()||'Not recorded')+'</p><p><strong>Reference:</strong> '+escHtml(o.payment_reference||'Not recorded')+'</p><p><strong>Paid on:</strong> '+(o.is_paid?date(o.paid_at):'Not paid')+'</p><p><strong>Order status:</strong> '+escHtml(o.status||'Pending review')+'</p></section></div>'+
+ '<section class="panel"><h3>PAYMENT DETAILS</h3><p><strong>Status:</strong> '+(isQuotation?'QUOTATION REQUIRED · NO PAYMENT DUE':paymentLabel)+'</p><p><strong>Method:</strong> '+escHtml((o.payment_method||'').toUpperCase()||'Not recorded')+'</p><p><strong>Reference:</strong> '+escHtml(o.payment_reference||'Not recorded')+'</p><p><strong>Paid on:</strong> '+(o.is_paid?date(o.paid_at):'Not paid')+'</p><p><strong>Order status:</strong> '+escHtml(o.status||'Pending review')+'</p></section></div>'+
  '<h3 style="color:#064b2a">ORDERED PRODUCTS & SERVICES</h3><table><thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Unit price</th><th>Line total</th></tr></thead><tbody>'+rows+'</tbody></table>'+
- '<div class="total">'+(isQuotation?'QUOTATION TOTAL: AWAITING APPROVED PRICE':(o.is_paid?'TOTAL PAID: ':'ORDER TOTAL: ')+fmt(o.total_ngn))+'</div>'+
+ '<div class="total">'+(isQuotation?'QUOTATION TOTAL: AWAITING APPROVED PRICE':(o.payment_status==='refunded'?'TOTAL REFUNDED: ':o.is_paid?'TOTAL PAID: ':'ORDER TOTAL: ')+fmt(o.total_ngn))+'</div>'+
  (o.notes?'<section class="panel"><h3>ORDER NOTES</h3><p>'+escHtml(o.notes)+'</p></section>':'')+
  '<div class="foot">Thank you for choosing Mizpah Smart Hatchery.<br>Ensuring Customer satisfaction.</div><div class="actions"><button onclick="window.print()">Print receipt</button></div></main></body></html>';
  w.document.open();w.document.write(html);w.document.close();w.focus();setTimeout(()=>w.print(),350);
