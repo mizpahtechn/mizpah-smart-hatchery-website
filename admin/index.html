@@ -1053,6 +1053,9 @@ async function deleteProductRecord(id){
 function canManageOrders(){return Boolean(currentStaff&&['owner','admin','manager'].includes(currentStaff.role))}
 async function updateOrderStatus(orderNo,status){
   if(!canManageOrders())throw new Error('Your staff role can view orders but cannot change order status.');
+  const existingOrder=orders.find(item=>item.id===orderNo);
+  if(!existingOrder)throw new Error('Order not found. Refresh the dashboard and try again.');
+  if(existingOrder.paymentStatus==='paid'&&status==='Cancelled')throw new Error('Paid orders cannot be cancelled. A verified provider refund workflow is required first.');
   const {error}=await supabaseClient.from('mizpah_web_orders').update({status}).eq('order_number',orderNo);
   if(error)throw error;
 }
