@@ -607,7 +607,7 @@ async function lookupSavedOrder(){
    ...(Number(o.refund_total_minor)>0?['<p><strong>Refunds processed:</strong> '+money(Number(o.refund_total_minor)/100)+'</p>']:[]),
    ...(Number(o.refund_pending_minor)>0?['<p><strong>Refund awaiting provider completion:</strong> '+money(Number(o.refund_pending_minor)/100)+'</p>']:[])
   ].join('');
-  document.getElementById('resume-order-details').innerHTML=details+'<div class="summary">'+(rows||'<p class="hint">Saved item details are unavailable. Please contact Mizpah for assistance.</p>')+'</div><div class="summary-total"><span>'+(isQuotation?'Quotation total':(o.is_paid?'Total paid':'Order total'))+'</span><span>'+(isQuotation?'Awaiting approved quotation':(o.total_ngn==null?'Awaiting pricing':money(o.total_ngn)))+'</span></div>';
+  document.getElementById('resume-order-details').innerHTML=details+'<div class="summary">'+(rows||'<p class="hint">Saved item details are unavailable. Please contact Mizpah for assistance.</p>')+'</div><div class="summary-total"><span>'+(isQuotation?'Quotation total':o.payment_status==='refunded'?'Total refunded':o.is_paid?'Total paid':'Order total')+'</span><span>'+(isQuotation?'Awaiting approved quotation':(o.total_ngn==null?'Awaiting pricing':money(o.total_ngn)))+'</span></div>';
   const continueButton=document.getElementById('resume-continue');
   const printButton=document.getElementById('resume-print');
   const providerChoice=document.querySelector('.resume-pay-choice');
