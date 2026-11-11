@@ -547,6 +547,7 @@ async function createRefund(req:Request) {
   const body=await req.json().catch(()=>({}));
   const orderNumber=cleanText(body.order_number,80,true).toUpperCase();
   const amount=amountMinor(body.amount_ngn);
+  if(Math.abs(Number(body.amount_ngn)*100-amount)>1e-8) throw new Error("Refund amounts must be entered to a maximum of two decimal places.");
   const reason=cleanText(body.reason,500,true);
   const refundReference="MZPR"+crypto.randomUUID().replaceAll("-","").slice(0,28).toUpperCase();
   const client=db();
