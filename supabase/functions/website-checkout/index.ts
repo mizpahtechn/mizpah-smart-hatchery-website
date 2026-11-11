@@ -334,6 +334,11 @@ async function resumeSavedOrder(req: Request) {
       String(data.customer_auth_user_id || "") !== authenticatedCustomer.id) {
     throw new Error("We could not find an order matching your signed-in account, order number and email address.");
   }
+  const {data:refundRows,error:refundError}=await db().from("mizpah_web_refunds")
+    .select("amount_minor,status,refund_reference").eq("order_id",data.id);
+  if(refundError) throw new Error("We could not retrieve the refund history for this order.");
+  const refundTotalMinor=(refundRows||[]).filter((r:any)=>r.status==="processed").reduce((sum:number,r:any)=>sum+Number(r.amount_minor||0),0);
+  const refundPendingMinor=(refundRows||[]).filter((r:any)=>["submitting","pending","processing","needs_attention"].includes(r.status)).reduce((sum:number,r:any)=>sum+Number(r.amount_minor||0),0);
   const total = data.order_total_ngn ?? data.quoted_total_ngn;
   const items = Array.isArray(data.items) ? data.items.map((item: any) => ({
     name: String(item?.name ?? item?.product_name ?? "Order item"),
@@ -370,8 +375,10 @@ async function resumeSavedOrder(req: Request) {
       paid_at: data.paid_at,
       created_at: data.created_at,
       total_ngn: total == null ? null : Number(total),
-      is_paid: data.payment_status === "paid",
-      payable: (data.intent === "Order request" || (data.intent === "Quotation request" && data.quoted_total_ngn != null && Number(data.quoted_total_ngn) > 0)) && total != null && data.payment_status !== "paid" && data.status !== "Cancelled" && data.status !== "Completed"
+      is_paid: ["paid","partially_refunded","refunded"].includes(data.payment_status),
+      refund_total_minor:refundTotalMinor,
+      refund_pending_minor:refundPendingMinor,
+      payable: (data.intent === "Order request" || (data.intent === "Quotation request" && data.quoted_total_ngn != null && Number(data.quoted_total_ngn) > 0)) && total != null && !["paid","partially_refunded","refunded"].includes(data.payment_status) && data.status !== "Cancelled" && data.status !== "Completed"
     }
   });
 }
