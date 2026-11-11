@@ -336,8 +336,13 @@ async function resumeSavedOrder(req: Request) {
     category: String(item?.category ?? ""),
     item_type: String(item?.item_type ?? "product"),
     quantity: Number(item?.quantity ?? 0),
-    unit_price_ngn: Number(item?.unit_price_ngn ?? item?.unit_price ?? 0),
-    line_total_ngn: Number(item?.line_total_ngn ?? item?.line_total ?? 0)
+    price_on_request: item?.price_on_request === true || (item?.unit_price_ngn == null && item?.unit_price == null),
+    unit_price_ngn: item?.unit_price_ngn == null && item?.unit_price == null
+      ? null
+      : Number(item?.unit_price_ngn ?? item?.unit_price),
+    line_total_ngn: item?.line_total_ngn == null && item?.line_total == null
+      ? null
+      : Number(item?.line_total_ngn ?? item?.line_total)
   })) : [];
   return response({
     success: true,
