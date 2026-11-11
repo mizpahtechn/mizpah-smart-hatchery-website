@@ -1120,8 +1120,9 @@ function refundControls(o,canEdit){
  const info=orderRefundInfo(o);
  const latest=info.latest;
  const label=latest?'Latest refund: '+latest.status.replaceAll('_',' '):'No refund requests';
+ const syncButtons=info.rows.filter(r=>['submitting','pending','processing','needs_attention'].includes(r.status)).map(r=>'<button class="btn small" type="button" data-refund-sync="'+esc(r.refund_reference)+'">Sync '+esc(r.refund_reference.slice(-8))+'</button>').join('');
  return '<small style="display:block;margin-top:5px">Refunds: '+esc(label)+(info.reserved?' · Reserved/returned '+money(info.reserved/100):'')+'</small>'+
-  (canEdit&&latest&&['submitting','pending','processing','needs_attention'].includes(latest.status)?'<button class="btn small" type="button" data-refund-sync="'+esc(latest.refund_reference)+'">Sync refund status</button>':'')+
+  (canEdit?syncButtons:'')+
   (canEdit&&['paid','partially_refunded'].includes(o.paymentStatus)&&info.remaining>0?'<button class="btn small gold" type="button" data-refund-order="'+esc(o.id)+'">Request refund</button>':'');
 }
 async function callRefundEndpoint(action,payload){
