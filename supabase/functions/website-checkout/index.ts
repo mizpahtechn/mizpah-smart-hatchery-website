@@ -731,7 +731,7 @@ async function refundRequirements(req:Request){
   const {data:order,error}=await db().from("mizpah_web_orders").select("id,order_number")
     .eq("order_number",orderNumber).maybeSingle();
   if(error||!order) throw new Error("Order not found.");
-  const {data:payment,paymentError}=await db().from("mizpah_web_order_payments")
+  const {data:payment,error:paymentError}=await db().from("mizpah_web_order_payments")
     .select("provider,raw_verify").eq("order_id",order.id).eq("status","success")
     .order("verified_at",{ascending:false,nullsFirst:false}).limit(1).maybeSingle();
   if(paymentError||!payment) throw new Error("A verified payment record was not found.");
