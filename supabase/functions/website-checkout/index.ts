@@ -630,11 +630,12 @@ async function syncRefund(req:Request) {
         method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
       });
     }else{
-      raw=await providerJson("https://api.paystack.co/refund?reference="+encodeURIComponent(refundReference),{
+      raw=await providerJson("https://api.paystack.co/refund?transaction="+encodeURIComponent(refund.original_payment_reference),{
         method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
       });
-      if(!Array.isArray(raw.data)||!raw.data.length) throw new Error("Paystack has not returned this refund yet. Try syncing again later.");
-      raw={status:raw.status,data:raw.data[0]};
+      const matchingRefund=Array.isArray(raw.data)?raw.data.find((item:any)=>String(item.reference??"")===refundReference):null;
+      if(!matchingRefund) throw new Error("Paystack has not returned this refund yet. Try syncing again later.");
+      raw={status:raw.status,data:matchingRefund};
     }
     if(raw.status!==true||!raw.data) throw new Error("Paystack could not verify this refund.");
   }else if(refund.provider==="opay"){
@@ -678,11 +679,12 @@ async function webhook(req: Request, provider: string) {
             method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
           });
         }else{
-          refundRaw=await providerJson("https://api.paystack.co/refund?reference="+encodeURIComponent(refundReference),{
+          refundRaw=await providerJson("https://api.paystack.co/refund?transaction="+encodeURIComponent(refund.original_payment_reference),{
             method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
           });
-          if(!Array.isArray(refundRaw.data)||!refundRaw.data.length) return response({success:true,message:"Refund notification received; provider status is not yet available."});
-          refundRaw={status:refundRaw.status,data:refundRaw.data[0]};
+          const matchingRefund=Array.isArray(refundRaw.data)?refundRaw.data.find((item:any)=>String(item.reference??"")===refundReference):null;
+          if(!matchingRefund) return response({success:true,message:"Refund notification received; provider status is not yet available."});
+          refundRaw={status:refundRaw.status,data:matchingRefund};
         }
         if(refundRaw.status!==true||!refundRaw.data) throw new Error("Paystack refund status could not be verified.");
       }else{
