@@ -993,7 +993,7 @@ if (loginForm) loginForm.addEventListener('submit', event => { event.preventDefa
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>'₦'+Number(n||0).toLocaleString('en-NG');
 const displayPrice=p=>p.price===null||p.price===undefined||p.price_on_request?'Awaiting admin price':money(p.price);
-const stockStatus=p=>p.item_type!=='service'&&p.inventory_verified!==true?['Not verified','low']:p.stock<=0?['Out of stock','out']:p.stock<=p.threshold?['Low stock','low']:['In stock','published'];
+const stockStatus=p=>p.item_type==='service'?['Not applicable','draft']:p.inventory_verified!==true?['Not verified','low']:p.stock<=0?['Out of stock','out']:p.stock<=p.threshold?['Low stock','low']:['In stock','published'];
 const stockCell=p=>p.item_type==='service'?'—':Number(p.stock||0).toLocaleString()+' <small style="color:var(--muted)">units</small> '+pill(p.inventory_verified===true?'Count verified':'Not verified',p.inventory_verified===true?'published':'low');
 const pill=(label,cls)=>'<span class="pill '+cls+'">'+esc(label)+'</span>';
 const productPhoto=p=>p.image_url||petersimePhoto; const petersimePhoto='https://www.petersime.com/media/alrnkafz/petersime-chick-store-1.jpg?height=538&rnd=133287212239630000&width=834';
