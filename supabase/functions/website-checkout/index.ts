@@ -390,7 +390,7 @@ async function initialize(req: Request) {
   const provider = String(body.provider ?? "").toLowerCase();
   if (!["paystack","opay"].includes(provider)) throw new Error("Choose OPay or Paystack.");
   const total = amountMinor(order.order_total_ngn ?? order.quoted_total_ngn);
-  if (order.payment_status === "paid") throw new Error("This order has already been paid.");
+  if (["paid","partially_refunded","refunded"].includes(order.payment_status)) throw new Error("This order already has a verified payment. A refund does not reopen checkout.");
   const client = db();
   const { data: prior } = await client.from("mizpah_web_order_payments")
     .select("reference,provider,checkout_url,status,amount_minor")
@@ -474,6 +474,9 @@ async function verifyReference(referenceValue: string) {
   if (order.status === "Cancelled" || order.status === "Completed") throw new Error("This order is not available for payment verification.");
   const expected = amountMinor(order.order_total_ngn ?? order.quoted_total_ngn);
   if (expected !== Number(payment.amount_minor)) throw new Error("The payment amount no longer matches the order total.");
+  if (["partially_refunded","refunded"].includes(order.payment_status)) {
+    return response({success:true,status:order.payment_status,reference,orderNumber:order.order_number});
+  }
   if (payment.status === "success") {
     await sendOrderEmail(order,"payment_success",{provider:payment.provider,reference,amountMinor:expected});
     return response({success:true,status:"success",reference,orderNumber:order.order_number});
