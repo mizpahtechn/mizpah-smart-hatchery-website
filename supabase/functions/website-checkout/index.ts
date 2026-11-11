@@ -500,7 +500,7 @@ async function verifyReference(referenceValue: string) {
 }
 async function requireRefundManager(req: Request) {
   const authorization=req.headers.get("Authorization")??"";
-  const match=authorization.match(/^Bearer\\s+(.+)$/i);
+  const match=authorization.match(/^Bearer\s+(.+)$/i);
   if(!match) throw new Error("Administrator sign-in is required to manage refunds.");
   const client=db();
   const {data,error}=await client.auth.getUser(match[1]);
@@ -625,7 +625,8 @@ async function syncRefund(req:Request) {
   if(updateError||!updated) throw new Error("The verified refund status could not be recorded safely.");
   return response({success:true,refund_reference:refundReference,status,order_payment_status:updated.order_payment_status});
 }
-\nasync function webhook(req: Request, provider: string) {
+
+async function webhook(req: Request, provider: string) {
   const raw = await req.text();
   if (provider === "paystack") {
     const signature = req.headers.get("x-paystack-signature") ?? "";
