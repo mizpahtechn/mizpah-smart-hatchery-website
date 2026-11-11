@@ -1058,8 +1058,11 @@ async function updateOrderStatus(orderNo,status){
 }
 async function saveOrderCommercials(orderNo,quotedTotal,staffNotes){
  if(!canManageOrders())throw new Error('Your staff role cannot edit quotations or internal notes.');
+ const existingOrder=orders.find(item=>item.id===orderNo);
+ if(!existingOrder)throw new Error('Order not found. Refresh the dashboard and try again.');
  const amountText=String(quotedTotal??'').trim();
  const amount=amountText===''?null:Number(amountText);
+ if(amount!==null&&existingOrder.intent!=='Quotation request')throw new Error('Quotation amounts can only be saved for quotation requests.');
  if(amount!==null&&(!Number.isFinite(amount)||amount<=0))throw new Error('Enter an approved quotation amount greater than zero, or leave the field blank.');
  const patch={quoted_total_ngn:amount,staff_notes:String(staffNotes??'').trim()};
  const {data,error}=await supabaseClient.from('mizpah_web_orders')
@@ -1072,7 +1075,8 @@ async function saveOrderCommercials(orderNo,quotedTotal,staffNotes){
 async function sendCustomerQuotation(orderNo){
  if(!canManageOrders())throw new Error('Your staff role cannot send customer quotations.');
  const order=orders.find(item=>item.id===orderNo);
- if(!order||!Number.isFinite(Number(order.total))||Number(order.total)<=0)throw new Error('Save a quotation amount greater than zero first.');
+ if(!order||order.intent!=='Quotation request')throw new Error('Only quotation requests can receive a quotation email.');
+ if(!Number.isFinite(Number(order.total))||Number(order.total)<=0)throw new Error('Save a quotation amount greater than zero first.');
  if(order.status==='Cancelled'||order.status==='Completed')throw new Error('This order is not eligible for quotation sending.');
  const {data,error}=await supabaseClient.auth.getSession();
  if(error||!data?.session?.access_token)throw new Error('Your admin session has expired. Sign in again.');
