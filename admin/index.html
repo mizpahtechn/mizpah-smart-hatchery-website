@@ -1152,7 +1152,7 @@ async function requestOrderRefund(orderNo){
   if(bankCode===null)return;
   const accountNumber=window.prompt('Enter the customer’s 10-digit bank account number. This is sent securely to OPay and is not saved in Mizpah.');
   if(accountNumber===null)return;
-  if(!/^[A-Za-z0-9_-]{2,20}$/.test(bankCode.trim())||!/^\\d{10}$/.test(accountNumber.trim()))throw new Error('Enter a valid OPay bank code and 10-digit account number.');
+  if(!/^[A-Za-z0-9_-]{2,20}$/.test(bankCode.trim())||!/^\d{10}$/.test(accountNumber.trim()))throw new Error('Enter a valid OPay bank code and 10-digit account number.');
   opayBankDetails={opay_bank_code:bankCode.trim(),opay_account_number:accountNumber.trim()};
  }
  const defaultAmount=(info.remaining/100).toFixed(2);
@@ -1179,7 +1179,7 @@ async function retryOrderRefund(refundReference){
  if(!bank)throw new Error('Bank not matched. Use the exact bank name shown in Paystack’s Nigerian bank list.');
  const accountNumber=window.prompt('Enter the customer’s 10-digit Nigerian bank account number. It is sent securely to Paystack and is not saved in Mizpah.');
  if(accountNumber===null)return;
- if(!/^\\d{10}$/.test(accountNumber.trim()))throw new Error('Enter a valid 10-digit Nigerian bank account number.');
+ if(!/^\d{10}$/.test(accountNumber.trim()))throw new Error('Enter a valid 10-digit Nigerian bank account number.');
  if(!window.confirm('Retry this Paystack refund to '+bank.name+' using the supplied account number? The account details will be sent to Paystack only.'))return;
  const retry=await callRefundEndpoint('retry',{refund_reference:refundReference,bank_id:bank.id,account_number:accountNumber.trim()});
  toast('Paystack refund retry accepted. Status: '+retry.status+'. Bank: '+retry.bank_name+'.');
