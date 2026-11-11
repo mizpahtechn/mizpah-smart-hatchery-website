@@ -134,7 +134,7 @@ async function sendQuotation(request, env, origin) {
 
   const orderUrl = new URL(base + "mizpah_web_orders");
   orderUrl.search = new URLSearchParams({
-    select: "order_number,customer_name,customer_email,customer_phone,items,status,quoted_total_ngn",
+    select: "order_number,customer_name,customer_email,customer_phone,items,status,intent,quoted_total_ngn",
     order_number: "eq." + orderNumber,
     limit: "1",
   });
@@ -145,6 +145,9 @@ async function sendQuotation(request, env, origin) {
   const orderRows = await orderResponse.json().catch(() => []);
   const order = Array.isArray(orderRows) ? orderRows[0] : null;
   if (!orderResponse.ok || !order) return json({ success: false, message: "The order was not found or is not accessible." }, 404, origin);
+  if (order.intent !== "Quotation request") {
+    return json({ success: false, message: "Quotation emails can only be sent for quotation requests." }, 409, origin);
+  }
   if (order.status === "Cancelled" || order.status === "Completed") {
     return json({ success: false, message: "A quotation cannot be sent for a completed or cancelled order." }, 409, origin);
   }
