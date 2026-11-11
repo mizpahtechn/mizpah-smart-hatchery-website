@@ -185,6 +185,56 @@ async function sendOrderEmail(
 
 
 
+async function sendRefundEmail(refundReference:string,status:string):Promise<boolean>{
+  if(!["pending","processing","needs_attention","processed","failed"].includes(status)) return false;
+  const client=db();
+  const {data:refund,error:refundError}=await client.from("mizpah_web_refunds")
+    .select("id,order_id,amount_minor,currency,refund_reference,provider,reason")
+    .eq("refund_reference",refundReference).maybeSingle();
+  if(refundError||!refund) return false;
+  const {data:order,error:orderError}=await client.from("mizpah_web_orders")
+    .select("order_number,customer_name,customer_email").eq("id",refund.order_id).maybeSingle();
+  if(orderError||!order?.customer_email) return false;
+  const {data:claim,error:claimError}=await client.rpc("claim_mizpah_web_refund_email",{
+    p_refund_id:refund.id,p_refund_status:status
+  });
+  if(claimError||!claim) return false;
+  const apiKey=Deno.env.get("RESEND_API_KEY")?.trim();
+  if(!apiKey){
+    await client.from("mizpah_web_refund_email_events").update({
+      status:"failed",last_error:"RESEND_API_KEY is not configured.",updated_at:new Date().toISOString()
+    }).eq("id",claim);
+    return false;
+  }
+  const amount=naira(Number(refund.amount_minor)/100);
+  const labels:Record<string,{subject:string;title:string;message:string}> = {
+    pending:{subject:"Refund request received",title:"Your refund request is being processed",message:"We have submitted your refund request to the payment provider. The funds have not yet been confirmed as returned."},
+    processing:{subject:"Your refund is processing",title:"Your refund is being processed",message:"The payment provider has accepted your refund for processing. We will notify you when the provider confirms completion."},
+    needs_attention:{subject:"Action needed to complete your refund",title:"Additional information is needed",message:"The payment provider needs additional bank details before it can complete this refund. Our team is reviewing the request and will contact you if further information is required."},
+    processed:{subject:"Your refund has been processed",title:"Your refund was confirmed",message:"The payment provider has confirmed that this refund was processed. Depending on your bank or payment channel, the funds may take additional time to appear in your account."},
+    failed:{subject:"Update about your refund",title:"The payment provider could not complete the refund",message:"The payment provider reported that this refund could not be completed. Please contact Mizpah support so we can assist with the next steps."}
+  };
+  const info=labels[status];
+  const html="<!doctype html><html><body style='margin:0;background:#f5f8f4;font-family:Arial,sans-serif;color:#17251b'><div style='max-width:640px;margin:24px auto;background:#fff;border:1px solid #dce7dd;border-radius:14px;overflow:hidden'><div style='background:#03451f;color:#fff;padding:22px;text-align:center'><div style='font-size:20px;font-weight:bold'>MIZPAH SMART HATCHERY</div><div style='color:#e5d18a;font-size:12px;margin-top:5px'>HEALTHY CHICKS | BETTER TOMORROW</div></div><div style='padding:26px'><h2 style='color:#075b28;margin-top:0'>"+info.title+"</h2><p>Hello "+escapeHtml(order.customer_name||"Customer")+",</p><p>"+info.message+"</p><div style='background:#eef6ed;border:1px solid #c9dfc9;border-radius:9px;padding:14px;margin:18px 0'><div style='font-size:12px;color:#5e6c61'>ORDER NUMBER</div><div style='font-size:20px;font-weight:bold;color:#075b28'>"+escapeHtml(order.order_number)+"</div></div><p><strong>Refund amount:</strong> "+amount+"</p><p><strong>Refund reference:</strong> "+escapeHtml(refund.refund_reference)+"</p><p><strong>Provider:</strong> "+escapeHtml(String(refund.provider).toUpperCase())+"</p><p><strong>Status:</strong> "+escapeHtml(status.replaceAll("_"," "))+"</p><p>For assistance, contact <a href='mailto:info@mizpahtechnology.com.ng' style='color:#075b28'>info@mizpahtechnology.com.ng</a> or call +234 706 864 5654.</p><p>Thank you for choosing Mizpah Smart Hatchery.</p></div></div></body></html>";
+  try{
+    const res=await fetch("https://api.resend.com/emails",{
+      method:"POST",headers:{"Authorization":"Bearer "+apiKey,"Content-Type":"application/json","Idempotency-Key":"mizpah-refund-"+refund.id+"-"+status},
+      body:JSON.stringify({from:"Mizpah Smart Hatchery <info@mizpahtechnology.com.ng>",to:[String(order.customer_email)],subject:info.subject+" — "+order.order_number,html}),
+      signal:AbortSignal.timeout(15000)
+    });
+    const result=await res.json().catch(()=>({}));
+    if(!res.ok||!result.id) throw new Error(String(result.message||"Resend rejected the refund notification."));
+    await client.from("mizpah_web_refund_email_events").update({status:"sent",provider_message_id:String(result.id),last_error:null,sent_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",claim);
+    return true;
+  }catch(error){
+    const message=error instanceof Error?error.message:"Refund email delivery failed.";
+    await client.from("mizpah_web_refund_email_events").update({status:"failed",last_error:message.slice(0,500),updated_at:new Date().toISOString()}).eq("id",claim);
+    console.error("Mizpah refund notification failed:",message);
+    return false;
+  }
+}
+
+
 async function requireVerifiedCustomer(req: Request, expectedEmail?: string) {
   const authorization = req.headers.get("Authorization") ?? "";
   const match = authorization.match(/^Bearer\s+(.+)$/i);
@@ -580,15 +630,27 @@ async function createRefund(req:Request) {
       if(raw.status!==true||!raw.data) throw new Error("Paystack did not accept the refund request.");
       providerAccepted=true;
     }else if(reserved.provider==="opay"){
-      const rawCreate=await opayRequest("refund_create",{
+      const instrument=String(reserved.payment_instrument||"");
+      const refundWay=/OpayWallet|BankAccount/i.test(instrument)?"Original":
+        /BankTransfer|BankUssd|BankCard/i.test(instrument)?"BankAccount":"";
+      if(!refundWay) throw new Error("This OPay payment channel needs manual review before refund.");
+      const payload:Record<string,any>={
         amount:{currency:"NGN",total:amount},
         callbackUrl:SUPABASE_URL+"/functions/v1/website-checkout/webhook?provider=opay",
         country:"NG",
         originalReference:reserved.original_payment_reference,
         reference:refundReference,
-        refundWay:"Original",
+        refundWay,
         refundReason:reason
-      });
+      };
+      if(refundWay==="BankAccount"){
+        const bankCode=cleanText(body.opay_bank_code,20,true);
+        const bankAccountNo=cleanText(body.opay_account_number,10,true);
+        if(!/^[A-Za-z0-9_-]{2,20}$/.test(bankCode)||!/^\d{10}$/.test(bankAccountNo))
+          throw new Error("Enter a valid OPay bank code and 10-digit bank account number.");
+        payload.receiver={bankCode,bankAccountNo};
+      }
+      const rawCreate=await opayRequest("refund_create",payload);
       providerResponded=true;
       if(rawCreate.code!=="00000"||!rawCreate.data) throw new Error("OPay did not accept the refund request.");
       providerAccepted=true;
@@ -603,6 +665,7 @@ async function createRefund(req:Request) {
       p_provider_refund_id:providerRefundId,p_provider_response:raw
     });
     if(saveError) throw new Error("Provider accepted the refund but its status could not be saved. Reference: "+refundReference);
+    await sendRefundEmail(refundReference,status);
     return response({success:true,refund_reference:refundReference,status,amount_minor:amount,provider:reserved.provider});
   }catch(error){
     const message=error instanceof Error?error.message:"Refund request failed.";
@@ -614,6 +677,7 @@ async function createRefund(req:Request) {
         p_refund_reference:refundReference,p_status:"failed",p_provider_refund_id:"",
         p_provider_response:{provider_rejected:true,error:message.slice(0,400)}
       });
+      await sendRefundEmail(refundReference,"failed");
     }
     throw error;
   }
@@ -655,7 +719,71 @@ async function syncRefund(req:Request) {
     p_provider_refund_id:providerRefundId,p_provider_response:raw
   });
   if(updateError||!updated) throw new Error("The verified refund status could not be recorded safely.");
+  await sendRefundEmail(refundReference,status);
   return response({success:true,refund_reference:refundReference,status,order_payment_status:updated.order_payment_status});
+}
+
+
+async function refundRequirements(req:Request){
+  await requireRefundManager(req);
+  const body=await req.json().catch(()=>({}));
+  const orderNumber=cleanText(body.order_number,80,true).toUpperCase();
+  const {data:order,error}=await db().from("mizpah_web_orders").select("id,order_number")
+    .eq("order_number",orderNumber).maybeSingle();
+  if(error||!order) throw new Error("Order not found.");
+  const {data:payment,paymentError}=await db().from("mizpah_web_order_payments")
+    .select("provider,raw_verify").eq("order_id",order.id).eq("status","success")
+    .order("verified_at",{ascending:false,nullsFirst:false}).limit(1).maybeSingle();
+  if(paymentError||!payment) throw new Error("A verified payment record was not found.");
+  const instrument=String(payment.raw_verify?.data?.instrumentType??"");
+  let opayRefundWay="";
+  if(payment.provider==="opay"){
+    if(/OpayWallet|BankAccount/i.test(instrument)) opayRefundWay="Original";
+    else if(/BankTransfer|BankUssd|BankCard/i.test(instrument)) opayRefundWay="BankAccount";
+    else throw new Error("This OPay payment channel needs manual review before refund.");
+  }
+  return response({success:true,provider:payment.provider,payment_instrument:instrument,opay_refund_way:opayRefundWay,requires_bank_account:opayRefundWay==="BankAccount"});
+}
+async function refundBanks(req:Request){
+  await requireRefundManager(req);
+  const raw=await providerJson("https://api.paystack.co/bank?country=nigeria&currency=NGN&perPage=100",{
+    method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
+  });
+  if(raw.status!==true||!Array.isArray(raw.data)) throw new Error("Paystack bank list could not be retrieved.");
+  const banks=raw.data.filter((b:any)=>b.active===true&&b.is_deleted!==true&&String(b.country||"").toLowerCase()==="nigeria"&&String(b.currency||"").toUpperCase()==="NGN")
+    .map((b:any)=>({id:String(b.id),name:String(b.name),code:String(b.code)}));
+  return response({success:true,banks});
+}
+async function retryPaystackRefund(req:Request){
+  await requireRefundManager(req);
+  const body=await req.json().catch(()=>({}));
+  const refundReference=cleanText(body.refund_reference,80,true);
+  const accountNumber=cleanText(body.account_number,10,true);
+  const bankId=cleanText(body.bank_id,12,true);
+  if(!/^\d{10}$/.test(accountNumber)) throw new Error("Enter the customer's 10-digit Nigerian bank account number.");
+  if(!/^\d{1,10}$/.test(bankId)) throw new Error("Choose a valid bank from Paystack's Nigerian bank list.");
+  const client=db();
+  const {data:refund,error}=await client.from("mizpah_web_refunds").select("*").eq("refund_reference",refundReference).maybeSingle();
+  if(error||!refund||refund.provider!=="paystack"||refund.status!=="needs_attention") throw new Error("Only a Paystack refund marked needs-attention can be retried.");
+  if(!refund.provider_refund_id||!/^\d+$/.test(String(refund.provider_refund_id))) throw new Error("Paystack has not returned a valid refund ID for this retry.");
+  const bankList=await providerJson("https://api.paystack.co/bank?country=nigeria&currency=NGN&perPage=100",{
+    method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
+  });
+  const bank=Array.isArray(bankList.data)?bankList.data.find((b:any)=>String(b.id)===bankId&&b.active===true&&b.is_deleted!==true):null;
+  if(bankList.status!==true||!bank) throw new Error("The selected bank is not active in Paystack's Nigerian bank list.");
+  const raw=await providerJson("https://api.paystack.co/refund/retry_with_customer_details/"+encodeURIComponent(refund.provider_refund_id),{
+    method:"POST",headers:{Authorization:"Bearer "+paystackKey(),"Content-Type":"application/json"},
+    body:JSON.stringify({refund_account_details:{currency:"NGN",account_number:accountNumber,bank_id:bankId}})
+  });
+  if(raw.status!==true||!raw.data) throw new Error("Paystack did not accept the refund retry. Check the bank and account details.");
+  const status=refundStatus("paystack",raw);
+  const safeResponse={status:raw.status,message:raw.message,data:{id:raw.data.id,status:raw.data.status,expected_at:raw.data.expected_at,reason:raw.data.reason}};
+  const {error:applyError}=await client.rpc("apply_mizpah_web_refund_status",{
+    p_refund_reference:refundReference,p_status:status,p_provider_refund_id:String(raw.data.id??refund.provider_refund_id),p_provider_response:safeResponse
+  });
+  if(applyError) throw new Error("Paystack accepted the retry but the verified status could not be saved. Sync this refund before taking further action.");
+  await sendRefundEmail(refundReference,status);
+  return response({success:true,refund_reference:refundReference,status,bank_name:String(bank.name)});
 }
 
 async function webhook(req: Request, provider: string) {
@@ -714,6 +842,7 @@ async function webhook(req: Request, provider: string) {
         p_provider_refund_id:providerRefundId,p_provider_response:refundRaw
       });
       if(applyError) throw new Error("Verified refund status could not be saved.");
+      await sendRefundEmail(refund.refund_reference,status);
       updates.push({refund_reference:refund.refund_reference,status});
     }
     return response({success:true,refunds:updates});
@@ -744,6 +873,9 @@ Deno.serve(async (req: Request) => {
     if (req.method === "POST" && url.pathname.endsWith("/initialize")) return await initialize(req);
     if (req.method === "POST" && url.pathname.endsWith("/refund/create")) return await createRefund(req);
     if (req.method === "POST" && url.pathname.endsWith("/refund/sync")) return await syncRefund(req);
+    if (req.method === "POST" && url.pathname.endsWith("/refund/requirements")) return await refundRequirements(req);
+    if (req.method === "POST" && url.pathname.endsWith("/refund/banks")) return await refundBanks(req);
+    if (req.method === "POST" && url.pathname.endsWith("/refund/retry")) return await retryPaystackRefund(req);
     if (req.method === "POST" && url.pathname.endsWith("/verify")) {
       const body = await req.json().catch(()=>({}));
       return await verifyReference(String(body.reference ?? ""));
