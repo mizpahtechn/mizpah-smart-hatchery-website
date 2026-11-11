@@ -666,12 +666,24 @@ async function webhook(req: Request, provider: string) {
   }
   const payload = JSON.parse(raw);
   const event=String(payload?.event??"");
-  const refundReference=String(payload?.data?.refund_reference??(event.startsWith("refund.")?payload?.data?.reference:"")??"");
-  if(refundReference){
-    const client=db();
-    const {data:refund}=await client.from("mizpah_web_refunds").select("*")
-      .eq("refund_reference",refundReference).maybeSingle();
-    if(refund){
+  const eventData=payload?.data??{};
+  const candidateRefundReference=String(eventData.refund_reference??(provider==="opay"?eventData.reference:"")??"");
+  const transactionReference=String(eventData.transaction_reference??"");
+  let refundRows:Record<string,any>[]=[];
+  const client=db();
+  if(candidateRefundReference){
+    const {data}=await client.from("mizpah_web_refunds").select("*")
+      .eq("refund_reference",candidateRefundReference).limit(1);
+    refundRows=data||[];
+  }else if(provider==="paystack"&&event.startsWith("refund.")&&transactionReference){
+    const {data}=await client.from("mizpah_web_refunds").select("*")
+      .eq("original_payment_reference",transactionReference)
+      .in("status",["submitting","pending","processing","needs_attention"]);
+    refundRows=data||[];
+  }
+  if(refundRows.length){
+    const updates=[];
+    for(const refund of refundRows){
       let refundRaw:Record<string,any>;
       if(refund.provider==="paystack"){
         if(refund.provider_refund_id){
@@ -682,24 +694,25 @@ async function webhook(req: Request, provider: string) {
           refundRaw=await providerJson("https://api.paystack.co/refund?transaction="+encodeURIComponent(refund.original_payment_reference),{
             method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
           });
-          const matchingRefund=Array.isArray(refundRaw.data)?refundRaw.data.find((item:any)=>String(item.reference??"")===refundReference):null;
-          if(!matchingRefund) return response({success:true,message:"Refund notification received; provider status is not yet available."});
+          const matchingRefund=Array.isArray(refundRaw.data)?refundRaw.data.find((item:any)=>String(item.reference??"")===refund.refund_reference):null;
+          if(!matchingRefund) continue;
           refundRaw={status:refundRaw.status,data:matchingRefund};
         }
         if(refundRaw.status!==true||!refundRaw.data) throw new Error("Paystack refund status could not be verified.");
       }else{
-        refundRaw=await opayRequest("refund_status",{country:"NG",reference:refundReference});
+        refundRaw=await opayRequest("refund_status",{country:"NG",reference:refund.refund_reference});
         if(refundRaw.code!=="00000"||!refundRaw.data) throw new Error("OPay refund status could not be verified.");
       }
       const status=refundStatus(refund.provider,refundRaw);
       const providerRefundId=String(refundRaw?.data?.id??refundRaw?.data?.orderNo??refund.provider_refund_id??"");
       const {error:applyError}=await client.rpc("apply_mizpah_web_refund_status",{
-        p_refund_reference:refundReference,p_status:status,
+        p_refund_reference:refund.refund_reference,p_status:status,
         p_provider_refund_id:providerRefundId,p_provider_response:refundRaw
       });
       if(applyError) throw new Error("Verified refund status could not be saved.");
-      return response({success:true,refund_reference:refundReference,status});
+      updates.push({refund_reference:refund.refund_reference,status});
     }
+    return response({success:true,refunds:updates});
   }
   const reference = String(payload?.data?.reference ?? payload?.reference ?? "");
   const result = await verifyReference(reference);
