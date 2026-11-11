@@ -539,6 +539,8 @@ async function createRefund(req:Request) {
     p_requested_by:actor.id,p_refund_reference:refundReference
   });
   if(reserveError||!reserved) throw new Error(reserveError?.message||"The refund could not be reserved safely.");
+  let providerResponded=false;
+  let providerAccepted=false;
   try{
     let raw:Record<string,any>;
     if(reserved.provider==="paystack"){
@@ -554,7 +556,9 @@ async function createRefund(req:Request) {
           merchant_note:"Mizpah order "+orderNumber+" refund"
         })
       });
+      providerResponded=true;
       if(raw.status!==true||!raw.data) throw new Error("Paystack did not accept the refund request.");
+      providerAccepted=true;
     }else if(reserved.provider==="opay"){
       const rawCreate=await opayRequest("refund_create",{
         amount:{currency:"NGN",total:amount},
@@ -565,7 +569,9 @@ async function createRefund(req:Request) {
         refundWay:"Original",
         refundReason:reason
       });
+      providerResponded=true;
       if(rawCreate.code!=="00000"||!rawCreate.data) throw new Error("OPay did not accept the refund request.");
+      providerAccepted=true;
       raw=rawCreate;
     }else{
       throw new Error("Unsupported refund provider.");
@@ -580,10 +586,15 @@ async function createRefund(req:Request) {
     return response({success:true,refund_reference:refundReference,status,amount_minor:amount,provider:reserved.provider});
   }catch(error){
     const message=error instanceof Error?error.message:"Refund request failed.";
-    await client.rpc("apply_mizpah_web_refund_status",{
-      p_refund_reference:refundReference,p_status:"failed",p_provider_refund_id:"",
-      p_provider_response:{error:message.slice(0,400)}
-    });
+    // Only an explicit provider rejection is marked failed. A timeout or a
+    // post-acceptance database error remains submitting for provider sync,
+    // preventing an accidental duplicate refund.
+    if(providerResponded&&!providerAccepted){
+      await client.rpc("apply_mizpah_web_refund_status",{
+        p_refund_reference:refundReference,p_status:"failed",p_provider_refund_id:"",
+        p_provider_response:{provider_rejected:true,error:message.slice(0,400)}
+      });
+    }
     throw error;
   }
 }
