@@ -512,6 +512,15 @@ async function requireRefundManager(req: Request) {
   const client=db();
   const {data,error}=await client.auth.getUser(match[1]);
   if(error||!data.user) throw new Error("Your administrator session is invalid. Sign in again.");
+  const tokenPart=match[1].split(".")[1]||"";
+  let claims:Record<string,any>={};
+  try{
+    const base64=tokenPart.replace(/-/g,"+").replace(/_/g,"/");
+    claims=JSON.parse(atob(base64.padEnd(Math.ceil(base64.length/4)*4,"=")));
+  }catch{
+    throw new Error("Your administrator security session could not be verified. Sign in again.");
+  }
+  if(claims.aal!=="aal2") throw new Error("Authenticator verification is required before managing refunds. Sign in again and complete MFA.");
   const {data:staff,error:staffError}=await client.from("mizpah_web_staff")
     .select("role,active").eq("user_id",data.user.id).maybeSingle();
   if(staffError||!staff||staff.active!==true||!["owner","admin","manager"].includes(staff.role))
