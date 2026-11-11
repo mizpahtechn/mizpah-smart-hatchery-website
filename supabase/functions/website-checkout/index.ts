@@ -49,13 +49,17 @@ async function providerJson(url: string, init: RequestInit) {
   if (!res.ok) throw new Error("The payment provider is temporarily unavailable.");
   return data as Record<string, any>;
 }
-async function opayRequest(kind: "create"|"status", payload: Record<string, unknown>) {
+async function opayRequest(kind: "create"|"status"|"refund_create"|"refund_status", payload: Record<string, unknown>) {
   const c = opayCreds();
   const body = serializeOpayPayload(payload);
-  const headers = kind === "create"
+  const create = kind === "create";
+  const headers = create
     ? opayCashierCreateHeaders(c.publicKey, c.merchantId)
     : opayStatusHeaders(await signSerializedOpayPayload(body, c.secretKey), c.merchantId);
-  const path = kind === "create" ? "/api/v1/international/cashier/create" : "/api/v1/international/cashier/status";
+  const path = kind === "create" ? "/api/v1/international/cashier/create"
+    : kind === "status" ? "/api/v1/international/cashier/status"
+    : kind === "refund_create" ? "/api/v1/international/payment/refund/create"
+    : "/api/v1/international/payment/refund/query";
   return await providerJson(opayBaseUrl(c.mode) + path, { method: "POST", headers, body });
 }
 function newReference(orderNumber: string) {
@@ -494,7 +498,134 @@ async function verifyReference(referenceValue: string) {
   await sendOrderEmail(order,"payment_success",{provider:payment.provider,reference,amountMinor:expected});
   return response({success:true,status:"success",reference,orderNumber:order.order_number});
 }
-async function webhook(req: Request, provider: string) {
+async function requireRefundManager(req: Request) {
+  const authorization=req.headers.get("Authorization")??"";
+  const match=authorization.match(/^Bearer\\s+(.+)$/i);
+  if(!match) throw new Error("Administrator sign-in is required to manage refunds.");
+  const client=db();
+  const {data,error}=await client.auth.getUser(match[1]);
+  if(error||!data.user) throw new Error("Your administrator session is invalid. Sign in again.");
+  const {data:staff,error:staffError}=await client.from("mizpah_web_staff")
+    .select("role,active").eq("user_id",data.user.id).maybeSingle();
+  if(staffError||!staff||staff.active!==true||!["owner","admin","manager"].includes(staff.role))
+    throw new Error("Only an active owner, admin or manager can manage refunds.");
+  return data.user;
+}
+function refundStatus(provider:string, raw:Record<string,any>):string {
+  const value=provider==="paystack" ? String(raw?.data?.status??"").toLowerCase()
+    : String(raw?.data?.orderStatus??"").toUpperCase();
+  if(provider==="paystack"){
+    if(value==="processed") return "processed";
+    if(value==="processing") return "processing";
+    if(value==="needs-attention") return "needs_attention";
+    if(value==="failed") return "failed";
+    return "pending";
+  }
+  if(value==="SUCCESS") return "processed";
+  if(value==="FAIL") return "failed";
+  if(value==="PENDING") return "processing";
+  return "pending";
+}
+async function createRefund(req:Request) {
+  const actor=await requireRefundManager(req);
+  const body=await req.json().catch(()=>({}));
+  const orderNumber=cleanText(body.order_number,80,true).toUpperCase();
+  const amount=amountMinor(body.amount_ngn);
+  const reason=cleanText(body.reason,500,true);
+  const refundReference="MZPR"+crypto.randomUUID().replaceAll("-","").slice(0,28).toUpperCase();
+  const client=db();
+  const {data:reserved,error:reserveError}=await client.rpc("reserve_mizpah_web_refund",{
+    p_order_number:orderNumber,p_amount_minor:amount,p_reason:reason,
+    p_requested_by:actor.id,p_refund_reference:refundReference
+  });
+  if(reserveError||!reserved) throw new Error(reserveError?.message||"The refund could not be reserved safely.");
+  try{
+    let raw:Record<string,any>;
+    if(reserved.provider==="paystack"){
+      raw=await providerJson("https://api.paystack.co/refund",{
+        method:"POST",
+        headers:{Authorization:"Bearer "+paystackKey(),"Content-Type":"application/json"},
+        body:JSON.stringify({
+          transaction:reserved.original_payment_reference,
+          amount,
+          currency:"NGN",
+          reference:refundReference,
+          customer_note:reason,
+          merchant_note:"Mizpah order "+orderNumber+" refund"
+        })
+      });
+      if(raw.status!==true||!raw.data) throw new Error("Paystack did not accept the refund request.");
+    }else if(reserved.provider==="opay"){
+      const rawCreate=await opayRequest("refund_create",{
+        amount:{currency:"NGN",total:amount},
+        callbackUrl:SUPABASE_URL+"/functions/v1/website-checkout/webhook?provider=opay",
+        country:"NG",
+        originalReference:reserved.original_payment_reference,
+        reference:refundReference,
+        refundWay:"Original",
+        refundReason:reason
+      });
+      if(rawCreate.code!=="00000"||!rawCreate.data) throw new Error("OPay did not accept the refund request.");
+      raw=rawCreate;
+    }else{
+      throw new Error("Unsupported refund provider.");
+    }
+    const status=refundStatus(reserved.provider,raw);
+    const providerRefundId=String(raw?.data?.id??raw?.data?.orderNo??"");
+    const {error:saveError}=await client.rpc("apply_mizpah_web_refund_status",{
+      p_refund_reference:refundReference,p_status:status,
+      p_provider_refund_id:providerRefundId,p_provider_response:raw
+    });
+    if(saveError) throw new Error("Provider accepted the refund but its status could not be saved. Reference: "+refundReference);
+    return response({success:true,refund_reference:refundReference,status,amount_minor:amount,provider:reserved.provider});
+  }catch(error){
+    const message=error instanceof Error?error.message:"Refund request failed.";
+    await client.rpc("apply_mizpah_web_refund_status",{
+      p_refund_reference:refundReference,p_status:"failed",p_provider_refund_id:"",
+      p_provider_response:{error:message.slice(0,400)}
+    });
+    throw error;
+  }
+}
+async function syncRefund(req:Request) {
+  await requireRefundManager(req);
+  const body=await req.json().catch(()=>({}));
+  const refundReference=cleanText(body.refund_reference,80,true);
+  const client=db();
+  const {data:refund,error}=await client.from("mizpah_web_refunds").select("*")
+    .eq("refund_reference",refundReference).maybeSingle();
+  if(error||!refund) throw new Error("Refund record not found.");
+  if(refund.status==="processed") return response({success:true,status:"processed",refund_reference:refundReference});
+  let raw:Record<string,any>;
+  if(refund.provider==="paystack"){
+    if(refund.provider_refund_id){
+      raw=await providerJson("https://api.paystack.co/refund/"+encodeURIComponent(refund.provider_refund_id),{
+        method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
+      });
+    }else{
+      raw=await providerJson("https://api.paystack.co/refund?reference="+encodeURIComponent(refundReference),{
+        method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
+      });
+      if(!Array.isArray(raw.data)||!raw.data.length) throw new Error("Paystack has not returned this refund yet. Try syncing again later.");
+      raw={status:raw.status,data:raw.data[0]};
+    }
+    if(raw.status!==true||!raw.data) throw new Error("Paystack could not verify this refund.");
+  }else if(refund.provider==="opay"){
+    raw=await opayRequest("refund_status",{country:"NG",reference:refundReference});
+    if(raw.code!=="00000"||!raw.data) throw new Error("OPay could not verify this refund.");
+  }else{
+    throw new Error("Unsupported refund provider.");
+  }
+  const status=refundStatus(refund.provider,raw);
+  const providerRefundId=String(raw?.data?.id??raw?.data?.orderNo??refund.provider_refund_id??"");
+  const {data:updated,error:updateError}=await client.rpc("apply_mizpah_web_refund_status",{
+    p_refund_reference:refundReference,p_status:status,
+    p_provider_refund_id:providerRefundId,p_provider_response:raw
+  });
+  if(updateError||!updated) throw new Error("The verified refund status could not be recorded safely.");
+  return response({success:true,refund_reference:refundReference,status,order_payment_status:updated.order_payment_status});
+}
+\nasync function webhook(req: Request, provider: string) {
   const raw = await req.text();
   if (provider === "paystack") {
     const signature = req.headers.get("x-paystack-signature") ?? "";
@@ -529,6 +660,8 @@ Deno.serve(async (req: Request) => {
     if (req.method === "POST" && url.pathname.endsWith("/create")) return await createOrder(req);
     if (req.method === "POST" && url.pathname.endsWith("/resume")) return await resumeSavedOrder(req);
     if (req.method === "POST" && url.pathname.endsWith("/initialize")) return await initialize(req);
+    if (req.method === "POST" && url.pathname.endsWith("/refund/create")) return await createRefund(req);
+    if (req.method === "POST" && url.pathname.endsWith("/refund/sync")) return await syncRefund(req);
     if (req.method === "POST" && url.pathname.endsWith("/verify")) {
       const body = await req.json().catch(()=>({}));
       return await verifyReference(String(body.reference ?? ""));
