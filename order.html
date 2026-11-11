@@ -620,7 +620,7 @@ async function lookupSavedOrder(){
   printButton.removeAttribute('hidden');
   printButton.classList.remove('hidden');
   resultBox.classList.remove('hidden');
-  setStatus(resumeStatus,o.payment_status==='refunded'?'Your refund has been processed by the payment provider. You can print the updated receipt.':o.payment_status==='partially_refunded'?'A partial refund has been processed by the payment provider. You can print the updated receipt.':o.is_paid?'Payment confirmed. You can now print the complete receipt.':(o.payable?'We found your saved order. Review the details below, then continue when ready.':'Your order was found, but payment is not available yet.'),o.is_paid?'success':'');
+  setStatus(resumeStatus,Number(o.refund_pending_minor)>0?'Your refund request is awaiting completion by the payment provider. The receipt below shows the pending amount.':o.payment_status==='refunded'?'Your refund has been processed by the payment provider. You can print the updated receipt.':o.payment_status==='partially_refunded'?'A partial refund has been processed by the payment provider. You can print the updated receipt.':o.is_paid?'Payment confirmed. You can now print the complete receipt.':(o.payable?'We found your saved order. Review the details below, then continue when ready.':'Your order was found, but payment is not available yet.'),o.is_paid?'success':'');
  }catch(err){setStatus(resumeStatus,err.message,'error')}
  finally{button.disabled=false}
 }
