@@ -362,7 +362,7 @@ async function resumeSavedOrder(req: Request) {
       created_at: data.created_at,
       total_ngn: total == null ? null : Number(total),
       is_paid: data.payment_status === "paid",
-      payable: data.intent === "Order request" && total != null && data.payment_status !== "paid" && data.status !== "Cancelled" && data.status !== "Completed"
+      payable: (data.intent === "Order request" || (data.intent === "Quotation request" && data.quoted_total_ngn != null && Number(data.quoted_total_ngn) > 0)) && total != null && data.payment_status !== "paid" && data.status !== "Cancelled" && data.status !== "Completed"
     }
   });
 }
