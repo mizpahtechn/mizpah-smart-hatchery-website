@@ -1114,7 +1114,8 @@ function orderRefundInfo(o){
  const rows=refunds.filter(r=>r.order_id===o.dbid);
  const reserved=rows.filter(r=>r.status!=='failed').reduce((sum,r)=>sum+Number(r.amount_minor||0),0);
  const paidMinor=Math.round(Number(o.orderTotal||o.total||0)*100);
- return {rows,reserved,remaining:Math.max(0,paidMinor-reserved),latest:rows[0]||null};
+ const inFlight=rows.some(r=>['submitting','pending','processing','needs_attention'].includes(r.status));
+ return {rows,reserved,remaining:Math.max(0,paidMinor-reserved),latest:rows[0]||null,inFlight};
 }
 function refundControls(o,canEdit){
  const info=orderRefundInfo(o);
@@ -1123,7 +1124,7 @@ function refundControls(o,canEdit){
  const syncButtons=info.rows.filter(r=>['submitting','pending','processing','needs_attention'].includes(r.status)).map(r=>'<button class="btn small" type="button" data-refund-sync="'+esc(r.refund_reference)+'">Sync '+esc(r.refund_reference.slice(-8))+'</button>').join('');
  return '<small style="display:block;margin-top:5px">Refunds: '+esc(label)+(info.reserved?' · Reserved/returned '+money(info.reserved/100):'')+'</small>'+
   (canEdit?syncButtons:'')+
-  (canEdit&&['paid','partially_refunded'].includes(o.paymentStatus)&&info.remaining>0?'<button class="btn small gold" type="button" data-refund-order="'+esc(o.id)+'">Request refund</button>':'');
+  (canEdit&&!info.inFlight&&['paid','partially_refunded'].includes(o.paymentStatus)&&info.remaining>0?'<button class="btn small gold" type="button" data-refund-order="'+esc(o.id)+'">Request refund</button>':'');
 }
 async function callRefundEndpoint(action,payload){
  const {data,error}=await supabaseClient.auth.getSession();
