@@ -696,6 +696,7 @@ const initialOrders=[
 const load=(key,fallback)=>{try{const x=localStorage.getItem(key);return x?JSON.parse(x):fallback}catch(e){return fallback}};
 let products=[];
 let orders=[];
+let refunds=[];
 let selected=new Set(), editingId=null;
 const $=id=>document.getElementById(id);
 const SUPABASE_URL='https://ouebgmhtyekqnyrkfrcp.supabase.co';
@@ -803,7 +804,7 @@ async function establishStaff(session) {
 }
 
 async function loadLiveRecords() {
-  const [productResult, orderResult] = await Promise.all([
+  const [productResult, orderResult, refundResult] = await Promise.all([
     supabaseClient
       .from('mizpah_web_products')
       .select('*')
@@ -813,7 +814,10 @@ async function loadLiveRecords() {
       .from('mizpah_web_orders')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(500)
+      .limit(500),
+    currentStaff && ['owner','admin','manager'].includes(currentStaff.role)
+      ? supabaseClient.from('mizpah_web_refunds').select('*').order('created_at',{ascending:false}).limit(1000)
+      : Promise.resolve({data:[],error:null})
   ]);
 
   if (productResult.error || orderResult.error) {
@@ -844,6 +848,9 @@ async function loadLiveRecords() {
     app_image_path: product.app_image_path || '',
     specifications: product.specifications || {}
   }));
+
+  if (refundResult.error) { toast('Refund history could not be loaded: '+refundResult.error.message); refunds=[]; }
+  else refunds=refundResult.data||[];
 
   orders = (orderResult.data || []).map(order => ({
     id: order.order_number,
@@ -1103,7 +1110,58 @@ function renderServices(){const q=$('serviceSearch').value.toLowerCase(),f=$('se
 function renderPrices(){const q=$('priceSearch').value.toLowerCase();const list=products.filter(p=>(p.name+' '+p.category).toLowerCase().includes(q));$('priceRows').innerHTML=list.map(p=>'<tr><td>'+productCell(p)+'</td><td>'+esc(p.category)+'</td><td class="money">'+displayPrice(p)+'</td><td>'+pill(p.published?'Published':'Unpublished',p.published?'published':'draft')+'</td><td><button class="link-btn" data-edit="'+p.id+'">Edit price</button></td></tr>').join('')||noRows(5,'No matching products.')}
 function renderStock(){const q=$('stockSearch').value.toLowerCase();const list=products.filter(p=>(p.name+' '+p.category).toLowerCase().includes(q));$('stockRows').innerHTML=list.map(p=>'<tr><td>'+productCell(p)+'</td><td><b>'+p.stock.toLocaleString()+'</b></td><td>'+p.threshold.toLocaleString()+'</td><td>'+pill(...stockStatus(p))+'</td><td><button class="link-btn" data-edit="'+p.id+'">Update stock</button></td></tr>').join('')||noRows(5,'No matching stock records.')}
 function orderPill(s){const c=s==='Completed'?'published':s==='Cancelled'?'out':s==='Pending review'?'low':'draft';return pill(s,c)}
-function renderOrders(){const q=$('orderSearch').value.toLowerCase(),f=$('orderFilter').value,canEdit=canManageOrders();const list=orders.filter(o=>(o.id+' '+o.customer+' '+o.email+' '+o.phone+' '+o.items).toLowerCase().includes(q)&&(f==='all'||o.status===f));$('orderRows').innerHTML=list.map(o=>'<tr><td class="order-id">'+esc(o.id)+'</td><td><div class="order-customer"><span>'+esc(o.customer)+'<small>'+esc(o.intent==='Quotation request'?'REQUEST TYPE: QUOTATION':'REQUEST TYPE: ORDER')+'</small><small>'+esc(o.email)+(o.phone?' · '+esc(o.phone):'')+'</small><small>Payment: '+esc(o.paymentStatus==='paid'?'Paid ('+(o.paymentMethod||'online')+')':o.paymentStatus==='quote_required'?'Quotation required':o.paymentStatus==='initiated'?'Awaiting '+(o.paymentMethod||'provider')+' confirmation':o.paymentStatus==='pending'?'Awaiting payment':o.paymentStatus)+'</small><small>Order total: '+(o.orderTotal===''?'To be quoted':money(o.orderTotal))+'</small></span></div></td><td>'+esc(o.items)+'</td><td>'+esc(o.date)+'</td><td><input class="select" style="width:130px" type="number" min="0" step="0.01" data-quote="'+esc(o.id)+'" value="'+(o.total===''?'':Number(o.total))+'" aria-label="Quotation amount for '+esc(o.id)+'" placeholder="Pending" '+(canEdit?'':'disabled title="Your staff role has view-only order access"')+'></td><td>'+(canEdit?'<select class="select" data-order="'+esc(o.id)+'" aria-label="Update status for '+esc(o.id)+'">'+['Pending review','Confirmed','Processing','Completed',...(o.paymentStatus==='paid'?[]:['Cancelled'])].map(s=>'<option '+(s===o.status?'selected':'')+'>'+s+'</option>').join('')+'</select>':orderPill(o.status))+'</td><td><input class="select" style="width:210px" type="text" maxlength="1000" data-note="'+esc(o.id)+'" value="'+esc(o.staffNotes||'')+'" placeholder="Staff note" '+(canEdit?'':'disabled title="Your staff role has view-only order access"')+'><button class="btn small" type="button" data-save-order="'+esc(o.id)+'" '+(canEdit?'':'disabled')+'>Save amount & note</button> <button class="btn small gold" type="button" data-send-quotation="'+esc(o.id)+'" '+(canEdit&&o.total!==''&&Number(o.total)>0&&(o.status!=='Cancelled'&&o.status!=='Completed')?'':'disabled title="Save a positive quotation first; cancelled orders cannot be quoted"')+'>'+(o.quotationEmailSentAt?'Resend quotation':'Send quotation')+'</button>'+(o.quotationEmailSentAt?'<small style="display:block;color:#237443;margin-top:5px">Email sent '+esc(new Date(o.quotationEmailSentAt).toLocaleString('en-NG'))+'</small>':'')+'</td></tr>').join('')||noRows(8,'No orders match your search.');}
+function orderRefundInfo(o){
+ const rows=refunds.filter(r=>r.order_id===o.dbid);
+ const reserved=rows.filter(r=>r.status!=='failed').reduce((sum,r)=>sum+Number(r.amount_minor||0),0);
+ const paidMinor=Math.round(Number(o.orderTotal||o.total||0)*100);
+ return {rows,reserved,remaining:Math.max(0,paidMinor-reserved),latest:rows[0]||null};
+}
+function refundControls(o,canEdit){
+ const info=orderRefundInfo(o);
+ const latest=info.latest;
+ const label=latest?'Latest refund: '+latest.status.replaceAll('_',' '):'No refund requests';
+ return '<small style="display:block;margin-top:5px">Refunds: '+esc(label)+(info.reserved?' · Reserved/returned '+money(info.reserved/100):'')+'</small>'+
+  (canEdit&&latest&&['submitting','pending','processing','needs_attention'].includes(latest.status)?'<button class="btn small" type="button" data-refund-sync="'+esc(latest.refund_reference)+'">Sync refund status</button>':'')+
+  (canEdit&&['paid','partially_refunded'].includes(o.paymentStatus)&&info.remaining>0?'<button class="btn small gold" type="button" data-refund-order="'+esc(o.id)+'">Request refund</button>':'');
+}
+async function callRefundEndpoint(action,payload){
+ const {data,error}=await supabaseClient.auth.getSession();
+ if(error||!data?.session?.access_token)throw new Error('Your administrator session has expired. Sign in again.');
+ const response=await fetch(SUPABASE_URL+'/functions/v1/website-checkout/refund/'+action,{
+  method:'POST',
+  headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+data.session.access_token},
+  body:JSON.stringify(payload)
+ });
+ const result=await response.json().catch(()=>({}));
+ if(!response.ok||result.success!==true)throw new Error(result.message||'Refund request could not be completed.');
+ return result;
+}
+async function requestOrderRefund(orderNo){
+ if(!canManageOrders())throw new Error('Only an owner, admin or manager can request refunds.');
+ const order=orders.find(o=>o.id===orderNo);
+ if(!order||!['paid','partially_refunded'].includes(order.paymentStatus))throw new Error('Only verified paid orders can be refunded.');
+ const info=orderRefundInfo(order);
+ if(info.remaining<=0)throw new Error('There is no remaining refundable balance.');
+ const defaultAmount=(info.remaining/100).toFixed(2);
+ const amountText=window.prompt('Enter refund amount in NGN. Remaining refundable balance: '+money(info.remaining/100),defaultAmount);
+ if(amountText===null)return;
+ const amount=Number(String(amountText).replace(/,/g,'').trim());
+ if(!Number.isFinite(amount)||amount<=0||Math.round(amount*100)>info.remaining)throw new Error('Enter a valid amount not exceeding the remaining refundable balance.');
+ const reason=window.prompt('Enter the reason for this refund (required):','Customer refund request');
+ if(reason===null)return;
+ if(!reason.trim())throw new Error('A refund reason is required.');
+ if(!window.confirm('Submit a '+money(amount)+' refund to '+order.customer+' through '+(order.paymentMethod||'the original payment provider').toUpperCase()+'? This sends a real refund request to the provider.'))return;
+ const result=await callRefundEndpoint('create',{order_number:orderNo,amount_ngn:amount,reason:reason.trim()});
+ toast('Refund request submitted. Provider status: '+result.status+'. Reference: '+result.refund_reference);
+ await loadLiveRecords();
+}
+async function syncOrderRefund(refundReference){
+ if(!canManageOrders())throw new Error('Only an owner, admin or manager can sync refund status.');
+ const result=await callRefundEndpoint('sync',{refund_reference:refundReference});
+ toast('Refund status verified: '+result.status+'.');
+ await loadLiveRecords();
+}
+function renderOrders(){const q=$('orderSearch').value.toLowerCase(),f=$('orderFilter').value,canEdit=canManageOrders();const list=orders.filter(o=>(o.id+' '+o.customer+' '+o.email+' '+o.phone+' '+o.items).toLowerCase().includes(q)&&(f==='all'||o.status===f));$('orderRows').innerHTML=list.map(o=>'<tr><td class="order-id">'+esc(o.id)+'</td><td><div class="order-customer"><span>'+esc(o.customer)+'<small>'+esc(o.intent==='Quotation request'?'REQUEST TYPE: QUOTATION':'REQUEST TYPE: ORDER')+'</small><small>'+esc(o.email)+(o.phone?' · '+esc(o.phone):'')+'</small><small>Payment: '+esc(o.paymentStatus==='paid'?'Paid ('+(o.paymentMethod||'online')+')':o.paymentStatus==='quote_required'?'Quotation required':o.paymentStatus==='initiated'?'Awaiting '+(o.paymentMethod||'provider')+' confirmation':o.paymentStatus==='pending'?'Awaiting payment':o.paymentStatus)+'</small><small>Order total: '+(o.orderTotal===''?'To be quoted':money(o.orderTotal))+'</small></span></div></td><td>'+esc(o.items)+'</td><td>'+esc(o.date)+'</td><td><input class="select" style="width:130px" type="number" min="0" step="0.01" data-quote="'+esc(o.id)+'" value="'+(o.total===''?'':Number(o.total))+'" aria-label="Quotation amount for '+esc(o.id)+'" placeholder="Pending" '+(canEdit?'':'disabled title="Your staff role has view-only order access"')+'></td><td>'+(canEdit?'<select class="select" data-order="'+esc(o.id)+'" aria-label="Update status for '+esc(o.id)+'">'+['Pending review','Confirmed','Processing','Completed',...(o.paymentStatus==='paid'?[]:['Cancelled'])].map(s=>'<option '+(s===o.status?'selected':'')+'>'+s+'</option>').join('')+'</select>':orderPill(o.status))+'</td><td><input class="select" style="width:210px" type="text" maxlength="1000" data-note="'+esc(o.id)+'" value="'+esc(o.staffNotes||'')+'" placeholder="Staff note" '+(canEdit?'':'disabled title="Your staff role has view-only order access"')+'><button class="btn small" type="button" data-save-order="'+esc(o.id)+'" '+(canEdit?'':'disabled')+'>Save amount & note</button> <button class="btn small gold" type="button" data-send-quotation="'+esc(o.id)+'" '+(canEdit&&o.total!==''&&Number(o.total)>0&&(o.status!=='Cancelled'&&o.status!=='Completed')?'':'disabled title="Save a positive quotation first; cancelled orders cannot be quoted"')+'>'+(o.quotationEmailSentAt?'Resend quotation':'Send quotation')+'</button>'+(o.quotationEmailSentAt?'<small style="display:block;color:#237443;margin-top:5px">Email sent '+esc(new Date(o.quotationEmailSentAt).toLocaleString('en-NG'))+'</small>':'')+refundControls(o,canEdit)+'</td></tr>').join('')||noRows(8,'No orders match your search.');}
 function renderReviews(){const filter=$('reviewFilter')?.value||'pending';const list=customerReviews.filter(r=>filter==='all'||r.status===filter);$('reviewCount').textContent=customerReviews.length+' total submissions · '+customerReviews.filter(r=>r.status==='pending').length+' awaiting approval';$('reviewNavCount').textContent=customerReviews.filter(r=>r.status==='pending').length;$('reviewRows').innerHTML=list.map(r=>'<tr><td><b>'+esc(r.reviewer_name)+'</b><small style="display:block;color:var(--muted)">'+esc(r.location)+'</small></td><td>'+esc(r.product_or_service)+'</td><td><span style="color:#b58a18">'+('★'.repeat(r.rating))+('☆'.repeat(5-r.rating))+'</span> ('+r.rating+'/5)</td><td style="white-space:normal;min-width:240px;max-width:390px">'+esc(r.review_text)+'</td><td>'+new Date(r.created_at).toLocaleString('en-NG')+'</td><td>'+pill(r.status,r.status==='approved'?'published':r.status==='rejected'?'out':'low')+(r.status==='pending'?'<div class="actions" style="margin-top:7px"><button class="link-btn" data-review-action="approved" data-review-id="'+r.id+'">Approve</button><button class="link-btn danger" data-review-action="rejected" data-review-id="'+r.id+'">Reject</button></div>':r.status==='approved'?'<div class="actions" style="margin-top:7px"><button class="link-btn danger" data-review-action="rejected" data-review-id="'+r.id+'">Unpublish</button></div>':'<div class="actions" style="margin-top:7px"><button class="link-btn" data-review-action="pending" data-review-id="'+r.id+'">Return to pending</button></div>')+'</td></tr>').join('')||noRows(6,'No reviews in this status.');}
 async function loadCustomerReviews(){$('reviewRows').innerHTML=noRows(6,'Loading customer reviews…');const {data,error}=await supabaseClient.from('mizpah_customer_reviews').select('*').order('created_at',{ascending:false}).limit(500);if(error){toast('Unable to load customer reviews: '+error.message);$('reviewRows').innerHTML=noRows(6,'Unable to load reviews.');return;}customerReviews=data||[];renderReviews();}
 async function moderateReview(id,status){if(!canManageProducts()){toast('Your staff role cannot moderate reviews.');return;}const {data:userData}=await supabaseClient.auth.getUser();const {error}=await supabaseClient.from('mizpah_customer_reviews').update({status,reviewed_at:new Date().toISOString(),reviewed_by:userData?.user?.id||null}).eq('id',id);if(error){toast('Review update failed: '+error.message);return;}await loadCustomerReviews();toast(status==='approved'?'Review approved and published.':status==='rejected'?'Review rejected and hidden.':'Review returned to pending.');}
@@ -1152,6 +1210,10 @@ async function bulk(value){if(!selected.size)return;const ids=[...selected];try{
 $('bulkPublish').addEventListener('click',()=>bulk(true));$('bulkUnpublish').addEventListener('click',()=>bulk(false));$('clearSelection').addEventListener('click',()=>{selected.clear();renderProducts()});
 $('orderRows').addEventListener('change',async e=>{const sel=e.target.closest('[data-order]');if(!sel)return;const o=orders.find(x=>x.id===sel.dataset.order);if(!o)return;const previous=o.status;sel.disabled=true;try{await updateOrderStatus(o.id,sel.value);o.status=sel.value;render();toast('Order '+o.id+' status saved as '+o.status+'.')}catch(err){sel.value=previous;toast('Order status could not be saved: '+err.message)}finally{sel.disabled=false}});
 $('orderRows').addEventListener('click',async e=>{
+ const refundSync=e.target.closest('[data-refund-sync]');
+ if(refundSync){refundSync.disabled=true;try{await syncOrderRefund(refundSync.dataset.refundSync)}catch(err){toast('Refund sync failed: '+err.message);refundSync.disabled=false}return;}
+ const refundRequest=e.target.closest('[data-refund-order]');
+ if(refundRequest){refundRequest.disabled=true;try{await requestOrderRefund(refundRequest.dataset.refundOrder)}catch(err){toast('Refund request not submitted: '+err.message);refundRequest.disabled=false}return;}
  const send=e.target.closest('[data-send-quotation]');
  if(send){
   const id=send.dataset.sendQuotation;
