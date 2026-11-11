@@ -754,6 +754,29 @@ async function refundBanks(req:Request){
     .map((b:any)=>({id:String(b.id),name:String(b.name),code:String(b.code)}));
   return response({success:true,banks});
 }
+
+async function resolvePaystackBankAccount(bankId:string,accountNumber:string){
+  if(!/^\d{10}$/.test(accountNumber)) throw new Error("Enter the customer's 10-digit Nigerian bank account number.");
+  if(!/^\d{1,10}$/.test(bankId)) throw new Error("Choose a valid bank from Paystack's Nigerian bank list.");
+  const bankList=await providerJson("https://api.paystack.co/bank?country=nigeria&currency=NGN&perPage=100",{
+    method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
+  });
+  const bank=Array.isArray(bankList.data)?bankList.data.find((b:any)=>String(b.id)===bankId&&b.active===true&&b.is_deleted!==true):null;
+  if(bankList.status!==true||!bank) throw new Error("The selected bank is not active in Paystack's Nigerian bank list.");
+  const resolved=await providerJson("https://api.paystack.co/bank/resolve?account_number="+encodeURIComponent(accountNumber)+"&bank_code="+encodeURIComponent(String(bank.code)),{
+    method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
+  });
+  if(resolved.status!==true||!resolved.data?.account_name) throw new Error("Paystack could not verify this bank account. Check the bank and account number.");
+  return {bank,accountName:String(resolved.data.account_name),accountNumber:String(resolved.data.account_number??accountNumber)};
+}
+async function resolvePaystackRefundAccount(req:Request){
+  await requireRefundManager(req);
+  const body=await req.json().catch(()=>({}));
+  const accountNumber=cleanText(body.account_number,10,true);
+  const bankId=cleanText(body.bank_id,12,true);
+  const resolved=await resolvePaystackBankAccount(bankId,accountNumber);
+  return response({success:true,bank_name:String(resolved.bank.name),account_name:resolved.accountName,account_number_last4:resolved.accountNumber.slice(-4)});
+}
 async function retryPaystackRefund(req:Request){
   await requireRefundManager(req);
   const body=await req.json().catch(()=>({}));
@@ -766,11 +789,10 @@ async function retryPaystackRefund(req:Request){
   const {data:refund,error}=await client.from("mizpah_web_refunds").select("*").eq("refund_reference",refundReference).maybeSingle();
   if(error||!refund||refund.provider!=="paystack"||refund.status!=="needs_attention") throw new Error("Only a Paystack refund marked needs-attention can be retried.");
   if(!refund.provider_refund_id||!/^\d+$/.test(String(refund.provider_refund_id))) throw new Error("Paystack has not returned a valid refund ID for this retry.");
-  const bankList=await providerJson("https://api.paystack.co/bank?country=nigeria&currency=NGN&perPage=100",{
-    method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
-  });
-  const bank=Array.isArray(bankList.data)?bankList.data.find((b:any)=>String(b.id)===bankId&&b.active===true&&b.is_deleted!==true):null;
-  if(bankList.status!==true||!bank) throw new Error("The selected bank is not active in Paystack's Nigerian bank list.");
+  const resolved=await resolvePaystackBankAccount(bankId,accountNumber);
+  const confirmedAccountName=cleanText(body.confirmed_account_name,120,true);
+  if(confirmedAccountName.toLowerCase()!==resolved.accountName.toLowerCase())
+    throw new Error("The confirmed account name does not match Paystack's verified account name. Resolve and confirm the account again.");
   const raw=await providerJson("https://api.paystack.co/refund/retry_with_customer_details/"+encodeURIComponent(refund.provider_refund_id),{
     method:"POST",headers:{Authorization:"Bearer "+paystackKey(),"Content-Type":"application/json"},
     body:JSON.stringify({refund_account_details:{currency:"NGN",account_number:accountNumber,bank_id:bankId}})
@@ -783,7 +805,7 @@ async function retryPaystackRefund(req:Request){
   });
   if(applyError) throw new Error("Paystack accepted the retry but the verified status could not be saved. Sync this refund before taking further action.");
   await sendRefundEmail(refundReference,status);
-  return response({success:true,refund_reference:refundReference,status,bank_name:String(bank.name)});
+  return response({success:true,refund_reference:refundReference,status,bank_name:String(resolved.bank.name),account_name:resolved.accountName});
 }
 
 async function webhook(req: Request, provider: string) {
@@ -875,6 +897,7 @@ Deno.serve(async (req: Request) => {
     if (req.method === "POST" && url.pathname.endsWith("/refund/sync")) return await syncRefund(req);
     if (req.method === "POST" && url.pathname.endsWith("/refund/requirements")) return await refundRequirements(req);
     if (req.method === "POST" && url.pathname.endsWith("/refund/banks")) return await refundBanks(req);
+    if (req.method === "POST" && url.pathname.endsWith("/refund/resolve-account")) return await resolvePaystackRefundAccount(req);
     if (req.method === "POST" && url.pathname.endsWith("/refund/retry")) return await retryPaystackRefund(req);
     if (req.method === "POST" && url.pathname.endsWith("/verify")) {
       const body = await req.json().catch(()=>({}));
