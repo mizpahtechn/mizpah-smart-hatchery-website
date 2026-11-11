@@ -655,6 +655,41 @@ async function webhook(req: Request, provider: string) {
     if (!signature || signature !== expected) return response({success:false,message:"Invalid webhook signature."},401);
   }
   const payload = JSON.parse(raw);
+  const event=String(payload?.event??"");
+  const refundReference=String(payload?.data?.refund_reference??(event.startsWith("refund.")?payload?.data?.reference:"")??"");
+  if(refundReference){
+    const client=db();
+    const {data:refund}=await client.from("mizpah_web_refunds").select("*")
+      .eq("refund_reference",refundReference).maybeSingle();
+    if(refund){
+      let refundRaw:Record<string,any>;
+      if(refund.provider==="paystack"){
+        if(refund.provider_refund_id){
+          refundRaw=await providerJson("https://api.paystack.co/refund/"+encodeURIComponent(refund.provider_refund_id),{
+            method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
+          });
+        }else{
+          refundRaw=await providerJson("https://api.paystack.co/refund?reference="+encodeURIComponent(refundReference),{
+            method:"GET",headers:{Authorization:"Bearer "+paystackKey()}
+          });
+          if(!Array.isArray(refundRaw.data)||!refundRaw.data.length) return response({success:true,message:"Refund notification received; provider status is not yet available."});
+          refundRaw={status:refundRaw.status,data:refundRaw.data[0]};
+        }
+        if(refundRaw.status!==true||!refundRaw.data) throw new Error("Paystack refund status could not be verified.");
+      }else{
+        refundRaw=await opayRequest("refund_status",{country:"NG",reference:refundReference});
+        if(refundRaw.code!=="00000"||!refundRaw.data) throw new Error("OPay refund status could not be verified.");
+      }
+      const status=refundStatus(refund.provider,refundRaw);
+      const providerRefundId=String(refundRaw?.data?.id??refundRaw?.data?.orderNo??refund.provider_refund_id??"");
+      const {error:applyError}=await client.rpc("apply_mizpah_web_refund_status",{
+        p_refund_reference:refundReference,p_status:status,
+        p_provider_refund_id:providerRefundId,p_provider_response:refundRaw
+      });
+      if(applyError) throw new Error("Verified refund status could not be saved.");
+      return response({success:true,refund_reference:refundReference,status});
+    }
+  }
   const reference = String(payload?.data?.reference ?? payload?.reference ?? "");
   const result = await verifyReference(reference);
   return result;
