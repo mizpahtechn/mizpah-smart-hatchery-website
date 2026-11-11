@@ -1122,8 +1122,9 @@ function refundControls(o,canEdit){
  const latest=info.latest;
  const label=latest?'Latest refund: '+latest.status.replaceAll('_',' '):'No refund requests';
  const syncButtons=info.rows.filter(r=>['submitting','pending','processing','needs_attention'].includes(r.status)).map(r=>'<button class="btn small" type="button" data-refund-sync="'+esc(r.refund_reference)+'">Sync '+esc(r.refund_reference.slice(-8))+'</button>').join('');
+ const retryButtons=info.rows.filter(r=>r.provider==='paystack'&&r.status==='needs_attention').map(r=>'<button class="btn small gold" type="button" data-refund-retry="'+esc(r.refund_reference)+'">Retry with bank details</button>').join('');
  return '<small style="display:block;margin-top:5px">Refunds: '+esc(label)+(info.reserved?' · Reserved/returned '+money(info.reserved/100):'')+'</small>'+
-  (canEdit?syncButtons:'')+
+  (canEdit?syncButtons+retryButtons:'')+
   (canEdit&&!info.inFlight&&['paid','partially_refunded'].includes(o.paymentStatus)&&info.remaining>0?'<button class="btn small gold" type="button" data-refund-order="'+esc(o.id)+'">Request refund</button>':'');
 }
 async function callRefundEndpoint(action,payload){
@@ -1144,6 +1145,16 @@ async function requestOrderRefund(orderNo){
  if(!order||!['paid','partially_refunded'].includes(order.paymentStatus))throw new Error('Only verified paid orders can be refunded.');
  const info=orderRefundInfo(order);
  if(info.remaining<=0)throw new Error('There is no remaining refundable balance.');
+ const requirements=await callRefundEndpoint('requirements',{order_number:orderNo});
+ let opayBankDetails={};
+ if(requirements.requires_bank_account){
+  const bankCode=window.prompt('Enter the OPay bank code for the customer’s selected Nigerian bank. Use the OPay merchant bank-code list, not a Paystack bank ID.');
+  if(bankCode===null)return;
+  const accountNumber=window.prompt('Enter the customer’s 10-digit bank account number. This is sent securely to OPay and is not saved in Mizpah.');
+  if(accountNumber===null)return;
+  if(!/^[A-Za-z0-9_-]{2,20}$/.test(bankCode.trim())||!/^\\d{10}$/.test(accountNumber.trim()))throw new Error('Enter a valid OPay bank code and 10-digit account number.');
+  opayBankDetails={opay_bank_code:bankCode.trim(),opay_account_number:accountNumber.trim()};
+ }
  const defaultAmount=(info.remaining/100).toFixed(2);
  const amountText=window.prompt('Enter refund amount in NGN. Remaining refundable balance: '+money(info.remaining/100),defaultAmount);
  if(amountText===null)return;
@@ -1153,8 +1164,25 @@ async function requestOrderRefund(orderNo){
  if(reason===null)return;
  if(!reason.trim())throw new Error('A refund reason is required.');
  if(!window.confirm('Submit a '+money(amount)+' refund to '+order.customer+' through '+(order.paymentMethod||'the original payment provider').toUpperCase()+'? This sends a real refund request to the provider.'))return;
- const result=await callRefundEndpoint('create',{order_number:orderNo,amount_ngn:amount,reason:reason.trim()});
+ const result=await callRefundEndpoint('create',{order_number:orderNo,amount_ngn:amount,reason:reason.trim(),...opayBankDetails});
  toast('Refund request submitted. Provider status: '+result.status+'. Reference: '+result.refund_reference);
+ await loadLiveRecords();
+}
+async function retryOrderRefund(refundReference){
+ if(!canManageOrders())throw new Error('Only an owner, admin or manager can retry refunds.');
+ const result=await callRefundEndpoint('banks',{});
+ const banks=result.banks||[];
+ if(!banks.length)throw new Error('Paystack did not return its Nigerian bank list.');
+ const bankName=window.prompt('Enter the customer’s bank name exactly as shown by Paystack. Available banks include:\\n'+banks.slice(0,35).map(b=>b.name).join(' · '));
+ if(bankName===null)return;
+ const bank=banks.find(b=>b.name.toLowerCase()===bankName.trim().toLowerCase());
+ if(!bank)throw new Error('Bank not matched. Use the exact bank name shown in Paystack’s Nigerian bank list.');
+ const accountNumber=window.prompt('Enter the customer’s 10-digit Nigerian bank account number. It is sent securely to Paystack and is not saved in Mizpah.');
+ if(accountNumber===null)return;
+ if(!/^\\d{10}$/.test(accountNumber.trim()))throw new Error('Enter a valid 10-digit Nigerian bank account number.');
+ if(!window.confirm('Retry this Paystack refund to '+bank.name+' using the supplied account number? The account details will be sent to Paystack only.'))return;
+ const retry=await callRefundEndpoint('retry',{refund_reference:refundReference,bank_id:bank.id,account_number:accountNumber.trim()});
+ toast('Paystack refund retry accepted. Status: '+retry.status+'. Bank: '+retry.bank_name+'.');
  await loadLiveRecords();
 }
 async function syncOrderRefund(refundReference){
@@ -1214,6 +1242,8 @@ $('orderRows').addEventListener('change',async e=>{const sel=e.target.closest('[
 $('orderRows').addEventListener('click',async e=>{
  const refundSync=e.target.closest('[data-refund-sync]');
  if(refundSync){refundSync.disabled=true;try{await syncOrderRefund(refundSync.dataset.refundSync)}catch(err){toast('Refund sync failed: '+err.message);refundSync.disabled=false}return;}
+ const refundRetry=e.target.closest('[data-refund-retry]');
+ if(refundRetry){refundRetry.disabled=true;try{await retryOrderRefund(refundRetry.dataset.refundRetry)}catch(err){toast('Refund retry not submitted: '+err.message)}finally{if(refundRetry.isConnected)refundRetry.disabled=false}return;}
  const refundRequest=e.target.closest('[data-refund-order]');
  if(refundRequest){refundRequest.disabled=true;try{await requestOrderRefund(refundRequest.dataset.refundOrder)}catch(err){toast('Refund request not submitted: '+err.message)}finally{if(refundRequest.isConnected)refundRequest.disabled=false}return;}
  const send=e.target.closest('[data-send-quotation]');
