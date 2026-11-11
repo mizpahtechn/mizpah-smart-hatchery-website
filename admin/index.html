@@ -1215,7 +1215,7 @@ $('orderRows').addEventListener('click',async e=>{
  const refundSync=e.target.closest('[data-refund-sync]');
  if(refundSync){refundSync.disabled=true;try{await syncOrderRefund(refundSync.dataset.refundSync)}catch(err){toast('Refund sync failed: '+err.message);refundSync.disabled=false}return;}
  const refundRequest=e.target.closest('[data-refund-order]');
- if(refundRequest){refundRequest.disabled=true;try{await requestOrderRefund(refundRequest.dataset.refundOrder)}catch(err){toast('Refund request not submitted: '+err.message);refundRequest.disabled=false}return;}
+ if(refundRequest){refundRequest.disabled=true;try{await requestOrderRefund(refundRequest.dataset.refundOrder)}catch(err){toast('Refund request not submitted: '+err.message)}finally{if(refundRequest.isConnected)refundRequest.disabled=false}return;}
  const send=e.target.closest('[data-send-quotation]');
  if(send){
   const id=send.dataset.sendQuotation;
