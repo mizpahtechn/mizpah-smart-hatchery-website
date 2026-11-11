@@ -1060,7 +1060,7 @@ async function saveOrderCommercials(orderNo,quotedTotal,staffNotes){
  if(!canManageOrders())throw new Error('Your staff role cannot edit quotations or internal notes.');
  const amountText=String(quotedTotal??'').trim();
  const amount=amountText===''?null:Number(amountText);
- if(amount!==null&&(!Number.isFinite(amount)||amount<0))throw new Error('Enter a valid quotation amount.');
+ if(amount!==null&&(!Number.isFinite(amount)||amount<=0))throw new Error('Enter an approved quotation amount greater than zero, or leave the field blank.');
  const patch={quoted_total_ngn:amount,staff_notes:String(staffNotes??'').trim()};
  const {data,error}=await supabaseClient.from('mizpah_web_orders')
   .update(patch).eq('order_number',orderNo)
