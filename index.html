@@ -2966,4 +2966,40 @@ body > header.nav > a.brand .brandname {
 }
 </style>
 
+
+<style id="mizpah-home-hero-quality-badge-fit">
+/* Keep the homepage hero image and its Quality Assurance seal inside their
+   own grid track. The seal must remain completely visible at laptop widths. */
+main#home .hero {
+  grid-template-columns: minmax(0, 40%) minmax(0, 60%) !important;
+}
+main#home .hero > .hero-image {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  position: relative !important;
+}
+main#home .hero-image .quality {
+  right: clamp(16px, 3.5%, 32px) !important;
+  left: auto !important;
+  width: clamp(112px, 11.5vw, 140px) !important;
+  height: clamp(112px, 11.5vw, 140px) !important;
+  max-width: calc(100% - 32px) !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 800px) {
+  main#home .hero {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  main#home .hero-image .quality {
+    right: 16px !important;
+    top: 22% !important;
+    width: 100px !important;
+    height: 100px !important;
+    max-width: calc(100% - 32px) !important;
+  }
+}
+</style>
+
 </body></html>
