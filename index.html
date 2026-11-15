@@ -3088,3 +3088,23 @@ main#home .hero > .hero-image {
 }
 </style>
 
+<style id="mizpah-home-highlight-card-copy-one-more-pixel">
+/* Reduce the descriptive content in all three homepage highlight cards by
+   one additional pixel. Keep card headings, weights, spacing and layout intact. */
+#gallery .more-card-content p.built-around-copy,
+#gallery .more-card-content p.built-around-emphasis,
+#blog .more-card-content p.farmer-information-copy,
+#blog .more-card-content p.farmer-information-emphasis,
+#resources .moregrid > article.more-card:last-child .more-card-content p.our-promise-copy{
+  font-size:14px!important;
+}
+@media(max-width:650px){
+  #gallery .more-card-content p.built-around-copy,
+  #gallery .more-card-content p.built-around-emphasis,
+  #blog .more-card-content p.farmer-information-copy,
+  #blog .more-card-content p.farmer-information-emphasis,
+  #resources .moregrid > article.more-card:last-child .more-card-content p.our-promise-copy{
+    font-size:13px!important;
+  }
+}
+</style>
