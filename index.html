@@ -2999,3 +2999,34 @@ main#home .hero > .hero-image {
 </style>
 
 </body></html>
+
+<style id="mizpah-home-three-feature-cards-font-minus-two">
+/* Reduce typography by exactly 2px in the three homepage information cards.
+   Scope to these cards only; preserve all other homepage and page typography. */
+#gallery .more-card-content h3,
+#blog .more-card-content h3,
+#resources .moregrid > article.more-card:last-child .more-card-content h3{
+  font-size:22px!important;
+}
+#gallery .more-card-content p.built-around-copy,
+#gallery .more-card-content p.built-around-emphasis,
+#blog .more-card-content p.farmer-information-copy,
+#blog .more-card-content p.farmer-information-emphasis,
+#resources .moregrid > article.more-card:last-child .more-card-content p.our-promise-copy{
+  font-size:16px!important;
+}
+@media(max-width:650px){
+  #gallery .more-card-content h3,
+  #blog .more-card-content h3,
+  #resources .moregrid > article.more-card:last-child .more-card-content h3{
+    font-size:20px!important;
+  }
+  #gallery .more-card-content p.built-around-copy,
+  #gallery .more-card-content p.built-around-emphasis,
+  #blog .more-card-content p.farmer-information-copy,
+  #blog .more-card-content p.farmer-information-emphasis,
+  #resources .moregrid > article.more-card:last-child .more-card-content p.our-promise-copy{
+    font-size:15px!important;
+  }
+}
+</style>
