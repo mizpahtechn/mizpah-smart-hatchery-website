@@ -4,6 +4,9 @@ import { paystackMode, assertPaystackSecretMatchesMode } from "./paystack_checko
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const SUPABASE_CUSTOMER_KEY = Deno.env.get("SUPABASE_ANON_KEY")
+  ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY")
+  ?? "";
 const SITE = "https://mizpahtechnology.com.ng";
 const cors = {
   "Access-Control-Allow-Origin": SITE,
@@ -16,6 +19,19 @@ const db = () => {
   if (!SUPABASE_URL || !SERVICE_KEY) throw new Error("Secure payment storage is not configured.");
   return createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 };
+function customerDb(req: Request) {
+  const authorization = req.headers.get("Authorization") ?? "";
+  if (!/^Bearer\s+[^\s]+$/i.test(authorization)) {
+    throw new Error("Please sign in to your Mizpah customer account before saving this order.");
+  }
+  if (!SUPABASE_URL || !SUPABASE_CUSTOMER_KEY) {
+    throw new Error("Customer order authorization is not configured.");
+  }
+  return createClient(SUPABASE_URL, SUPABASE_CUSTOMER_KEY, {
+    global: { headers: { Authorization: authorization } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
 function response(body: Record<string, unknown>, status=200) {
   return new Response(JSON.stringify(body), { status, headers: cors });
 }
@@ -313,7 +329,7 @@ async function createOrder(req: Request) {
     address:delivery_address,notes,fulfilment,customer_type,preferred_date,
     auth_user_id:authenticatedCustomer.id
   };
-  const { data, error } = await db().rpc("create_mizpah_web_order_from_draft", {
+  const { data, error } = await customerDb(req).rpc("create_mizpah_web_order_from_draft", {
     p_draft_token:draft_token,p_order_number:order_number,p_customer:customer,p_items:items
   });
   if (error || !data) {
