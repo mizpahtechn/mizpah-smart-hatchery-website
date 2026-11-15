@@ -2998,6 +2998,32 @@ main#home .hero > .hero-image {
 }
 </style>
 
+
+<style id="mizpah-home-highlight-cards-one-step-smaller">
+/* Reduce only the body copy in the three homepage highlight cards by 1px.
+   Preserve card headings, layout, line-height, weight and all other sections. */
+#gallery .built-around-copy,
+#blog .farmer-information-copy,
+#resources .moregrid > article.more-card:last-child .more-card-content p.our-promise-copy{
+  font-size:17px!important;
+}
+#gallery .built-around-emphasis,
+#blog .farmer-information-emphasis{
+  font-size:17px!important;
+}
+@media(max-width:700px){
+  #gallery .built-around-copy,
+  #blog .farmer-information-copy,
+  #resources .moregrid > article.more-card:last-child .more-card-content p.our-promise-copy{
+    font-size:16px!important;
+  }
+  #gallery .built-around-emphasis,
+  #blog .farmer-information-emphasis{
+    font-size:16px!important;
+  }
+}
+</style>
+
 </body></html>
 
 <style id="mizpah-home-three-feature-cards-font-minus-two">
