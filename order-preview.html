@@ -36,6 +36,7 @@ header,header p,header small,header nav,header nav a,footer,footer p,footer smal
 header a,footer a,.top a,.nav a,.navbar a,.site-header a,.site-footer a{color:inherit}
 button,.btn,.button,[role="button"]{color:inherit}
 </style>
+<link rel="stylesheet" href="/assets/css/mizpah-shared-footer.css">
 </head>
 <body>
 <div class="top">Mizpah Smart Hatchery · <a href="tel:+2347068645654">+234 706 864 5654</a> · <a href="https://mizpahtechnology.com.ng/#contact">info@mizpahtechnology.com.ng</a></div>
@@ -63,7 +64,20 @@ button,.btn,.button,[role="button"]{color:inherit}
 <a class="button" style="display:block;text-align:center" href="/order.html">Return to order page</a>
 </section>
 </main>
-<footer class="footer">© <span id="year"></span> Mizpah Technology · <a href="/">Return to Mizpah Smart Hatchery</a></footer>
+<footer class="mizpah-site-footer">
+  <div class="mizpah-footer-inner">
+    <div class="mizpah-footer-identity">
+      <strong>MIZPAH TECHNOLOGY</strong>
+      <span>© <span id="year">2026</span> Mizpah Technology. All rights reserved.</span>
+    </div>
+    <nav class="mizpah-footer-links" aria-label="Footer">
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/cancellation-refund-policy.html">Refunds, Cancellation &amp; Replacement Policy</a>
+      <a href="/terms-and-conditions.html">Terms &amp; Conditions</a>
+      <a href="/#contact">Contact Us</a>
+    </nav>
+  </div>
+</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 (async function(){
