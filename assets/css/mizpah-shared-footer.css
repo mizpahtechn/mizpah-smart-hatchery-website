@@ -1,0 +1,43 @@
+/* Shared Mizpah Smart Hatchery footer — consistent across every public page. */
+.mizpah-site-footer{
+  display:block!important;
+  width:100%;
+  margin:48px 0 0;
+  padding:0 20px;
+  background:#03451f!important;
+  color:#fff!important;
+  border-top:4px solid #c49a28;
+  font:14px/1.5 Arial,Helvetica,sans-serif;
+}
+.mizpah-footer-inner{width:min(1180px,100%);margin:0 auto}
+.mizpah-footer-identity{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:5px;text-align:center;padding:23px 12px 18px;
+  color:#fff!important;
+}
+.mizpah-footer-identity strong{
+  display:block;color:#fff!important;font-size:17px;letter-spacing:.08em;
+  font-weight:900;
+}
+.mizpah-footer-identity span{color:#f4f4ed!important;font-size:13px}
+.mizpah-footer-links{
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  gap:0;border-top:1px solid rgba(255,255,255,.24);
+  padding:14px 8px 18px;text-align:center;
+}
+.mizpah-footer-links a{
+  display:inline-block;color:#fff!important;text-decoration:none!important;
+  font-size:13px;font-weight:700;padding:4px 15px;
+}
+.mizpah-footer-links a+a{border-left:1px solid rgba(255,255,255,.55)}
+.mizpah-footer-links a:hover,.mizpah-footer-links a:focus{
+  color:#f0d98a!important;text-decoration:underline!important;
+}
+@media(max-width:640px){
+  .mizpah-site-footer{padding:0 14px;margin-top:32px}
+  .mizpah-footer-identity{padding:20px 8px 15px}
+  .mizpah-footer-links{gap:4px 0;padding:12px 0 16px}
+  .mizpah-footer-links a{padding:5px 10px;font-size:12px}
+  .mizpah-footer-links a+a{border-left:0}
+  .mizpah-footer-links a:not(:last-child)::after{content:"";display:inline-block}
+}
