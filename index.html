@@ -2968,36 +2968,23 @@ body > header.nav > a.brand .brandname {
 
 
 <style id="mizpah-home-hero-quality-badge-fit">
-/* Keep the homepage hero image and its Quality Assurance seal inside their
-   own grid track. The seal must remain completely visible at laptop widths. */
-main#home .hero {
-  grid-template-columns: minmax(0, 40%) minmax(0, 60%) !important;
-}
+/* The Quality Assurance seal is baked into the hero background artwork, not
+   a separate .quality element. Show the complete source image edge-to-edge
+   instead of using cover, which crops the seal at the right edge. */
 main#home .hero > .hero-image {
   display: block !important;
   width: 100% !important;
   min-width: 0 !important;
   max-width: 100% !important;
   position: relative !important;
-}
-main#home .hero-image .quality {
-  right: clamp(16px, 3.5%, 32px) !important;
-  left: auto !important;
-  width: clamp(112px, 11.5vw, 140px) !important;
-  height: clamp(112px, 11.5vw, 140px) !important;
-  max-width: calc(100% - 32px) !important;
-  box-sizing: border-box !important;
+  background-size: 100% 100% !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
 }
 @media (max-width: 800px) {
-  main#home .hero {
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
-  main#home .hero-image .quality {
-    right: 16px !important;
-    top: 22% !important;
-    width: 100px !important;
-    height: 100px !important;
-    max-width: calc(100% - 32px) !important;
+  main#home .hero > .hero-image {
+    background-size: 100% 100% !important;
+    background-position: center center !important;
   }
 }
 </style>
