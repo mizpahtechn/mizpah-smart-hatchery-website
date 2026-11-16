@@ -1,17 +1,18 @@
--- Automatically mark the stock quantity as verified when a product is
--- first saved or when its stock quantity changes. Existing verification is
--- preserved on unrelated edits. Services do not use stock verification.
+-- Automatically mark stock verified whenever an admin saves a product's
+-- stock quantity through the catalogue form. The form always writes stock_quantity,
+-- so an unchanged quantity is still explicitly confirmed by the manager's save.
+-- Services do not use stock verification.
 create or replace function public.mizpah_web_auto_verify_stock_quantity()
 returns trigger
 language plpgsql
 set search_path to ''
 as $function$
 begin
+  -- The admin product-save operation always writes stock_quantity.
+  -- Treat that explicit save as the manager's confirmation of the entered quantity,
+  -- even when the numeric value is unchanged.
   if new.item_type = 'product' then
-    if tg_op = 'INSERT'
-       or new.stock_quantity is distinct from old.stock_quantity then
-      new.inventory_verified := true;
-    end if;
+    new.inventory_verified := true;
   end if;
   return new;
 end;
