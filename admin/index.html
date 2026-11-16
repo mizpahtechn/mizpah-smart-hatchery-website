@@ -1049,19 +1049,13 @@ async function saveProductRecord(values){
    appSyncWarning=syncError.message;
    console.error('Mizpah app Price List synchronisation failed:',syncError);
   }else if(synced===true){
-   const [refreshed,appCheck]=await Promise.all([
-    supabaseClient.from('mizpah_web_products').select('*').eq('id',saved.id).single(),
-    supabaseClient.from('price_list_items').select('id,name,type,price,published,minimum_order').eq('id',row.sku).maybeSingle()
-   ]);
+   const refreshed=await supabaseClient.from('mizpah_web_products').select('*').eq('id',saved.id).single();
    if(refreshed.error){
     appSyncWarning='The app Price List update was accepted, but the website record could not be refreshed: '+refreshed.error.message;
-   }else if(appCheck.error){
-    appSyncWarning='The app sync request was accepted, but its result could not be verified: '+appCheck.error.message;
-    saved=refreshed.data;
-   }else if(!appCheck.data || appCheck.data.name!==row.name || Number(appCheck.data.price)!==Math.round(Number(row.price_ngn)) || appCheck.data.published!==row.published || Number(appCheck.data.minimum_order)!==Number(row.minimum_order)){
-    appSyncWarning='Website saved, but the app Price List values did not match after synchronization. Check the app product link and retry.';
-    saved=refreshed.data;
    }else{
+    // The SECURITY DEFINER sync RPC returns true only when an app Price List
+    // row was actually inserted or updated. Do not re-check through table SELECT:
+    // app RLS intentionally hides unpublished/unavailable app rows from some staff.
     saved=refreshed.data;
    }
   }else{
