@@ -697,6 +697,7 @@ const load=(key,fallback)=>{try{const x=localStorage.getItem(key);return x?JSON.
 let products=[];
 let orders=[];
 let refunds=[];
+let customerReviews=[];
 let selected=new Set(), editingId=null;
 const $=id=>document.getElementById(id);
 const SUPABASE_URL='https://ouebgmhtyekqnyrkfrcp.supabase.co';
@@ -880,6 +881,9 @@ async function loadLiveRecords() {
 
   selected.clear();
   render();
+  // Load review records after the dashboard state is rendered. Keeping this
+  // in the authenticated load path makes the Reviews view usable immediately.
+  await loadCustomerReviews();
 }
 
 // Fresh single-controller administrator authentication.
