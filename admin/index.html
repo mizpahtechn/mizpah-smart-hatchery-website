@@ -1019,6 +1019,21 @@ async function saveProductRecord(values){
  else{result=await supabaseClient.from('mizpah_web_products').insert(row).select('*').single();}
  if(result.error)throw result.error;
  let saved=result.data;
+ // Persist inventory verification as its own explicit write and read it back.
+ // This prevents the catalogue UI from reporting success when the flag was not stored.
+ if(row.item_type==='product'){
+  const {data:verificationRow,error:verificationError}=await supabaseClient
+   .from('mizpah_web_products')
+   .update({inventory_verified:row.inventory_verified})
+   .eq('id',saved.id)
+   .select('id,inventory_verified')
+   .single();
+  if(verificationError) throw new Error('Stock quantity was saved, but inventory verification could not be saved: '+verificationError.message);
+  if(!verificationRow || verificationRow.inventory_verified!==row.inventory_verified){
+   throw new Error('Stock quantity was saved, but Supabase did not confirm the inventory verification flag. Refresh and try again.');
+  }
+  saved={...saved,inventory_verified:verificationRow.inventory_verified};
+ }
  let appSyncWarning='';
  // Keep the app Price List and website catalogue aligned for products that
  // already share an app SKU. Price-on-request items and services stay on the
