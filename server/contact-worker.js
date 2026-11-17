@@ -236,6 +236,37 @@ async function sendQuotation(request, env, origin) {
 
 export default {
   async fetch(request, env) {
+    const url = new URL(request.url);
+
+    // Stream the official production APK through Mizpah's own download endpoint.
+    // This prevents Android from handing the GitHub release URL to the GitHub app.
+    if (url.pathname === "/download-app" && (request.method === "GET" || request.method === "HEAD")) {
+      const apkUrl = "https://github.com/mizpahtechn/mizpah-android-downloads/releases/download/mizpah-smart-hatchery.apk/mizpah-smart-hatchery.apk";
+      let upstream;
+      try {
+        upstream = await fetch(apkUrl, { redirect: "follow" });
+      } catch {
+        return new Response("The Mizpah app download is temporarily unavailable. Please try again shortly.", {
+          status: 502,
+          headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
+        });
+      }
+      if (!upstream.ok || !upstream.body) {
+        return new Response("The official Mizpah app package could not be retrieved. Please try again later.", {
+          status: 502,
+          headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
+        });
+      }
+      const headers = new Headers({
+        "Content-Type": "application/vnd.android.package-archive",
+        "Content-Disposition": 'attachment; filename="Mizpah-Smart-Hatchery.apk"',
+        "Cache-Control": "private, no-store",
+        "X-Content-Type-Options": "nosniff",
+      });
+      const length = upstream.headers.get("Content-Length");
+      if (length) headers.set("Content-Length", length);
+      return new Response(request.method === "HEAD" ? null : upstream.body, { status: 200, headers });
+    }
     const origin = request.headers.get("Origin") || "";
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
