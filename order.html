@@ -457,6 +457,81 @@ main>p.hint strong,
 </form>
 
 </main>
+
+<style id="mizpah-order-footer-visibility-fix">
+/* Restore the order page footer visibility without changing page branding or checkout layout. */
+footer.mizpah-site-footer{
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  min-height:88px!important;
+  margin:36px 0 0!important;
+  padding:22px 16px!important;
+  overflow:visible!important;
+  visibility:visible!important;
+  opacity:1!important;
+  background:#03451f!important;
+  color:#fff!important;
+  border-top:4px solid #d4af37!important;
+  z-index:2!important;
+}
+.mizpah-site-footer .mizpah-footer-inner{
+  width:min(1120px,100%)!important;
+  margin:0 auto!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:18px 28px!important;
+  flex-wrap:wrap!important;
+}
+.mizpah-site-footer .mizpah-footer-identity{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:5px!important;
+  color:#fff!important;
+}
+.mizpah-site-footer .mizpah-footer-identity strong{
+  display:block!important;
+  color:#fff!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  letter-spacing:.04em!important;
+}
+.mizpah-site-footer .mizpah-footer-identity span{
+  display:block!important;
+  color:#f3f5ef!important;
+  font-size:13px!important;
+  line-height:1.6!important;
+}
+.mizpah-site-footer .mizpah-footer-links{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  flex-wrap:wrap!important;
+  gap:10px 20px!important;
+}
+.mizpah-site-footer .mizpah-footer-links a{
+  display:inline-block!important;
+  color:#fff!important;
+  font-size:14px!important;
+  font-weight:750!important;
+  line-height:1.6!important;
+  text-decoration:underline!important;
+  text-underline-offset:3px!important;
+  opacity:1!important;
+}
+.mizpah-site-footer a:focus-visible{
+  outline:3px solid #e3c56e!important;
+  outline-offset:4px!important;
+}
+@media(max-width:640px){
+  footer.mizpah-site-footer{margin-top:26px!important;padding:20px 16px!important}
+  .mizpah-site-footer .mizpah-footer-inner{align-items:flex-start!important;flex-direction:column!important;gap:14px!important}
+  .mizpah-site-footer .mizpah-footer-links{justify-content:flex-start!important;align-items:flex-start!important;flex-direction:column!important;gap:9px!important}
+  .mizpah-site-footer .mizpah-footer-links a{font-size:14px!important}
+}
+</style>
+
 <footer class="mizpah-site-footer">
   <div class="mizpah-footer-inner">
     <div class="mizpah-footer-identity">
