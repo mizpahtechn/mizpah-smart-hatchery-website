@@ -240,7 +240,7 @@ export default {
 
     // Stream the official production APK through Mizpah's own download endpoint.
     // This prevents Android from handing the GitHub release URL to the GitHub app.
-    if (url.pathname === "/download-app" && (request.method === "GET" || request.method === "HEAD")) {
+    if ((url.pathname === "/download-app" || url.pathname === "/mizpah-smart-hatchery.apk") && (request.method === "GET" || request.method === "HEAD")) {
       // Retrieve the uploaded release asset through GitHub's asset API.
       // Never label an HTML/error response as an APK.
       const apkAssetUrl = "https://api.github.com/repos/mizpahtechn/mizpah-android-downloads/releases/assets/754532927";
