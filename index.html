@@ -3182,6 +3182,39 @@ if ("serviceWorker" in navigator) {
 })();
 </script>
 
+
+<style id="mizpah-whatsapp-footer-visibility-fix">
+/* Keep the floating WhatsApp launcher from covering contact details and links
+   while the footer is visible, especially on narrow mobile screens. */
+.wa-float.mzp-footer-in-view{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+@media(prefers-reduced-motion:no-preference){
+  .wa-float{transition:opacity .18s ease,visibility .18s ease}
+}
+</style>
+<script id="mizpah-whatsapp-footer-visibility-fix-script">
+(function(){
+  function init(){
+    var chat=document.querySelector('a.wa-float');
+    var footer=document.querySelector('footer.foot');
+    if(!chat||!footer||!('IntersectionObserver' in window))return;
+    var observer=new IntersectionObserver(function(entries){
+      var visible=entries.some(function(entry){return entry.isIntersecting;});
+      chat.classList.toggle('mzp-footer-in-view',visible);
+      chat.setAttribute('aria-hidden',visible?'true':'false');
+      if(visible)chat.setAttribute('tabindex','-1');
+      else chat.removeAttribute('tabindex');
+    },{root:null,threshold:0.01});
+    observer.observe(footer);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
+
 </body></html>
 
 <style id="mizpah-home-three-feature-cards-font-minus-two">
