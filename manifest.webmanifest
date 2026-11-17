@@ -1,0 +1,23 @@
+{
+  "id": "/",
+  "name": "Mizpah Technology",
+  "short_name": "Mizpah",
+  "description": "Mizpah Technology — Healthy Chicks | Better Tomorrow.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#075b28",
+  "icons": [
+    {
+      "src": "/assets/images/logo%202.png",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
