@@ -241,18 +241,29 @@ export default {
     // Stream the official production APK through Mizpah's own download endpoint.
     // This prevents Android from handing the GitHub release URL to the GitHub app.
     if (url.pathname === "/download-app" && (request.method === "GET" || request.method === "HEAD")) {
-      const apkUrl = "https://github.com/mizpahtechn/mizpah-android-downloads/releases/download/mizpah-smart-hatchery.apk/mizpah-smart-hatchery.apk";
+      // Retrieve the uploaded release asset through GitHub's asset API.
+      // Never label an HTML/error response as an APK.
+      const apkAssetUrl = "https://api.github.com/repos/mizpahtechn/mizpah-android-downloads/releases/assets/754532927";
       let upstream;
       try {
-        upstream = await fetch(apkUrl, { redirect: "follow" });
+        upstream = await fetch(apkAssetUrl, {
+          method: "GET",
+          headers: {
+            "Accept": "application/octet-stream",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "Mizpah-Technology-App-Download",
+          },
+          redirect: "follow",
+        });
       } catch {
         return new Response("The Mizpah app download is temporarily unavailable. Please try again shortly.", {
           status: 502,
           headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
         });
       }
-      if (!upstream.ok || !upstream.body) {
-        return new Response("The official Mizpah app package could not be retrieved. Please try again later.", {
+      const upstreamType = (upstream.headers.get("Content-Type") || "").toLowerCase();
+      if (!upstream.ok || !upstream.body || upstreamType.includes("text/html") || upstreamType.includes("application/json")) {
+        return new Response("The official Mizpah APK could not be retrieved as an installation package. Please try again later.", {
           status: 502,
           headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
         });
