@@ -7,7 +7,9 @@
   "workers_dev": true,
   "routes": [
     { "pattern": "mizpahtechnology.com.ng/download-app*", "zone_name": "mizpahtechnology.com.ng" },
-    { "pattern": "www.mizpahtechnology.com.ng/download-app*", "zone_name": "mizpahtechnology.com.ng" }
+    { "pattern": "www.mizpahtechnology.com.ng/download-app*", "zone_name": "mizpahtechnology.com.ng" },
+    { "pattern": "mizpahtechnology.com.ng/mizpah-smart-hatchery.apk*", "zone_name": "mizpahtechnology.com.ng" },
+    { "pattern": "www.mizpahtechnology.com.ng/mizpah-smart-hatchery.apk*", "zone_name": "mizpahtechnology.com.ng" }
   ],
   "keep_vars": true,
   "vars": {
