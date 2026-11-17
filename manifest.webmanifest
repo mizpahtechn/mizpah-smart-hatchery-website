@@ -16,7 +16,6 @@
   "icons": [
     {
       "src": "/assets/images/logo%202.png",
-      "sizes": "any",
       "type": "image/png",
       "purpose": "any"
     }
