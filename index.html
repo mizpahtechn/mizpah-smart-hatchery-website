@@ -3199,7 +3199,7 @@ if ("serviceWorker" in navigator) {
 (function(){
   function init(){
     var chat=document.querySelector('a.wa-float');
-    var footer=document.querySelector('footer.foot');
+    var footer=document.querySelector('footer.mizpah-site-footer');
     if(!chat||!footer||!('IntersectionObserver' in window))return;
     var observer=new IntersectionObserver(function(entries){
       var visible=entries.some(function(entry){return entry.isIntersecting;});
