@@ -3056,6 +3056,132 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+
+<style id="mizpah-pwa-install-prompt">
+#mizpah-install-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(5,25,13,.58);backdrop-filter:blur(3px)}
+#mizpah-install-overlay.is-visible{display:flex}
+#mizpah-install-dialog{position:relative;width:min(420px,100%);padding:28px 24px 22px;border:1px solid #d9c27b;border-radius:18px;background:#fff;box-shadow:0 22px 70px rgba(0,0,0,.28);text-align:center;color:#183322}
+#mizpah-install-dialog .mip-logo{display:block;width:78px;height:78px;object-fit:contain;margin:0 auto 12px}
+#mizpah-install-dialog h2{margin:0 0 8px;color:#075b28;font-size:23px;line-height:1.2}
+#mizpah-install-dialog p{margin:0 auto 18px;max-width:330px;color:#435449;font-size:14px;line-height:1.55}
+#mizpah-install-dialog .mip-primary{display:block;width:100%;padding:13px 18px;border:0;border-radius:28px;background:#075b28;color:#fff;font-weight:800;cursor:pointer}
+#mizpah-install-dialog .mip-later{margin-top:12px;padding:8px 14px;border:0;background:transparent;color:#526257;font-weight:700;cursor:pointer}
+#mizpah-install-dialog .mip-close{position:absolute;top:9px;right:12px;width:34px;height:34px;border:0;border-radius:50%;background:#f1f5ef;color:#31513a;font-size:22px;line-height:1;cursor:pointer}
+#mizpah-install-dialog button:focus-visible{outline:3px solid #d4af37;outline-offset:3px}
+#mizpah-install-steps{display:none;margin:0 0 16px;padding:13px 15px;border-radius:10px;background:#f4f7ee;text-align:left;color:#304638;font-size:13px;line-height:1.6}
+#mizpah-install-steps.is-visible{display:block}
+@media(max-width:480px){#mizpah-install-dialog{padding:25px 19px 18px}#mizpah-install-dialog h2{font-size:21px}}
+</style>
+<div id="mizpah-install-overlay" aria-hidden="true">
+  <section id="mizpah-install-dialog" role="dialog" aria-modal="true" aria-labelledby="mizpah-install-title" aria-describedby="mizpah-install-description">
+    <button class="mip-close" type="button" aria-label="Close install prompt" id="mizpah-install-close">×</button>
+    <img class="mip-logo" src="/assets/images/logo%202.png" alt="Mizpah Technology logo">
+    <h2 id="mizpah-install-title">Install Mizpah App</h2>
+    <p id="mizpah-install-description">Add Mizpah Technology to your home screen for quick, convenient access.</p>
+    <div id="mizpah-install-steps" aria-live="polite"></div>
+    <button class="mip-primary" type="button" id="mizpah-install-action">Install App</button>
+    <button class="mip-later" type="button" id="mizpah-install-later">Maybe later</button>
+  </section>
+</div>
+<script id="mizpah-pwa-install-prompt-script">
+(function(){
+  "use strict";
+  var overlay=document.getElementById("mizpah-install-overlay");
+  if(!overlay) return;
+  var dialog=document.getElementById("mizpah-install-dialog");
+  var action=document.getElementById("mizpah-install-action");
+  var later=document.getElementById("mizpah-install-later");
+  var close=document.getElementById("mizpah-install-close");
+  var steps=document.getElementById("mizpah-install-steps");
+  var deferredPrompt=null;
+  var dismissedKey="mizpah-install-prompt-dismissed-v1";
+  var dismissedFor=7*24*60*60*1000;
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  var standalone=(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone===true;
+  var previousFocus=null;
+
+  function wasRecentlyDismissed(){
+    try{
+      var stamp=Number(localStorage.getItem(dismissedKey)||0);
+      return stamp>0 && Date.now()-stamp<dismissedFor;
+    }catch(error){return false;}
+  }
+  function showPrompt(){
+    if(standalone || wasRecentlyDismissed()) return;
+    previousFocus=document.activeElement;
+    overlay.classList.add("is-visible");
+    overlay.setAttribute("aria-hidden","false");
+    document.body.style.overflow="hidden";
+    action.focus();
+  }
+  function hidePrompt(remember){
+    overlay.classList.remove("is-visible");
+    overlay.setAttribute("aria-hidden","true");
+    document.body.style.overflow="";
+    if(remember){
+      try{localStorage.setItem(dismissedKey,String(Date.now()));}catch(error){}
+    }
+    if(previousFocus && typeof previousFocus.focus==="function") previousFocus.focus();
+  }
+  function showInstallHelp(){
+    steps.classList.add("is-visible");
+    if(isIOS){
+      steps.textContent="To install on iPhone or iPad: 1. Tap the Share button in Safari. 2. Scroll and choose “Add to Home Screen”. 3. Tap “Add” to finish.";
+    }else{
+      steps.textContent="If your browser does not show its install prompt, open the browser menu (⋮ on Chrome) and choose “Install app” or “Add to Home screen”. Use Chrome or another supported browser for the best installation experience.";
+    }
+    action.textContent="Got it";
+    action.setAttribute("data-help-open","true");
+  }
+  window.addEventListener("beforeinstallprompt",function(event){
+    event.preventDefault();
+    deferredPrompt=event;
+  });
+  window.addEventListener("appinstalled",function(){
+    standalone=true;
+    hidePrompt(false);
+    try{localStorage.removeItem(dismissedKey);}catch(error){}
+  });
+  action.addEventListener("click",async function(){
+    if(action.getAttribute("data-help-open")==="true"){
+      hidePrompt(true);
+      return;
+    }
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      try{
+        var choice=await deferredPrompt.userChoice;
+        deferredPrompt=null;
+        if(choice && choice.outcome==="accepted") hidePrompt(false);
+        else showInstallHelp();
+      }catch(error){
+        deferredPrompt=null;
+        showInstallHelp();
+      }
+      return;
+    }
+    showInstallHelp();
+  });
+  later.addEventListener("click",function(){hidePrompt(true);});
+  close.addEventListener("click",function(){hidePrompt(true);});
+  overlay.addEventListener("click",function(event){if(event.target===overlay) hidePrompt(true);});
+  document.addEventListener("keydown",function(event){
+    if(event.key==="Escape" && overlay.classList.contains("is-visible")) hidePrompt(true);
+    if(event.key==="Tab" && overlay.classList.contains("is-visible")){
+      var focusable=dialog.querySelectorAll("button:not([disabled])");
+      if(!focusable.length) return;
+      var first=focusable[0],last=focusable[focusable.length-1];
+      if(event.shiftKey && document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
+    }
+  });
+  if(!standalone && !wasRecentlyDismissed()){
+    window.addEventListener("load",function(){window.setTimeout(showPrompt,1400);},{once:true});
+    if(document.readyState==="complete") window.setTimeout(showPrompt,1400);
+  }
+})();
+</script>
+
 </body></html>
 
 <style id="mizpah-home-three-feature-cards-font-minus-two">
