@@ -3064,6 +3064,9 @@ if ("serviceWorker" in navigator) {
 #mizpah-install-dialog .mip-logo{display:block;width:78px;height:78px;object-fit:contain;margin:0 auto 12px}
 #mizpah-install-dialog h2{margin:0 0 8px;color:#075b28;font-size:23px;line-height:1.2}
 #mizpah-install-dialog p{margin:0 auto 18px;max-width:330px;color:#435449;font-size:14px;line-height:1.55}
+#mizpah-install-dialog .mip-download-apk{box-sizing:border-box;margin:0 0 8px;text-decoration:none;text-align:center;background:#075b28;color:#fff}
+#mizpah-install-dialog .mip-apk-note{margin:0 auto 14px!important;font-size:12px!important;color:#536257!important;line-height:1.45!important}
+#mizpah-install-dialog .mip-pwa-option{background:#eaf2e9;color:#075b28;border:1px solid #b8cfb8}
 #mizpah-install-dialog .mip-primary{display:block;width:100%;padding:13px 18px;border:0;border-radius:28px;background:#075b28;color:#fff;font-weight:800;cursor:pointer}
 #mizpah-install-dialog .mip-later{margin-top:12px;padding:8px 14px;border:0;background:transparent;color:#526257;font-weight:700;cursor:pointer}
 #mizpah-install-dialog .mip-close{position:absolute;top:9px;right:12px;width:34px;height:34px;border:0;border-radius:50%;background:#f1f5ef;color:#31513a;font-size:22px;line-height:1;cursor:pointer}
@@ -3077,9 +3080,11 @@ if ("serviceWorker" in navigator) {
     <button class="mip-close" type="button" aria-label="Close install prompt" id="mizpah-install-close">×</button>
     <img class="mip-logo" src="/assets/images/logo%202.png" alt="Mizpah Technology logo">
     <h2 id="mizpah-install-title">Install Mizpah App</h2>
-    <p id="mizpah-install-description">Add Mizpah Technology to your home screen for quick, convenient access.</p>
+    <p id="mizpah-install-description">Get the official Mizpah Smart Hatchery Android app. Download and install the app on your phone.</p>
     <div id="mizpah-install-steps" aria-live="polite"></div>
-    <button class="mip-primary" type="button" id="mizpah-install-action">Install App</button>
+    <a class="mip-primary mip-download-apk" id="mizpah-apk-download" href="https://github.com/mizpahtechn/mizpah-android-downloads/releases/download/mizpah-smart-hatchery.apk/mizpah-smart-hatchery.apk" download="mizpah-smart-hatchery.apk" rel="noopener">Download Android App (APK)</a>
+    <p id="mizpah-apk-install-note" class="mip-apk-note">After downloading, open the APK file and follow Android’s installation prompts.</p>
+    <button class="mip-primary mip-pwa-option" type="button" id="mizpah-install-action">Add Website to Home Screen</button>
     <button class="mip-later" type="button" id="mizpah-install-later">Maybe later</button>
   </section>
 </div>
@@ -3093,12 +3098,21 @@ if ("serviceWorker" in navigator) {
   var later=document.getElementById("mizpah-install-later");
   var close=document.getElementById("mizpah-install-close");
   var steps=document.getElementById("mizpah-install-steps");
+  var apkLink=document.getElementById("mizpah-apk-download");
+  var apkNote=document.getElementById("mizpah-apk-install-note");
+  var description=document.getElementById("mizpah-install-description");
   var deferredPrompt=null;
-  var dismissedKey="mizpah-install-prompt-dismissed-v1";
+  var dismissedKey="mizpah-install-prompt-dismissed-v2";
   var dismissedFor=7*24*60*60*1000;
   var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
   var standalone=(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone===true;
   var previousFocus=null;
+  if(isIOS){
+    if(apkLink) apkLink.style.display="none";
+    if(apkNote) apkNote.style.display="none";
+    if(description) description.textContent="The Android app is available for Android phones. You can add this website to your iPhone home screen for quick access.";
+    action.textContent="Add Website to Home Screen";
+  }
 
   function wasRecentlyDismissed(){
     try{
