@@ -5,6 +5,10 @@
   "compatibility_date": "2026-11-01",
   "upload_source_maps": true,
   "workers_dev": true,
+  "routes": [
+    { "pattern": "mizpahtechnology.com.ng/download-app*", "zone_name": "mizpahtechnology.com.ng" },
+    { "pattern": "www.mizpahtechnology.com.ng/download-app*", "zone_name": "mizpahtechnology.com.ng" }
+  ],
   "keep_vars": true,
   "vars": {
     "FROM_EMAIL": "Mizpah Technology <website@mizpahtechnology.com.ng>",
