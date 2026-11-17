@@ -238,70 +238,18 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Stream/redirect the official production APK through Mizpah's own endpoint.
-    // Ask GitHub's asset API for binary content, but do not proxy a 93 MB file
-    // through the Worker when GitHub provides its short-lived signed asset URL.
+    // Redirect straight to the official release-download endpoint.
+    // GitHub performs its own signed CDN redirect; do not proxy or inspect the
+    // 93 MB binary in this Worker.
     if ((url.pathname === "/download-app" || url.pathname === "/mizpah-smart-hatchery.apk") && (request.method === "GET" || request.method === "HEAD")) {
-      const apkAssetUrl = "https://api.github.com/repos/mizpahtechn/mizpah-android-downloads/releases/assets/754532927";
-      let upstream;
-      try {
-        upstream = await fetch(apkAssetUrl, {
-          method: "GET",
-          headers: {
-            "Accept": "application/octet-stream",
-            "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "Mizpah-Technology-App-Download",
-          },
-          redirect: "manual",
-        });
-      } catch {
-        return new Response("The Mizpah APK download service could not reach the official release. Please try again shortly.", {
-          status: 502,
-          headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
-        });
-      }
-
-      // GitHub documents both 200 (binary stream) and 302 (signed asset URL).
-      // Redirect the browser to GitHub's temporary asset host so the Worker
-      // does not have to buffer/proxy the complete 93 MB installation file.
-      if (upstream.status === 302) {
-        const location = upstream.headers.get("Location");
-        let target;
-        try { target = new URL(location); } catch { target = null; }
-        const allowedHosts = new Set(["release-assets.githubusercontent.com", "objects.githubusercontent.com"]);
-        if (!target || target.protocol !== "https:" || !allowedHosts.has(target.hostname)) {
-          return new Response("The official Mizpah APK download returned an invalid file location. Please try again shortly.", {
-            status: 502,
-            headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
-          });
-        }
-        return new Response(null, {
-          status: 302,
-          headers: {
-            "Location": target.toString(),
-            "Cache-Control": "no-store",
-            "Referrer-Policy": "no-referrer",
-          },
-        });
-      }
-
-      const upstreamType = (upstream.headers.get("Content-Type") || "").toLowerCase();
-      if (upstream.status !== 200 || !upstream.body || upstreamType.includes("text/html") || upstreamType.includes("application/json")) {
-        return new Response("The official Mizpah APK could not be retrieved from its release asset. Please try again shortly.", {
-          status: 502,
-          headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
-        });
-      }
-
-      const headers = new Headers({
-        "Content-Type": "application/vnd.android.package-archive",
-        "Content-Disposition": 'attachment; filename="Mizpah-Smart-Hatchery.apk"',
-        "Cache-Control": "private, no-store",
-        "X-Content-Type-Options": "nosniff",
+      return new Response(null, {
+        status: 302,
+        headers: {
+          "Location": "https://github.com/mizpahtechn/mizpah-android-downloads/releases/download/mizpah-smart-hatchery.apk/mizpah-smart-hatchery.apk",
+          "Cache-Control": "no-store",
+          "Referrer-Policy": "no-referrer",
+        },
       });
-      const length = upstream.headers.get("Content-Length");
-      if (length) headers.set("Content-Length", length);
-      return new Response(request.method === "HEAD" ? null : upstream.body, { status: 200, headers });
     }
     const origin = request.headers.get("Origin") || "";
     if (request.method === "OPTIONS") {
