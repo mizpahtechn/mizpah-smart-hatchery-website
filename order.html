@@ -480,14 +480,17 @@ footer.mizpah-site-footer{
   margin:0 auto!important;
   display:flex!important;
   align-items:center!important;
-  justify-content:space-between!important;
-  gap:18px 28px!important;
-  flex-wrap:wrap!important;
+  justify-content:center!important;
+  flex-direction:column!important;
+  gap:14px!important;
+  text-align:center!important;
 }
 .mizpah-site-footer .mizpah-footer-identity{
   display:flex!important;
   flex-direction:column!important;
+  align-items:center!important;
   gap:5px!important;
+  text-align:center!important;
   color:#fff!important;
 }
 .mizpah-site-footer .mizpah-footer-identity strong{
@@ -506,9 +509,10 @@ footer.mizpah-site-footer{
 .mizpah-site-footer .mizpah-footer-links{
   display:flex!important;
   align-items:center!important;
-  justify-content:flex-end!important;
+  justify-content:center!important;
   flex-wrap:wrap!important;
   gap:10px 20px!important;
+  text-align:center!important;
 }
 .mizpah-site-footer .mizpah-footer-links a{
   display:inline-block!important;
@@ -526,8 +530,9 @@ footer.mizpah-site-footer{
 }
 @media(max-width:640px){
   footer.mizpah-site-footer{margin-top:26px!important;padding:20px 16px!important}
-  .mizpah-site-footer .mizpah-footer-inner{align-items:flex-start!important;flex-direction:column!important;gap:14px!important}
-  .mizpah-site-footer .mizpah-footer-links{justify-content:flex-start!important;align-items:flex-start!important;flex-direction:column!important;gap:9px!important}
+  .mizpah-site-footer .mizpah-footer-inner{align-items:center!important;flex-direction:column!important;gap:14px!important;text-align:center!important}
+  .mizpah-site-footer .mizpah-footer-identity{align-items:center!important;text-align:center!important}
+  .mizpah-site-footer .mizpah-footer-links{justify-content:center!important;align-items:center!important;flex-direction:column!important;gap:9px!important;text-align:center!important}
   .mizpah-site-footer .mizpah-footer-links a{font-size:14px!important}
 }
 </style>
