@@ -278,7 +278,6 @@ export default {
       return json({ success: false, message: "This website origin is not allowed." }, 403, origin);
     }
 
-    const url = new URL(request.url);
     if (url.pathname === "/send-quotation") return sendQuotation(request, env, origin);
 
     // Enable this protection by binding ENQUIRY_RATE_LIMITER in the Worker configuration.
