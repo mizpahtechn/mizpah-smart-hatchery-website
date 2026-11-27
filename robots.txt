@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://mizpahtechnology.com.ng/sitemap.xml
+Sitemap: https://ouebgmhtyekqnyrkfrcp.supabase.co/functions/v1/knowledge-center-commerce/sitemap
