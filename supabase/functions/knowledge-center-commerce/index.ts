@@ -745,7 +745,7 @@ async function membershipCheckout(req:Request){
   let membershipId=body.membership_id?String(body.membership_id):"";
   let membership:any=null;
   if(membershipId){
-    const found=await client.from("kc_memberships").select("id,user_id,plan_id,status,current_period_end")
+    const found=await client.from("kc_memberships").select("id,user_id,plan_id,status,current_period_end,cancel_at_period_end")
       .eq("id",membershipId).eq("user_id",user.id).eq("plan_id",planId).maybeSingle();
     if(found.error||!found.data) throw new Error("Membership record not found.");
     membership=found.data;
@@ -761,6 +761,9 @@ async function membershipCheckout(req:Request){
       .select("id,user_id,plan_id,status,current_period_end").single();
     if(created.error||!created.data) throw new Error("Your membership could not be created.");
     membership=created.data;
+  }
+  if(membership.cancel_at_period_end){
+    await client.from("kc_memberships").update({cancel_at_period_end:false,updated_at:new Date().toISOString()}).eq("id",membership.id);
   }
   const {data:prior,error:priorError}=await client.from("kc_membership_renewals")
     .select("reference,provider,checkout_url,status,amount_minor,currency")
