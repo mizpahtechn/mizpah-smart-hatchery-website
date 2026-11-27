@@ -171,13 +171,21 @@ async function initializeCheckout(req: Request) {
     .eq("order_id", orderId).in("status", ["pending", "initialized"])
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (priorError) throw new Error("The previous payment attempt could not be checked.");
-  if (prior?.status === "initialized" && prior.checkout_url && prior.provider === provider &&
+  if (prior?.status === "initialized" && prior.checkout_url &&
       Number(prior.amount_minor) === totalMinor) {
-    return json(req, { success: true, status: "pending", reference: prior.reference, checkout_url: prior.checkout_url, provider });
+    return json(req, {
+      success: true, status: "pending", reference: prior.reference,
+      checkout_url: prior.checkout_url, provider: prior.provider,
+      message: prior.provider === provider
+        ? "Continue your existing secure checkout."
+        : "A checkout is already open with " + prior.provider.toUpperCase() + ". Complete or resolve it before choosing another provider.",
+    });
   }
-  if (prior) {
-    await client.from("kc_digital_payments").update({ status: "failed", updated_at: new Date().toISOString() })
-      .eq("reference", prior.reference).in("status", ["pending", "initialized"]);
+  if (prior?.status === "pending") {
+    throw new Error("A payment attempt is already being prepared. Please wait a moment and refresh.");
+  }
+  if (prior?.status === "initialized") {
+    throw new Error("An existing payment attempt needs review before a new checkout can be started.");
   }
 
   const reference = newReference();
