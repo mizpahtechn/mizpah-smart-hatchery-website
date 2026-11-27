@@ -280,6 +280,7 @@ async function verifyReference(referenceValue: string, userId?: string) {
     if (providerStatus !== "success") {
       if (["failed", "abandoned", "reversed"].includes(providerStatus)) {
         await client.from("kc_digital_payments").update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.id);
+        await client.from("kc_digital_orders").update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", order.id).eq("status", "pending");
         return { success: false, status: "failed", order_number: order.order_number };
       }
       return { success: false, status: "pending", order_number: order.order_number };
@@ -293,6 +294,7 @@ async function verifyReference(referenceValue: string, userId?: string) {
     if (parsed.status !== "SUCCESS") {
       if (["FAILED", "FAIL", "CANCELLED", "CANCELED", "CLOSED", "EXPIRED"].includes(parsed.status)) {
         await client.from("kc_digital_payments").update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.id);
+        await client.from("kc_digital_orders").update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", order.id).eq("status", "pending");
         return { success: false, status: "failed", order_number: order.order_number };
       }
       return { success: false, status: "pending", order_number: order.order_number };
