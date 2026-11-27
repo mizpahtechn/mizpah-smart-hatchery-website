@@ -944,10 +944,11 @@ async function affiliateAttribute(req:Request){
     .eq("click_token",clickToken).maybeSingle();
   if(error||!click) throw new Error("Affiliate referral was not found.");
   const {data:link,error:linkError}=await db().from("kc_affiliate_links")
-    .select("id,partner_id,active,kc_affiliate_partners!inner(status,attribution_days)")
+    .select("id,partner_id,active,kc_affiliate_partners!inner(user_id,status,attribution_days)")
     .eq("id",click.link_id).eq("active",true).maybeSingle();
   if(linkError||!link||(link as any).kc_affiliate_partners?.status!=="approved")
     throw new Error("Affiliate referral is no longer active.");
+  if((link as any).kc_affiliate_partners.user_id===user.id) throw new Error("Self-referrals are not eligible for affiliate commission.");
   const days=Number((link as any).kc_affiliate_partners.attribution_days)||30;
   if(Date.now()-new Date(click.clicked_at).getTime()>days*86400000) throw new Error("Affiliate referral has expired.");
   const expires=new Date(new Date(click.clicked_at).getTime()+days*86400000).toISOString();
