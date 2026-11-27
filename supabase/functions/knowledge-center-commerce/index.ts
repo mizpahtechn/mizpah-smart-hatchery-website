@@ -319,6 +319,48 @@ async function signedDownload(req: Request) {
   return json(req, { success: true, download_url: signed.signedUrl, expires_in_seconds: 60 });
 }
 
+
+async function customerLibrary(req: Request) {
+  const user = await requireUser(req);
+  const client = db();
+  const { data: entitlements, error } = await client.from("kc_entitlements")
+    .select("id,product_id,status,granted_at,expires_at,kc_digital_products!inner(id,title,slug,product_type,summary,cover_image_url)")
+    .eq("user_id", user.id).eq("status", "active")
+    .order("granted_at", { ascending: false });
+  if (error) throw new Error("Your Knowledge Library could not be loaded.");
+  const rows = entitlements ?? [];
+  const productIds = rows.map((row: any) => row.product_id);
+  let filesByProduct: Record<string, any[]> = {};
+  if (productIds.length) {
+    const { data: files, error: fileError } = await client.from("kc_digital_product_files")
+      .select("id,product_id,download_filename,file_size_bytes,mime_type")
+      .in("product_id", productIds).eq("active", true);
+    if (fileError) throw new Error("Your download list could not be loaded.");
+    for (const file of files ?? []) {
+      (filesByProduct[file.product_id] ??= []).push({
+        id: file.id, filename: file.download_filename,
+        size_bytes: file.file_size_bytes, mime_type: file.mime_type,
+      });
+    }
+  }
+  const { data: enrolments, error: enrolmentError } = await client.from("kc_course_enrolments")
+    .select("id,status,enrolled_at,completed_at,kc_courses!inner(id,course_title,course_summary,product_id)")
+    .eq("user_id", user.id).in("status", ["active", "completed"])
+    .order("enrolled_at", { ascending: false });
+  if (enrolmentError) throw new Error("Your course enrolments could not be loaded.");
+  return json(req, {
+    success: true,
+    customer: { email: user.email },
+    entitlements: rows.map((row: any) => ({
+      id: row.id, product_id: row.product_id, status: row.status,
+      granted_at: row.granted_at, expires_at: row.expires_at,
+      product: row.kc_digital_products,
+      files: filesByProduct[row.product_id] ?? [],
+    })),
+    enrolments: enrolments ?? [],
+  });
+}
+
 async function lessonContent(req: Request) {
   const user = await requireUser(req);
   const url = new URL(req.url);
@@ -378,7 +420,7 @@ Deno.serve(async (req: Request) => {
 
     if (url.pathname.endsWith("/checkout") && req.method === "POST") return await initializeCheckout(req);
     if (url.pathname.endsWith("/verify") && req.method === "GET") return await verifyForCustomer(req);
-    if (url.pathname.endsWith("/download") && req.method === "GET") return await signedDownload(req);
+    if (url.pathname.endsWith("/download") && req.method === "GET") return await signedDownload(req);\n    if (url.pathname.endsWith("/library") && req.method === "GET") return await customerLibrary(req);
     if (url.pathname.endsWith("/lesson") && req.method === "GET") return await lessonContent(req);
     if (url.pathname.endsWith("/admin-report") && req.method === "GET") return await adminReport(req);
 
