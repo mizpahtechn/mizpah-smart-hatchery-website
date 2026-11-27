@@ -155,7 +155,7 @@ async function initializeCheckout(req: Request) {
   if (!["NGN", "USD"].includes(currency)) throw new Error("The digital order currency is not supported.");
   if (!Number.isSafeInteger(totalMinor) || totalMinor < 0) throw new Error("The digital order total is invalid.");
   if (provider === "opay" && currency !== "NGN") throw new Error("OPay checkout is available for NGN purchases only. Choose Paystack for USD purchases.");
-  if (totalMinor > 0 && ((currency === "NGN" && totalMinor < 5000) || (currency === "USD" && totalMinor < 200))) {
+  if (provider === "paystack" && totalMinor > 0 && ((currency === "NGN" && totalMinor < 5000) || (currency === "USD" && totalMinor < 200))) {
     throw new Error(currency === "USD" ? "Paystack USD transactions must be at least $2.00." : "Paystack NGN transactions must be at least ₦50.00.");
   }
 
