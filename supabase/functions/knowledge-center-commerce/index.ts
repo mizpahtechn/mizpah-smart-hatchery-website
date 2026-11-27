@@ -778,9 +778,17 @@ async function cancelMembership(req:Request){
 async function customerMemberships(req:Request){
   const user=await requireUser(req);
   const {data:memberships,error}=await db().from("kc_memberships")
-    .select("id,status,billing_mode,provider,current_period_start,current_period_end,grace_ends_at,cancel_at_period_end,created_at,kc_membership_plans(name,description,billing_interval,price_minor,currency)")
+    .select("id,status,billing_mode,provider,current_period_start,current_period_end,grace_ends_at,cancel_at_period_end,created_at,kc_membership_plans(id,name,description,billing_interval,price_minor,currency)")
     .eq("user_id",user.id).order("created_at",{ascending:false});
   if(error) throw new Error("Your memberships could not be loaded.");
+  for(const membership of memberships??[]){
+    const end=membership.current_period_end?new Date(membership.current_period_end).getTime():null;
+    const grace=membership.grace_ends_at?new Date(membership.grace_ends_at).getTime():null;
+    if(["active","past_due"].includes(membership.status)&&end!==null&&end<=Date.now()&&(!grace||grace<=Date.now())){
+      await db().from("kc_memberships").update({status:"expired",updated_at:new Date().toISOString()}).eq("id",membership.id);
+      membership.status="expired";
+    }
+  }
   const ids=(memberships??[]).map((m:any)=>m.id);let renewals:any[]=[];
   if(ids.length){const result=await db().from("kc_membership_renewals")
     .select("membership_id,reference,amount_minor,currency,status,period_start,period_end,paid_at,created_at")
