@@ -570,7 +570,11 @@ begin
 
       insert into public.kc_course_enrolments(user_id,course_id,entitlement_id)
       values(v_order.user_id,v_course_id,v_entitlement_id)
-      on conflict (user_id,course_id) do nothing;
+      on conflict (user_id,course_id) do update
+        set entitlement_id=excluded.entitlement_id,
+            status='active',
+            enrolled_at=now(),
+            completed_at=null;
     end if;
     v_entitlement_id := null;
   end loop;
