@@ -74,6 +74,33 @@ insert into public.kc_digital_product_files(
 insert into storage.objects(bucket_id,name)
 values('mizpah-kc-private','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa/test.pdf');
 
+insert into public.kc_digital_products(
+  id,slug,title,product_type,status,summary,price_minor,currency,published_at
+) values
+('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','archived-test-course','Archived test course','course','archived','Existing student access test',75000,'NGN',null);
+
+insert into public.kc_courses(product_id,course_title,course_summary,status)
+values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','Archived test course','Existing student access test','archived');
+
+insert into public.kc_digital_orders(
+  id,order_number,user_id,customer_email,status,subtotal_minor,discount_minor,total_minor,currency,idempotency_key,request_hash
+) values
+('ffffffff-ffff-4fff-8fff-ffffffffffff','KC-TEST-COURSE','11111111-1111-4111-8111-111111111111','customer@example.test','paid',75000,0,75000,'NGN','test-idempotency-course-0001',repeat('c',64));
+
+insert into public.kc_digital_order_items(
+  id,order_id,product_id,product_title,product_slug,product_type,quantity,unit_price_minor,line_total_minor
+) values
+('99999999-9999-4999-8999-999999999999','ffffffff-ffff-4fff-8fff-ffffffffffff','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','Archived test course','archived-test-course','course',1,75000,75000);
+
+insert into public.kc_entitlements(user_id,product_id,order_item_id,status)
+values('11111111-1111-4111-8111-111111111111','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','99999999-9999-4999-8999-999999999999','active');
+
+insert into public.kc_course_enrolments(user_id,course_id,entitlement_id,status)
+select '11111111-1111-4111-8111-111111111111',c.id,e.id,'active'
+from public.kc_courses c
+join public.kc_entitlements e on e.product_id=c.product_id
+where c.product_id='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+
 begin;
 set local role anon;
 set local request.jwt.claim.sub='';
@@ -120,6 +147,35 @@ begin
   if v_count <> 1 then raise exception 'Authorised staff should list private storage objects.'; end if;
 end
 $staff_test$;
+rollback;
+
+
+begin;
+set local role authenticated;
+set local request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';
+do $enrolled_course_test$
+declare v_count integer;
+begin
+  select count(*) into v_count
+  from public.kc_courses
+  where product_id='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+  if v_count <> 1 then raise exception 'Enrolled customers should retain access to archived courses.'; end if;
+end
+$enrolled_course_test$;
+rollback;
+
+begin;
+set local role authenticated;
+set local request.jwt.claim.sub='22222222-2222-4222-8222-222222222222';
+do $other_course_test$
+declare v_count integer;
+begin
+  select count(*) into v_count
+  from public.kc_courses
+  where product_id='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+  if v_count <> 0 then raise exception 'Other customers must not see archived course records.'; end if;
+end
+$other_course_test$;
 rollback;
 
 select 'Knowledge Center migration smoke tests passed.' as result;
