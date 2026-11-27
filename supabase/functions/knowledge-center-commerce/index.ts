@@ -475,13 +475,64 @@ async function courseOutline(req: Request) {
     if (lessonError) throw new Error("The course lessons could not be loaded.");
     lessons = data ?? [];
   }
+  const lessonIds=lessons.map((lesson:any)=>lesson.id);
+  let progress:any[]=[];
+  if(lessonIds.length){
+    const {data:progressRows,error:progressError}=await client.from("kc_lesson_progress")
+      .select("lesson_id,completed,last_position_seconds,updated_at")
+      .eq("user_id",user.id).in("lesson_id",lessonIds);
+    if(progressError) throw new Error("Your learning progress could not be loaded.");
+    progress=progressRows??[];
+  }
   return json(req, {
     success: true,
     modules: (modules ?? []).map((m: any) => ({
       ...m,
-      lessons: lessons.filter((lesson: any) => lesson.module_id === m.id),
+      lessons: lessons.filter((lesson: any) => lesson.module_id === m.id).map((lesson:any)=>({
+        ...lesson,progress:progress.find((p:any)=>p.lesson_id===lesson.id)||null
+      })),
     })),
   });
+}
+
+
+async function completeLesson(req:Request){
+  const user=await requireUser(req);const body=await req.json().catch(()=>({}));
+  const lessonId=safeText(body.lesson_id,80);
+  if(!/^[0-9a-f-]{36}$/i.test(lessonId)) throw new Error("Invalid lesson.");
+  const client=db();
+  const {data:lesson,error}=await client.from("kc_course_lessons")
+    .select("id,duration_minutes,published,module_id,kc_course_modules!inner(course_id,published)")
+    .eq("id",lessonId).eq("published",true).maybeSingle();
+  if(error||!lesson||(lesson as any).kc_course_modules?.published!==true) throw new Error("This lesson is not available.");
+  const courseId=(lesson as any).kc_course_modules.course_id;
+  await requireCourseEntitlement(user.id,courseId);
+  const position=Number(body.last_position_seconds??0);
+  if(!Number.isSafeInteger(position)||position<0||position>86400) throw new Error("Invalid lesson progress.");
+  const {error:saveError}=await client.from("kc_lesson_progress").upsert({
+    user_id:user.id,lesson_id:lessonId,completed:true,
+    last_position_seconds:Math.max(position,Number(lesson.duration_minutes||0)*60),
+    updated_at:new Date().toISOString()
+  },{onConflict:"user_id,lesson_id"});
+  if(saveError) throw new Error("Lesson progress could not be saved.");
+  const {data:modules,error:moduleError}=await client.from("kc_course_modules")
+    .select("id").eq("course_id",courseId).eq("published",true);
+  if(moduleError) throw new Error("Course completion could not be checked.");
+  const moduleIds=(modules??[]).map((m:any)=>m.id);
+  const {data:lessons,error:lessonsError}=moduleIds.length?await client.from("kc_course_lessons")
+    .select("id").in("module_id",moduleIds).eq("published",true):{data:[],error:null};
+  if(lessonsError) throw new Error("Course completion could not be checked.");
+  const lessonIds=(lessons??[]).map((l:any)=>l.id);
+  const {data:done,error:doneError}=lessonIds.length?await client.from("kc_lesson_progress")
+    .select("lesson_id").eq("user_id",user.id).eq("completed",true).in("lesson_id",lessonIds):{data:[],error:null};
+  if(doneError) throw new Error("Course completion could not be checked.");
+  const courseCompleted=lessonIds.length>0&&(done??[]).length>=lessonIds.length;
+  if(courseCompleted){
+    await client.from("kc_course_enrolments").update({status:"completed",completed_at:new Date().toISOString()})
+      .eq("user_id",user.id).eq("course_id",courseId).eq("status","active");
+  }
+  return json(req,{success:true,lesson_completed:true,completed_lessons:(done??[]).length,
+    total_lessons:lessonIds.length,course_completed:courseCompleted});
 }
 
 async function lessonContent(req: Request) {
@@ -1067,6 +1118,7 @@ Deno.serve(async (req: Request) => {
     if (url.pathname.endsWith("/download") && req.method === "GET") return await signedDownload(req);
     if (url.pathname.endsWith("/library") && req.method === "GET") return await customerLibrary(req);
     if (url.pathname.endsWith("/lesson") && req.method === "GET") return await lessonContent(req);
+    if (url.pathname.endsWith("/lesson-complete") && req.method === "POST") return await completeLesson(req);
     if (url.pathname.endsWith("/course-outline") && req.method === "GET") return await courseOutline(req);
     if (url.pathname.endsWith("/assessment-list") && req.method === "GET") return await assessmentList(req);
     if (url.pathname.endsWith("/assessment-start") && req.method === "POST") return await startAssessment(req);
