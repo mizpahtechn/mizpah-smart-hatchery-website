@@ -155,6 +155,9 @@ async function initializeCheckout(req: Request) {
   if (!["NGN", "USD"].includes(currency)) throw new Error("The digital order currency is not supported.");
   if (!Number.isSafeInteger(totalMinor) || totalMinor < 0) throw new Error("The digital order total is invalid.");
   if (provider === "opay" && currency !== "NGN") throw new Error("OPay checkout is available for NGN purchases only. Choose Paystack for USD purchases.");
+  if (currency === "USD" && Deno.env.get("KC_PAYSTACK_USD_ENABLED")?.trim().toLowerCase() !== "true") {
+    throw new Error("USD checkout is not enabled for this Mizpah merchant account yet. Please choose an NGN-priced resource or try again after international USD settlement is activated.");
+  }
   if (provider === "paystack" && totalMinor > 0 && ((currency === "NGN" && totalMinor < 5000) || (currency === "USD" && totalMinor < 200))) {
     throw new Error(currency === "USD" ? "Paystack USD transactions must be at least $2.00." : "Paystack NGN transactions must be at least ₦50.00.");
   }
