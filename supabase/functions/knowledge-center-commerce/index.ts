@@ -276,7 +276,12 @@ async function verifyReference(referenceValue: string, userId?: string) {
     if (raw.status !== true || String(data.reference ?? "") !== reference) {
       throw new Error("Paystack could not verify this payment reference.");
     }
-    if (String(data.status ?? "").toLowerCase() !== "success") {
+    const providerStatus = String(data.status ?? "").toLowerCase();
+    if (providerStatus !== "success") {
+      if (["failed", "abandoned", "reversed"].includes(providerStatus)) {
+        await client.from("kc_digital_payments").update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.id);
+        return { success: false, status: "failed", order_number: order.order_number };
+      }
       return { success: false, status: "pending", order_number: order.order_number };
     }
     if (Number(data.amount) !== Number(payment.amount_minor) || String(data.currency ?? "").toUpperCase() !== "NGN") {
@@ -285,7 +290,13 @@ async function verifyReference(referenceValue: string, userId?: string) {
   } else if (payment.provider === "opay") {
     raw = await opayRequest("status", { country: "NG", reference });
     const parsed = parseOpayStatusResponse(raw, reference, Number(payment.amount_minor));
-    if (parsed.status !== "SUCCESS") return { success: false, status: "pending", order_number: order.order_number };
+    if (parsed.status !== "SUCCESS") {
+      if (["FAILED", "FAIL", "CANCELLED", "CANCELED", "CLOSED", "EXPIRED"].includes(parsed.status)) {
+        await client.from("kc_digital_payments").update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.id);
+        return { success: false, status: "failed", order_number: order.order_number };
+      }
+      return { success: false, status: "pending", order_number: order.order_number };
+    }
   } else {
     throw new Error("Unsupported payment provider.");
   }
