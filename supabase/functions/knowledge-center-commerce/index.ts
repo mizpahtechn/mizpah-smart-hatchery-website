@@ -485,7 +485,7 @@ async function courseOutline(req: Request) {
     progress=progressRows??[];
   }
   const {data:instructorRows,error:instructorError}=await client.from("kc_course_instructors")
-    .select("kc_instructors(id,display_name,biography,avatar_url)").eq("course_id",courseId);
+    .select("kc_instructors!inner(id,display_name,biography,avatar_url,active,public_profile)").eq("course_id",courseId).eq("kc_instructors.active",true).eq("kc_instructors.public_profile",true);
   if(instructorError) throw new Error("Course instructors could not be loaded.");
   return json(req, {
     success: true,
