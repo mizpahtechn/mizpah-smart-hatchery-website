@@ -439,23 +439,15 @@ async function lessonContent(req: Request) {
 async function adminReport(req: Request) {
   await requireStaff(req);
   const client = db();
-  const [{ data: orders, error }, { data: products, error: productError }] = await Promise.all([
-    client.from("kc_digital_orders").select("id,order_number,status,total_minor,currency,customer_email,created_at,paid_at").order("created_at", { ascending: false }).limit(500),
-    client.from("kc_digital_products").select("id,status,product_type"),
+  const [{ data: orders, error }, { data: summary, error: summaryError }] = await Promise.all([
+    client.from("kc_digital_orders").select("id,order_number,status,total_minor,currency,customer_email,created_at,paid_at").order("created_at", { ascending: false }).limit(100),
+    client.rpc("kc_digital_sales_summary"),
   ]);
-  if (error || productError) throw new Error("Knowledge Center sales reporting is temporarily unavailable.");
-  const rows = orders ?? [];
-  const paid = rows.filter((o) => o.status === "paid");
+  if (error || summaryError || !summary) throw new Error("Knowledge Center sales reporting is temporarily unavailable.");
   return json(req, {
     success: true,
-    summary: {
-      orders: rows.length,
-      paid_orders: paid.length,
-      pending_orders: rows.filter((o) => o.status === "pending").length,
-      gross_revenue_minor: paid.reduce((sum, o) => sum + Number(o.total_minor || 0), 0),
-      published_products: (products ?? []).filter((p) => p.status === "published").length,
-    },
-    recent_orders: rows.slice(0, 100),
+    summary,
+    recent_orders: orders ?? [],
   });
 }
 
