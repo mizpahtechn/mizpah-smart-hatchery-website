@@ -1038,6 +1038,17 @@ async function recommendations(req:Request){
   if(userId){
     const {data}=await client.from("kc_entitlements").select("product_id").eq("user_id",userId).eq("status","active");
     owned=(data??[]).map((x:any)=>x.product_id);
+    const {data:memberships}=await client.from("kc_memberships")
+      .select("plan_id,current_period_end,grace_ends_at").eq("user_id",userId).in("status",["active","past_due"]);
+    const now=Date.now();
+    const planIds=(memberships??[]).filter((m:any)=>
+      (m.current_period_end&&new Date(m.current_period_end).getTime()>now)||
+      (m.grace_ends_at&&new Date(m.grace_ends_at).getTime()>now)
+    ).map((m:any)=>m.plan_id);
+    if(planIds.length){
+      const {data:membershipProducts}=await client.from("kc_membership_plan_products").select("product_id").in("plan_id",planIds);
+      owned.push(...(membershipProducts??[]).map((x:any)=>x.product_id));
+    }
   }
   let query=client.from("kc_digital_products")
     .select("id,slug,title,product_type,summary,cover_image_url,price_minor,currency,is_featured")
@@ -1063,6 +1074,11 @@ async function recommendationEvent(req:Request){
   const {data:product,error}=await client.from("kc_digital_products")
     .select("id,product_type,status").eq("id",productId).eq("status","published").maybeSingle();
   if(error||!product) throw new Error("Recommended resource is not available.");
+  if(sourceId){
+    const {data:source,error:sourceError}=await client.from("kc_digital_products")
+      .select("id").eq("id",sourceId).eq("status","published").maybeSingle();
+    if(sourceError||!source) throw new Error("Recommendation source is not available.");
+  }
   let userId:string|null=null;
   const token=(req.headers.get("Authorization")??"").match(/^Bearer\s+([^\s]+)$/i)?.[1];
   if(token){const auth=await client.auth.getUser(token);if(!auth.error&&auth.data.user)userId=auth.data.user.id;}
