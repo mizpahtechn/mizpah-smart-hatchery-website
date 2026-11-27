@@ -504,6 +504,74 @@ async function adminReport(req: Request) {
   });
 }
 
+
+async function assessmentList(req: Request) {
+  const user = await requireUser(req);
+  const url = new URL(req.url);
+  const courseId = safeText(url.searchParams.get("course_id"), 80);
+  await requireCourseEntitlement(user.id, courseId);
+  const client = db();
+  const { data: assessments, error } = await client.from("kc_assessments")
+    .select("id,title,instructions,pass_mark,max_attempts,time_limit_minutes,shuffle_questions")
+    .eq("course_id", courseId).eq("published", true).order("created_at");
+  if (error) throw new Error("Assessments could not be loaded.");
+  const ids = (assessments ?? []).map((a: any) => a.id);
+  let attempts: any[] = [];
+  if (ids.length) {
+    const { data, error: attemptError } = await client.from("kc_assessment_attempts")
+      .select("id,assessment_id,attempt_number,status,started_at,submitted_at,score,max_score,passed")
+      .eq("user_id", user.id).in("assessment_id", ids).order("started_at", { ascending: false });
+    if (attemptError) throw new Error("Your assessment history could not be loaded.");
+    attempts = data ?? [];
+  }
+  let counts: Record<string, number> = {};
+  if (ids.length) {
+    const { data, error: questionError } = await client.from("kc_assessment_questions")
+      .select("assessment_id").in("assessment_id", ids);
+    if (questionError) throw new Error("Assessment question counts could not be loaded.");
+    for (const row of data ?? []) counts[row.assessment_id] = (counts[row.assessment_id] ?? 0) + 1;
+  }
+  return json(req, { success: true, assessments: (assessments ?? []).map((a: any) => ({
+    ...a, question_count: counts[a.id] ?? 0,
+    attempts: attempts.filter((attempt: any) => attempt.assessment_id === a.id),
+  })) });
+}
+
+async function startAssessment(req: Request) {
+  const user = await requireUser(req);
+  const body = await req.json().catch(() => ({}));
+  const assessmentId = safeText(body.assessment_id, 80);
+  if (!/^[0-9a-f-]{36}$/i.test(assessmentId)) throw new Error("Invalid assessment.");
+  const client = db();
+  const { data: attempt, error: startError } = await client.rpc("kc_start_assessment_attempt", {
+    p_assessment_id: assessmentId, p_user_id: user.id,
+  });
+  if (startError || !attempt?.attempt_id) throw new Error(startError?.message || "Assessment could not be started.");
+  const { data: assessment, error: assessmentError } = await client.from("kc_assessments")
+    .select("id,title,instructions,time_limit_minutes")
+    .eq("id", assessmentId).eq("published", true).maybeSingle();
+  if (assessmentError || !assessment) throw new Error("Assessment is no longer available.");
+  const { data: questions, error: questionError } = await client.from("kc_assessment_questions")
+    .select("id,question_type,prompt,options,points,sort_order")
+    .eq("assessment_id", assessmentId).order("sort_order");
+  if (questionError || !questions?.length) throw new Error("Assessment questions could not be loaded.");
+  return json(req, { success: true, attempt, assessment, questions });
+}
+
+async function submitAssessment(req: Request) {
+  const user = await requireUser(req);
+  const body = await req.json().catch(() => ({}));
+  const attemptId = safeText(body.attempt_id, 80);
+  if (!/^[0-9a-f-]{36}$/i.test(attemptId) || !Array.isArray(body.answers) || body.answers.length > 200) {
+    throw new Error("Invalid assessment submission.");
+  }
+  const { data: result, error } = await db().rpc("kc_grade_assessment_attempt", {
+    p_attempt_id: attemptId, p_user_id: user.id, p_answers: body.answers,
+  });
+  if (error || !result) throw new Error(error?.message || "Your assessment could not be graded.");
+  return json(req, { success: true, result });
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(req.headers.get("Origin") ?? SITE) });
   const url = new URL(req.url);
@@ -517,6 +585,9 @@ Deno.serve(async (req: Request) => {
     if (url.pathname.endsWith("/library") && req.method === "GET") return await customerLibrary(req);
     if (url.pathname.endsWith("/lesson") && req.method === "GET") return await lessonContent(req);
     if (url.pathname.endsWith("/course-outline") && req.method === "GET") return await courseOutline(req);
+    if (url.pathname.endsWith("/assessment-list") && req.method === "GET") return await assessmentList(req);
+    if (url.pathname.endsWith("/assessment-start") && req.method === "POST") return await startAssessment(req);
+    if (url.pathname.endsWith("/assessment-submit") && req.method === "POST") return await submitAssessment(req);
     if (url.pathname.endsWith("/admin-report") && req.method === "GET") return await adminReport(req);
 
     if (url.pathname.endsWith("/return") && req.method === "GET") {
