@@ -91,7 +91,7 @@ create table if not exists public.kc_digital_payments (
   provider text not null check (provider in ('paystack','opay')),
   reference text not null unique,
   amount_minor bigint not null check (amount_minor > 0),
-  currency text not null default 'NGN' check (currency='NGN'),
+  currency text not null default 'NGN' check (currency in ('NGN','USD')),
   status text not null default 'pending' check (status in ('pending','initialized','success','failed')),
   checkout_url text,
   provider_transaction_id text,
