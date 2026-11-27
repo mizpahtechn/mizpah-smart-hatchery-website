@@ -755,6 +755,13 @@ commit;
     ) then
       raise exception 'One or more selected courses are not available for enrolment.';
     end if;
+    if exists(
+      select 1 from public.kc_entitlements e
+      where e.user_id=p_user_id and e.product_id=v_product.id and e.status='active'
+        and (e.expires_at is null or e.expires_at>now())
+    ) then
+      raise exception 'You already have access to one or more selected products.';
+    end if;
     v_subtotal := v_subtotal + v_product.price_minor;
   end loop;
 
