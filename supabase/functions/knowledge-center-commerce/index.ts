@@ -1138,6 +1138,37 @@ async function knowledgeSitemap(req:Request){
   }});
 }
 
+
+async function productAccess(req:Request){
+  const user=await requireUser(req);const productId=safeText(new URL(req.url).searchParams.get("product_id"),80);
+  if(!/^[0-9a-f-]{36}$/i.test(productId)) throw new Error("Invalid resource.");
+  const client=db();
+  const {data:product,error}=await client.from("kc_digital_products").select("id,product_type")
+    .eq("id",productId).eq("status","published").maybeSingle();
+  if(error||!product) throw new Error("Resource is not available.");
+  const {data:entitlement}=await client.from("kc_entitlements").select("id,expires_at")
+    .eq("user_id",user.id).eq("product_id",productId).eq("status","active").limit(1).maybeSingle();
+  let hasAccess=!!entitlement&&(!entitlement.expires_at||new Date(entitlement.expires_at).getTime()>Date.now());
+  let accessType=hasAccess?"purchase":null;
+  if(!hasAccess){
+    const {data:planAccess}=await client.from("kc_membership_plan_products").select("plan_id").eq("product_id",productId);
+    const planIds=(planAccess??[]).map((x:any)=>x.plan_id);
+    if(planIds.length){
+      const {data:memberships}=await client.from("kc_memberships").select("id,current_period_end,grace_ends_at")
+        .eq("user_id",user.id).in("plan_id",planIds).in("status",["active","past_due"]);
+      hasAccess=(memberships??[]).some((m:any)=>(m.current_period_end&&new Date(m.current_period_end).getTime()>Date.now())||
+        (m.grace_ends_at&&new Date(m.grace_ends_at).getTime()>Date.now()));
+      if(hasAccess) accessType="membership";
+    }
+  }
+  let courseId:string|null=null;
+  if(product.product_type==="course"){
+    const {data:course}=await client.from("kc_courses").select("id").eq("product_id",productId).maybeSingle();
+    courseId=course?.id??null;
+  }
+  return json(req,{success:true,has_access:hasAccess,access_type:accessType,course_id:courseId});
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(req.headers.get("Origin") ?? SITE) });
   const url = new URL(req.url);
@@ -1168,6 +1199,7 @@ Deno.serve(async (req: Request) => {
     if (url.pathname.endsWith("/sponsor-apply") && req.method === "POST") return await sponsorApply(req);
     if (url.pathname.endsWith("/sponsor-dashboard") && req.method === "GET") return await sponsorDashboard(req);
     if (url.pathname.endsWith("/recommendations") && req.method === "GET") return await recommendations(req);
+    if (url.pathname.endsWith("/product-access") && req.method === "GET") return await productAccess(req);
     if (url.pathname.endsWith("/recommendation-event") && req.method === "POST") return await recommendationEvent(req);
     if (url.pathname.endsWith("/admin-growth-report") && req.method === "GET") return await adminGrowthReport(req);
     if (url.pathname.endsWith("/sitemap") && req.method === "GET") return await knowledgeSitemap(req);
