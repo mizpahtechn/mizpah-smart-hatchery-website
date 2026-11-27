@@ -506,19 +506,31 @@ async function completeLesson(req:Request){
   if(!/^[0-9a-f-]{36}$/i.test(lessonId)) throw new Error("Invalid lesson.");
   const client=db();
   const {data:lesson,error}=await client.from("kc_course_lessons")
-    .select("id,duration_minutes,published,module_id,kc_course_modules!inner(course_id,published)")
+    .select("id,duration_minutes,video_duration_seconds,published,module_id,kc_course_modules!inner(course_id,published)")
     .eq("id",lessonId).eq("published",true).maybeSingle();
   if(error||!lesson||(lesson as any).kc_course_modules?.published!==true) throw new Error("This lesson is not available.");
   const courseId=(lesson as any).kc_course_modules.course_id;
   await requireCourseEntitlement(user.id,courseId);
-  const position=Number(body.last_position_seconds??0);
-  if(!Number.isSafeInteger(position)||position<0||position>86400) throw new Error("Invalid lesson progress.");
+  const expectedDuration=Math.max(30,Number(lesson.video_duration_seconds)||Number(lesson.duration_minutes||0)*60);
+  const requiredActiveSeconds=Math.max(30,Math.ceil(expectedDuration*0.8));
+  const {data:activity,error:activityError}=await client.from("kc_lesson_activity_sessions")
+    .select("active_seconds").eq("user_id",user.id).eq("lesson_id",lessonId).maybeSingle();
+  if(activityError||!activity) throw new Error("Open the lesson and spend the required study time before completing it.");
+  const activeSeconds=Math.max(0,Number(activity.active_seconds)||0);
+  if(activeSeconds<requiredActiveSeconds){
+    const remaining=requiredActiveSeconds-activeSeconds;
+    throw new Error("Completion is locked. Keep this lesson open and actively study for "+remaining+" more seconds.");
+  }
   const {error:saveError}=await client.from("kc_lesson_progress").upsert({
     user_id:user.id,lesson_id:lessonId,completed:true,
-    last_position_seconds:Math.max(position,Number(lesson.duration_minutes||0)*60),
+    last_position_seconds:Math.min(activeSeconds,expectedDuration),
     updated_at:new Date().toISOString()
   },{onConflict:"user_id,lesson_id"});
   if(saveError) throw new Error("Lesson progress could not be saved.");
+  const {error:activitySaveError}=await client.from("kc_lesson_activity_sessions")
+    .update({completed_at:new Date().toISOString(),updated_at:new Date().toISOString()})
+    .eq("user_id",user.id).eq("lesson_id",lessonId);
+  if(activitySaveError) throw new Error("Lesson completion could not be finalised.");
   const {data:modules,error:moduleError}=await client.from("kc_course_modules")
     .select("id").eq("course_id",courseId).eq("published",true);
   if(moduleError) throw new Error("Course completion could not be checked.");
@@ -535,8 +547,31 @@ async function completeLesson(req:Request){
     await client.from("kc_course_enrolments").update({status:"completed",completed_at:new Date().toISOString()})
       .eq("user_id",user.id).eq("course_id",courseId).eq("status","active");
   }
-  return json(req,{success:true,lesson_completed:true,completed_lessons:(done??[]).length,
+  return json(req,{success:true,lesson_completed:true,active_seconds:activeSeconds,
+    required_active_seconds:requiredActiveSeconds,completed_lessons:(done??[]).length,
     total_lessons:lessonIds.length,course_completed:courseCompleted});
+}
+
+async function lessonHeartbeat(req:Request){
+  const user=await requireUser(req);const body=await req.json().catch(()=>({}));
+  const lessonId=safeText(body.lesson_id,80);
+  if(!/^[0-9a-f-]{36}$/i.test(lessonId)) throw new Error("Invalid lesson.");
+  const client=db();
+  const {data:lesson,error}=await client.from("kc_course_lessons")
+    .select("id,duration_minutes,video_duration_seconds,published,module_id,kc_course_modules!inner(course_id,published)")
+    .eq("id",lessonId).eq("published",true).maybeSingle();
+  if(error||!lesson||(lesson as any).kc_course_modules?.published!==true) throw new Error("This lesson is not available.");
+  const courseId=(lesson as any).kc_course_modules.course_id;
+  await requireCourseEntitlement(user.id,courseId);
+  const {data:activeSeconds,error:heartbeatError}=await client.rpc("kc_record_lesson_activity_heartbeat",{
+    p_user_id:user.id,p_lesson_id:lessonId
+  });
+  if(heartbeatError) throw new Error("Your lesson activity could not be recorded.");
+  const expectedDuration=Math.max(30,Number(lesson.video_duration_seconds)||Number(lesson.duration_minutes||0)*60);
+  const requiredActiveSeconds=Math.max(30,Math.ceil(expectedDuration*0.8));
+  const seconds=Math.max(0,Number(activeSeconds)||0);
+  return json(req,{success:true,active_seconds:seconds,required_active_seconds:requiredActiveSeconds,
+    remaining_seconds:Math.max(0,requiredActiveSeconds-seconds),can_complete:seconds>=requiredActiveSeconds});
 }
 
 async function lessonContent(req: Request) {
@@ -557,6 +592,11 @@ async function lessonContent(req: Request) {
   if (!lesson.is_preview) {
     await requireCourseEntitlement(user.id, course.id);
   }
+  const {error:activityError}=await client.from("kc_lesson_activity_sessions").upsert(
+    {user_id:user.id,lesson_id:lesson.id},
+    {onConflict:"user_id,lesson_id",ignoreDuplicates:true}
+  );
+  if(activityError) throw new Error("Lesson activity could not be started.");
   let videoEmbedUrl:string|null=null;
   if(lesson.lesson_type==="external_video"){
     const reference=String(lesson.video_reference??"");
@@ -1187,6 +1227,7 @@ Deno.serve(async (req: Request) => {
     if (url.pathname.endsWith("/library") && req.method === "GET") return await customerLibrary(req);
     if (url.pathname.endsWith("/lesson") && req.method === "GET") return await lessonContent(req);
     if (url.pathname.endsWith("/lesson-complete") && req.method === "POST") return await completeLesson(req);
+    if (url.pathname.endsWith("/lesson-heartbeat") && req.method === "POST") return await lessonHeartbeat(req);
     if (url.pathname.endsWith("/course-outline") && req.method === "GET") return await courseOutline(req);
     if (url.pathname.endsWith("/assessment-list") && req.method === "GET") return await assessmentList(req);
     if (url.pathname.endsWith("/assessment-start") && req.method === "POST") return await startAssessment(req);
