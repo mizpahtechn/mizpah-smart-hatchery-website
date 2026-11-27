@@ -297,6 +297,16 @@ begin
     array['13131313-1313-4131-8131-131313131313'::uuid]
   );
   v_order_id := (v_order->>'order_id')::uuid;
+  v_repeat := public.kc_create_digital_order(
+    '11111111-1111-4111-8111-111111111111',
+    'customer@example.test',
+    'mismatch-test-idempotency-02',
+    repeat('3',64),
+    array['13131313-1313-4131-8131-131313131313'::uuid]
+  );
+  if v_repeat->>'order_id' <> v_order->>'order_id' then
+    raise exception 'A retry for the same pending cart should resume the original order.';
+  end if;
   v_reference := 'KCMISMATCHPAYMENT001';
   insert into public.kc_digital_payments(order_id,provider,reference,amount_minor,currency,status)
   values(v_order_id,'paystack',v_reference,20000,'NGN','initialized');
