@@ -366,4 +366,22 @@ $function$;
 revoke all on function public.kc_settle_membership_renewal(text,jsonb) from public,anon,authenticated;
 grant execute on function public.kc_settle_membership_renewal(text,jsonb) to service_role;
 
+
+create unique index if not exists kc_affiliate_partners_user_idx
+  on public.kc_affiliate_partners(user_id) where user_id is not null;
+
+grant select,insert,update,delete on public.kc_membership_plans,public.kc_membership_plan_products,
+  public.kc_sponsors,public.kc_sponsor_campaigns,public.kc_sponsor_creatives,public.kc_sponsor_placements,
+  public.kc_affiliate_partners,public.kc_affiliate_links,public.kc_affiliate_commissions
+  to authenticated;
+
+create policy kc_membership_plans_staff_manage on public.kc_membership_plans
+  for all to authenticated
+  using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')))
+  with check (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
+create policy kc_membership_plan_products_staff_manage on public.kc_membership_plan_products
+  for all to authenticated
+  using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')))
+  with check (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
+
 commit;
