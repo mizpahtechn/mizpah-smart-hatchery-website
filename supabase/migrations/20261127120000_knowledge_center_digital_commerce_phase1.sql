@@ -326,6 +326,9 @@ on conflict(id) do update set
   file_size_limit=excluded.file_size_limit,
   allowed_mime_types=excluded.allowed_mime_types;
 
+create policy kc_private_files_staff_read on storage.objects
+  for select to authenticated
+  using (bucket_id='mizpah-kc-private' and exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
 create policy kc_private_files_staff_insert on storage.objects
   for insert to authenticated
   with check (bucket_id='mizpah-kc-private' and exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
