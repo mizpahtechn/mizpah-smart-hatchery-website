@@ -208,11 +208,17 @@ alter table public.kc_course_enrolments enable row level security;
 alter table public.kc_lesson_progress enable row level security;
 
 grant select on public.kc_digital_products to anon, authenticated;
+grant insert, update, delete on public.kc_digital_products to authenticated;
+grant select, insert, update, delete on public.kc_digital_product_files to authenticated;
 grant select on public.kc_courses to anon, authenticated;
+grant insert, update, delete on public.kc_courses to authenticated;
 grant select on public.kc_course_modules to anon, authenticated;
+grant insert, update, delete on public.kc_course_modules to authenticated;
 grant select on public.kc_course_lessons to anon, authenticated;
+grant insert, update, delete on public.kc_course_lessons to authenticated;
 grant select on public.kc_digital_orders to authenticated;
 grant select on public.kc_digital_order_items to authenticated;
+grant select (id,order_id,provider,reference,amount_minor,currency,status,checkout_url,provider_transaction_id,verified_at,created_at,updated_at) on public.kc_digital_payments to authenticated;
 grant select on public.kc_entitlements to authenticated;
 grant select on public.kc_course_enrolments to authenticated;
 grant select, insert, update on public.kc_lesson_progress to authenticated;
@@ -238,8 +244,14 @@ create policy kc_product_files_staff_manage on public.kc_digital_product_files
 
 create policy kc_orders_owner_read on public.kc_digital_orders
   for select to authenticated using (user_id=(select auth.uid()));
+create policy kc_orders_staff_read on public.kc_digital_orders
+  for select to authenticated using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
 create policy kc_order_items_owner_read on public.kc_digital_order_items
   for select to authenticated using (exists(select 1 from public.kc_digital_orders o where o.id=order_id and o.user_id=(select auth.uid())));
+create policy kc_order_items_staff_read on public.kc_digital_order_items
+  for select to authenticated using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
+create policy kc_payments_staff_read on public.kc_digital_payments
+  for select to authenticated using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
 create policy kc_entitlements_owner_read on public.kc_entitlements
   for select to authenticated using (user_id=(select auth.uid()));
 create policy kc_entitlements_staff_read on public.kc_entitlements
@@ -277,6 +289,8 @@ create policy kc_enrolments_staff_read on public.kc_course_enrolments
 
 create policy kc_progress_owner_read on public.kc_lesson_progress
   for select to authenticated using (user_id=(select auth.uid()));
+create policy kc_progress_staff_read on public.kc_lesson_progress
+  for select to authenticated using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
 create policy kc_progress_owner_insert on public.kc_lesson_progress
   for insert to authenticated
   with check (user_id=(select auth.uid()) and exists(select 1 from public.kc_course_enrolments e join public.kc_course_modules m on m.course_id=e.course_id join public.kc_course_lessons l on l.module_id=m.id where e.user_id=(select auth.uid()) and e.status='active' and l.id=lesson_id and l.published=true));
