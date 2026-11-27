@@ -4,11 +4,11 @@ import {
   serializeOpayPayload,
   parseOpayInitializationResponse,
   parseOpayStatusResponse,
-} from "./opay_checkout.ts";
+} from "../website-checkout/opay_checkout.ts";
 import {
   paystackMode,
   assertPaystackSecretMatchesMode,
-} from "./paystack_checkout.ts";
+} from "../website-checkout/paystack_checkout.ts";
 
 Deno.test("OPay mode must be explicitly configured", () => {
   let failed = false;
