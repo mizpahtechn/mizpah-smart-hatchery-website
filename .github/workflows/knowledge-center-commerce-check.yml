@@ -87,7 +87,15 @@ jobs:
         env:
           PGPASSWORD: postgres
         run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/migrations/20261127120000_knowledge_center_digital_commerce_phase1.sql
-      - name: Run RLS, grants and private-storage smoke tests
+      - name: Run Phase 1 RLS, grants and private-storage smoke tests
         env:
           PGPASSWORD: postgres
         run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_migration_smoke.sql
+      - name: Apply Phase 2 Academy migration to disposable database
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/migrations/20261128100000_knowledge_center_academy_phase2.sql
+      - name: Run Phase 2 assessment and answer-key security checks
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_phase2_smoke.sql
