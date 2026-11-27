@@ -804,6 +804,25 @@ $;
 revoke all on function public.kc_create_digital_order(uuid,text,text,text,uuid[]) from public, anon, authenticated;
 grant execute on function public.kc_create_digital_order(uuid,text,text,text,uuid[]) to service_role;
 
+
+create or replace function public.kc_digital_sales_summary()
+returns jsonb
+language sql
+security definer
+set search_path = public, pg_temp
+as $
+  select jsonb_build_object(
+    'orders', (select count(*) from public.kc_digital_orders),
+    'paid_orders', (select count(*) from public.kc_digital_orders where status='paid'),
+    'pending_orders', (select count(*) from public.kc_digital_orders where status='pending'),
+    'gross_revenue_minor', (select coalesce(sum(total_minor),0) from public.kc_digital_orders where status='paid'),
+    'published_products', (select count(*) from public.kc_digital_products where status='published')
+  );
+$;
+
+revoke all on function public.kc_digital_sales_summary() from public, anon, authenticated;
+grant execute on function public.kc_digital_sales_summary() to service_role;
+
 -- Transactional entitlement grant. Kept private to trusted server-side settlement.
 create or replace function public.kc_issue_digital_order_entitlements(p_order_id uuid)
 returns integer
