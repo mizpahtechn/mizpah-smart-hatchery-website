@@ -771,6 +771,16 @@ commit;
     ) then
       raise exception 'You already have access to one or more selected products.';
     end if;
+    if exists(
+      select 1
+      from public.kc_digital_order_items oi
+      join public.kc_digital_orders o on o.id=oi.order_id
+      where o.user_id=p_user_id and o.status='pending'
+        and o.created_at > now()-interval '30 minutes'
+        and oi.product_id=v_product.id
+    ) then
+      raise exception 'You already have an unfinished checkout for one or more selected products. Return to your existing checkout or wait for it to expire.';
+    end if;
     v_subtotal := v_subtotal + v_product.price_minor;
   end loop;
 
