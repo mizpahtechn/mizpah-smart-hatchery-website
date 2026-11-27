@@ -633,6 +633,8 @@ async function verifyMembershipReference(referenceValue: string, userId?: string
           const graceDays=Number((membership as any).kc_membership_plans?.grace_period_days)||0;
           const graceEnd=new Date(new Date(membership.current_period_end).getTime()+graceDays*86400000).toISOString();
           await client.from("kc_memberships").update({status:"past_due",grace_ends_at:graceEnd,updated_at:new Date().toISOString()}).eq("id",membership.id);
+        }else{
+          await client.from("kc_memberships").update({status:"suspended",updated_at:new Date().toISOString()}).eq("id",membership.id);
         }
         return {success:false,status:"failed",membership_id:membership.id};
       }
@@ -650,6 +652,8 @@ async function verifyMembershipReference(referenceValue: string, userId?: string
           const graceDays=Number((membership as any).kc_membership_plans?.grace_period_days)||0;
           const graceEnd=new Date(new Date(membership.current_period_end).getTime()+graceDays*86400000).toISOString();
           await client.from("kc_memberships").update({status:"past_due",grace_ends_at:graceEnd,updated_at:new Date().toISOString()}).eq("id",membership.id);
+        }else{
+          await client.from("kc_memberships").update({status:"suspended",updated_at:new Date().toISOString()}).eq("id",membership.id);
         }
         return {success:false,status:"failed",membership_id:membership.id};
       }
