@@ -997,7 +997,7 @@ async function recommendationEvent(req:Request){
 async function adminGrowthReport(req:Request){
   await requireStaff(req);const client=db();
   const [memberships,campaigns,sponsorEvents,commissions,recommendationEvents]=await Promise.all([
-    client.from("kc_memberships").select("status,currency:kc_membership_plans(currency)"),
+    client.from("kc_memberships").select("status"),
     client.from("kc_sponsor_campaigns").select("id,status"),
     client.from("kc_sponsor_events").select("event_type"),
     client.from("kc_affiliate_commissions").select("status,currency,amount_minor"),
