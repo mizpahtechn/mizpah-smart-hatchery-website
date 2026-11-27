@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { opayMode, opayBaseUrl, assertOpayCredentialsMatchMode, opayCashierCreateHeaders, opayStatusHeaders, serializeOpayPayload, signSerializedOpayPayload, parseOpayInitializationResponse, parseOpayStatusResponse } from "./opay_checkout.ts";
-import { paystackMode, assertPaystackSecretMatchesMode } from "./paystack_checkout.ts";
+import { opayMode, opayBaseUrl, assertOpayCredentialsMatchMode, opayCashierCreateHeaders, opayStatusHeaders, serializeOpayPayload, signSerializedOpayPayload, parseOpayInitializationResponse, parseOpayStatusResponse } from "../_shared/payments/opay_checkout.ts";
+import { paystackMode, assertPaystackSecretMatchesMode } from "../_shared/payments/paystack_checkout.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";

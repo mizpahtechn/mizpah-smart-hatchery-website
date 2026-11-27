@@ -1,0 +1,130 @@
+name: Knowledge Center commerce checks
+
+on:
+  push:
+    branches:
+      - feature/knowledge-center-digital-commerce
+    paths:
+      - ".github/scripts/**"
+      - ".github/workflows/knowledge-center-commerce-check.yml"
+      - "digital-library.html"
+      - "academy.html"
+      - "knowledge-product.html"
+      - "knowledge-checkout.html"
+      - "knowledge-library.html"
+      - "knowledge-membership.html"
+      - "knowledge-growth.html"
+      - "admin/knowledge-center-growth.html"
+      - "assets/js/knowledge-referrals.js"
+      - "assets/js/knowledge-sponsors.js"
+      - "assets/js/knowledge-recommendations.js"
+      - "supabase/config.toml"
+      - "academy-course.html"
+      - "admin/knowledge-center.html"
+      - "supabase/functions/knowledge-center-commerce/**"
+      - "supabase/functions/website-checkout/**"
+      - "supabase/migrations/**"
+      - "supabase/tests/**"
+      - "docs/knowledge-center-digital-commerce-plan.md"
+  pull_request:
+    paths:
+      - ".github/scripts/**"
+      - ".github/workflows/knowledge-center-commerce-check.yml"
+      - "digital-library.html"
+      - "academy.html"
+      - "knowledge-product.html"
+      - "knowledge-checkout.html"
+      - "knowledge-library.html"
+      - "knowledge-membership.html"
+      - "knowledge-growth.html"
+      - "admin/knowledge-center-growth.html"
+      - "assets/js/knowledge-referrals.js"
+      - "assets/js/knowledge-sponsors.js"
+      - "assets/js/knowledge-recommendations.js"
+      - "supabase/config.toml"
+      - "academy-course.html"
+      - "admin/knowledge-center.html"
+      - "supabase/functions/knowledge-center-commerce/**"
+      - "supabase/functions/website-checkout/**"
+      - "supabase/migrations/**"
+      - "supabase/tests/**"
+      - "docs/knowledge-center-digital-commerce-plan.md"
+
+permissions:
+  contents: read
+
+jobs:
+  edge-function-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check Knowledge Center commerce function
+        run: deno check supabase/functions/knowledge-center-commerce/index.ts
+      - name: Run payment provider helper tests
+        run: deno test supabase/functions/knowledge-center-commerce/provider_helpers_test.ts
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check inline JavaScript syntax in Knowledge Center pages
+        run: node .github/scripts/check-inline-js.mjs
+      - name: Check external Knowledge Center JavaScript syntax
+        run: |
+          node --check assets/js/knowledge-referrals.js
+          node --check assets/js/knowledge-sponsors.js
+          node --check assets/js/knowledge-recommendations.js
+
+  database-migration-smoke-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kc_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d kc_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Prepare disposable Supabase-like schema
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_migration_fixture.sql
+      - name: Apply Knowledge Center migration to disposable database
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/migrations/20261127120000_knowledge_center_digital_commerce_phase1.sql
+      - name: Run Phase 1 RLS, grants and private-storage smoke tests
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_migration_smoke.sql
+      - name: Apply Phase 2 Academy migration to disposable database
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/migrations/20261128100000_knowledge_center_academy_phase2.sql
+      - name: Apply Phases 3–5 growth migration to disposable database
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/migrations/20261128110000_knowledge_center_growth_phases3_5.sql
+      - name: Run Phase 2 assessment and answer-key security checks
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_phase2_smoke.sql
+      - name: Run membership, sponsorship and affiliate security checks
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_growth_phases3_5_smoke.sql

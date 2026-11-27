@@ -1,0 +1,4 @@
+project_id = "ouebgmhtyekqnyrkfrcp"
+
+[functions.knowledge-center-commerce]
+verify_jwt = false
