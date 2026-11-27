@@ -171,3 +171,5 @@ Not yet complete or verified:
 Do not mark Phase 1 complete or deploy until those checks pass. Production remains unchanged.
 
 Phase 1 pricing is initially denominated in NGN. Multi-currency pricing and foreign-currency settlement are deferred until the supported gateway capabilities and settlement arrangements are verified.
+
+Payment isolation: the new function reads only `KC_PAYSTACK_MODE`, `KC_PAYSTACK_SECRET_KEY`, `KC_OPAY_MODE`, `KC_OPAY_CREDENTIALS_MODE`, `KC_OPAY_PUBLIC_KEY`, `KC_OPAY_SECRET_KEY` and `KC_OPAY_MERCHANT_ID`. It deliberately does not reuse the existing hatchery checkout's provider secrets. Configure these `KC_` secrets with sandbox credentials before test deployment; use live credentials only after separate production approval.
