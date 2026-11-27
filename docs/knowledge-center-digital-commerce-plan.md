@@ -153,11 +153,17 @@ Development artifacts now added on `feature/knowledge-center-digital-commerce`:
 - Dedicated Knowledge Center admin page for product/file/course/lesson management and digital sales reporting.
 - GitHub Actions Deno type-check workflow for the new Edge Function.
 
+Automated checks passed on the development branch:
+- Deno type-check of the Knowledge Center commerce Edge Function.
+- Inline JavaScript syntax checks for all new customer-facing and admin pages.
+- PostgreSQL 16 migration smoke test using a disposable Supabase-like fixture.
+- RLS checks for published-vs-draft catalogue visibility, customer order isolation, staff-only file metadata/storage access, private bucket configuration, payment payload column restrictions and service-role-only order creation.
+
 Not yet complete or verified:
-- The migration has not been applied to Supabase.
+- The migration has not been applied to the real Supabase project.
 - The Edge Function has not been deployed and provider callbacks have not been configured.
-- The GitHub Actions type-check has not yet been observed passing.
-- Browser, mobile, end-to-end and provider test-mode checks remain outstanding.
+- Paystack and OPay test-mode transactions have not yet been run against the project secrets.
+- Browser rendering, mobile layout, end-to-end customer journeys and hatchery regression tests remain outstanding.
 - Phase 1 needs a full review of payment concurrency, RLS, private storage, customer ownership, course entitlements, download expiry and existing hatchery regression flows before production release.
 
 Do not mark Phase 1 complete or deploy until those checks pass. Production remains unchanged.
