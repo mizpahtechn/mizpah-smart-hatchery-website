@@ -822,6 +822,66 @@ async function affiliateAttribute(req:Request){
   return json(req,{success:true,attributed:true});
 }
 
+
+async function affiliateApply(req:Request){
+  const user=await requireUser(req);const body=await req.json().catch(()=>({}));
+  const displayName=safeText(body.display_name,140);
+  const client=db();
+  const {data:existing,error}=await client.from("kc_affiliate_partners")
+    .select("id,status").eq("user_id",user.id).maybeSingle();
+  if(error) throw new Error("Your affiliate application could not be checked.");
+  if(existing) return json(req,{success:true,partner:existing,already_applied:true});
+  const {data:partner,error:insertError}=await client.from("kc_affiliate_partners").insert({
+    user_id:user.id,display_name:displayName,contact_email:user.email,status:"pending"
+  }).select("id,status,display_name").single();
+  if(insertError||!partner) throw new Error("Your affiliate application could not be submitted.");
+  return json(req,{success:true,partner});
+}
+async function affiliateDashboard(req:Request){
+  const user=await requireUser(req);const client=db();
+  const {data:partner,error}=await client.from("kc_affiliate_partners")
+    .select("id,display_name,status,default_commission_basis_points,attribution_days,created_at")
+    .eq("user_id",user.id).maybeSingle();
+  if(error) throw new Error("Affiliate profile could not be loaded.");
+  if(!partner) return json(req,{success:true,partner:null,links:[],commissions:[]});
+  const [{data:links,error:linkError},{data:commissions,error:commissionError}]=await Promise.all([
+    client.from("kc_affiliate_links").select("id,code,destination_path,active,created_at").eq("partner_id",partner.id).order("created_at",{ascending:false}),
+    client.from("kc_affiliate_commissions").select("amount_minor,currency,status,created_at").eq("partner_id",partner.id).order("created_at",{ascending:false}).limit(100)
+  ]);
+  if(linkError||commissionError) throw new Error("Affiliate reports could not be loaded.");
+  return json(req,{success:true,partner,links:links??[],commissions:commissions??[]});
+}
+async function sponsorApply(req:Request){
+  const user=await requireUser(req);const body=await req.json().catch(()=>({}));
+  const organisation=safeText(body.organisation_name,180);
+  const description=typeof body.description==="string"?body.description.trim().slice(0,2000):"";
+  const website=typeof body.website_url==="string"?body.website_url.trim().slice(0,300):"";
+  if(website){const parsed=new URL(website);if(!["https:","http:"].includes(parsed.protocol))throw new Error("Enter a valid sponsor website URL.");}
+  const client=db();
+  const {data:existing,error}=await client.from("kc_sponsors").select("id,status")
+    .eq("user_id",user.id).maybeSingle();
+  if(error) throw new Error("Your sponsor application could not be checked.");
+  if(existing) return json(req,{success:true,sponsor:existing,already_applied:true});
+  const {data:sponsor,error:insertError}=await client.from("kc_sponsors").insert({
+    user_id:user.id,organisation_name:organisation,contact_email:user.email,
+    description,website_url:website||null,status:"pending"
+  }).select("id,status,organisation_name").single();
+  if(insertError||!sponsor) throw new Error("Your sponsor application could not be submitted.");
+  return json(req,{success:true,sponsor});
+}
+async function sponsorDashboard(req:Request){
+  const user=await requireUser(req);const client=db();
+  const {data:sponsor,error}=await client.from("kc_sponsors").select("id,organisation_name,status,created_at")
+    .eq("user_id",user.id).maybeSingle();
+  if(error) throw new Error("Sponsor profile could not be loaded.");
+  if(!sponsor) return json(req,{success:true,sponsor:null,campaigns:[]});
+  const {data:campaigns,error:campaignError}=await client.from("kc_sponsor_campaigns")
+    .select("id,title,campaign_type,status,starts_at,ends_at,budget_minor,currency,created_at")
+    .eq("sponsor_id",sponsor.id).order("created_at",{ascending:false});
+  if(campaignError) throw new Error("Sponsor campaigns could not be loaded.");
+  return json(req,{success:true,sponsor,campaigns:campaigns??[]});
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(req.headers.get("Origin") ?? SITE) });
   const url = new URL(req.url);
@@ -845,6 +905,10 @@ Deno.serve(async (req: Request) => {
     if (url.pathname.endsWith("/sponsor-event") && req.method === "POST") return await sponsorEvent(req);
     if (url.pathname.endsWith("/affiliate-click") && req.method === "POST") return await affiliateClick(req);
     if (url.pathname.endsWith("/affiliate-attribute") && req.method === "POST") return await affiliateAttribute(req);
+    if (url.pathname.endsWith("/affiliate-apply") && req.method === "POST") return await affiliateApply(req);
+    if (url.pathname.endsWith("/affiliate-dashboard") && req.method === "GET") return await affiliateDashboard(req);
+    if (url.pathname.endsWith("/sponsor-apply") && req.method === "POST") return await sponsorApply(req);
+    if (url.pathname.endsWith("/sponsor-dashboard") && req.method === "GET") return await sponsorDashboard(req);
     if (url.pathname.endsWith("/admin-report") && req.method === "GET") return await adminReport(req);
 
     if (url.pathname.endsWith("/return") && req.method === "GET") {
