@@ -103,6 +103,9 @@ create table if not exists public.kc_digital_payments (
 );
 create index if not exists kc_digital_payments_order_idx
   on public.kc_digital_payments(order_id, created_at desc);
+create unique index if not exists kc_one_open_digital_payment_per_order
+  on public.kc_digital_payments(order_id)
+  where status in ('pending','initialized');
 
 create table if not exists public.kc_entitlements (
   id uuid primary key default gen_random_uuid(),
@@ -717,7 +720,7 @@ commit;
   if p_product_ids is null or cardinality(p_product_ids) < 1 or cardinality(p_product_ids) > 10 then
     raise exception 'Choose between one and ten digital products.';
   end if;
-  select count(distinct x) into v_item_count from unnest(p_product_ids) x;
+  select count(distinct product_id) into v_item_count from unnest(p_product_ids) as input(product_id);
   if v_item_count <> cardinality(p_product_ids) then
     raise exception 'Duplicate digital products are not allowed in one checkout.';
   end if;
@@ -759,7 +762,19 @@ commit;
   ) values (
     v_order_number,p_user_id,lower(btrim(p_customer_email)),'pending',
     v_subtotal,0,v_subtotal,'NGN',p_idempotency_key,p_request_hash
-  ) returning * into v_order;
+  ) on conflict (user_id,idempotency_key) do nothing
+  returning * into v_order;
+
+  if not found then
+    select * into v_order from public.kc_digital_orders
+    where user_id=p_user_id and idempotency_key=p_idempotency_key
+    for update;
+    if not found or v_order.request_hash <> p_request_hash then
+      raise exception 'This checkout key was already used for a different cart.';
+    end if;
+    return jsonb_build_object('order_id',v_order.id,'order_number',v_order.order_number,
+      'status',v_order.status,'total_minor',v_order.total_minor,'currency',v_order.currency);
+  end if;
 
   foreach v_product_id in array p_product_ids loop
     select * into v_product from public.kc_digital_products where id=v_product_id;
