@@ -243,6 +243,7 @@ async function initializeCheckout(req: Request) {
     return json(req, { success: true, status: "pending", reference, checkout_url: checkoutUrl, provider, order_number: orderNumber });
   } catch (error) {
     await client.from("kc_digital_payments").update({ status: "failed", updated_at: new Date().toISOString() }).eq("reference", reference);
+    await client.from("kc_digital_orders").update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", orderId).eq("status", "pending");
     throw error;
   }
 }
