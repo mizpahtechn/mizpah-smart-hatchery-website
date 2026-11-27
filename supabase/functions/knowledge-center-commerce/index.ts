@@ -568,13 +568,15 @@ async function lessonContent(req: Request) {
       throw new Error("This lesson video is not configured with a supported provider.");
     }
   }
+  let captionsUrl:string|null=null;
+  try{const parsed=new URL(String(lesson.captions_url??""));if(parsed.protocol==="https:")captionsUrl=parsed.toString();}catch{}
   return json(req, {
     success: true,
     lesson: {
       id: lesson.id, title: lesson.title, lesson_type: lesson.lesson_type,
       content_markdown: lesson.content_markdown, video_provider: lesson.video_provider,
       video_reference: lesson.video_reference, video_embed_url:videoEmbedUrl,
-      video_privacy_mode:lesson.video_privacy_mode,captions_url:lesson.captions_url,
+      video_privacy_mode:lesson.video_privacy_mode,captions_url:captionsUrl,
       video_duration_seconds:lesson.video_duration_seconds,duration_minutes: lesson.duration_minutes,
     },
   });
