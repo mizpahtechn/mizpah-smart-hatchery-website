@@ -8,6 +8,7 @@
 <header class="nav"><div class="wrap navin"><a class="brand" href="/">MIZPAH <span>TECHNOLOGY</span></a><nav class="links" aria-label="Main navigation"><a href="/">Home</a><a href="/products.html">Products</a><a href="/services.html">Services</a><a href="/blog.html">Knowledge Center</a><a href="/digital-library.html">Digital Library</a><a class="active" href="/academy.html">Academy</a><a href="/knowledge-library.html">My Library</a></nav></div></header>
 <main><section class="hero"><div class="wrap"><div class="eyebrow">Mizpah Academy</div><h1>Learn practical skills with guided lessons.</h1><p>Explore structured courses designed to help you build knowledge and apply it confidently.</p></div></section>
 <section class="section"><div class="wrap"><h2>Course catalogue</h2><p class="lead">Enrol in a course and continue learning from your Mizpah Learning Dashboard.</p><div class="toolbar"><input id="search" type="search" placeholder="Search courses…" aria-label="Search courses"></div><div id="catalogue" class="grid"><div class="empty">Loading courses…</div></div><p id="status" class="lead" role="status"></p></div></section><div class="wrap" data-kc-sponsor-slot="academy_sidebar" aria-label="Sponsored placement"></div>
+<section class="section"><div class="wrap"><h2>Recommended resources</h2><div data-kc-recommendations class="grid" hidden></div></div></section>
 </main>
 <footer class="mizpah-site-footer"><div class="mizpah-footer-inner"><div class="mizpah-footer-identity"><strong>MIZPAH TECHNOLOGY</strong><span>© <span id="year">2026</span> Mizpah Technology. All rights reserved.</span></div><nav class="mizpah-footer-links" aria-label="Footer"><a href="/privacy-policy.html">Privacy Policy</a><a href="/cancellation-refund-policy.html">Refunds &amp; Cancellation</a><a href="/terms-and-conditions.html">Terms &amp; Conditions</a><a href="/#contact">Contact Us</a></nav></div></footer>
 <script>
@@ -17,4 +18,5 @@ async function load(){const {data:products,error}=await db.from('kc_digital_prod
 $('search').addEventListener('input',render);load();})();
 </script><script src="/assets/js/knowledge-referrals.js" defer></script>
 <script src="/assets/js/knowledge-sponsors.js" defer></script>
+<script src="/assets/js/knowledge-recommendations.js" defer></script>
 </body></html>
