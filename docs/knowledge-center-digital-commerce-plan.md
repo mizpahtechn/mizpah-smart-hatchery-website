@@ -170,9 +170,9 @@ Not yet complete or verified:
 
 Do not mark Phase 1 complete or deploy until those checks pass. Production remains unchanged.
 
-Phase 1 pricing is initially denominated in NGN. Multi-currency pricing and foreign-currency settlement are deferred until the supported gateway capabilities and settlement arrangements are verified.
+Phase 1 supports NGN and USD product pricing. NGN checkouts may use Paystack or OPay. USD checkouts are Paystack-only; OPay is restricted to NGN. USD checkout is fail-closed behind `KC_PAYSTACK_USD_ENABLED=true` and must remain disabled until the Mizpah Paystack merchant account has USD currency enabled and its settlement arrangement is confirmed. Paystack documents USD transactions for Nigerian businesses, but USD payouts require an approved USD domiciliary account; international card acceptance in NGN is also possible without changing the product's NGN price. Do not enable USD checkout merely because the code supports it.
 
-Payment isolation: the new function reads only `KC_PAYSTACK_MODE`, `KC_PAYSTACK_SECRET_KEY`, `KC_OPAY_MODE`, `KC_OPAY_CREDENTIALS_MODE`, `KC_OPAY_PUBLIC_KEY`, `KC_OPAY_SECRET_KEY` and `KC_OPAY_MERCHANT_ID`. It deliberately does not reuse the existing hatchery checkout's provider secrets. Configure these `KC_` secrets with sandbox credentials before test deployment; use live credentials only after separate production approval.
+Payment isolation: the new function reads only `KC_PAYSTACK_MODE`, `KC_PAYSTACK_SECRET_KEY`, `KC_PAYSTACK_USD_ENABLED`, `KC_OPAY_MODE`, `KC_OPAY_CREDENTIALS_MODE`, `KC_OPAY_PUBLIC_KEY`, `KC_OPAY_SECRET_KEY` and `KC_OPAY_MERCHANT_ID`. It deliberately does not reuse the existing hatchery checkout's provider secrets. Configure these `KC_` secrets with sandbox credentials before test deployment; use live credentials only after separate production approval.
 
 ## Remaining phase implementation specifications
 
