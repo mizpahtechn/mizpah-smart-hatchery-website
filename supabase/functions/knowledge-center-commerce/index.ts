@@ -597,6 +597,10 @@ async function lessonContent(req: Request) {
     {onConflict:"user_id,lesson_id",ignoreDuplicates:true}
   );
   if(activityError) throw new Error("Lesson activity could not be started.");
+  const {error:activityResumeError}=await client.from("kc_lesson_activity_sessions")
+    .update({last_heartbeat_at:new Date().toISOString(),updated_at:new Date().toISOString()})
+    .eq("user_id",user.id).eq("lesson_id",lesson.id).is("completed_at",null);
+  if(activityResumeError) throw new Error("Lesson activity could not be resumed.");
   let videoEmbedUrl:string|null=null;
   if(lesson.lesson_type==="external_video"){
     const reference=String(lesson.video_reference??"");
