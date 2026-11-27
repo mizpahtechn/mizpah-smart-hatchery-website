@@ -198,6 +198,7 @@ create table if not exists public.kc_recommendation_events (
   recommended_product_id uuid references public.kc_digital_products(id) on delete set null,
   event_type text not null check (event_type in ('impression','click','purchase')),
   category_key text,
+  event_key text not null unique default gen_random_uuid()::text,
   occurred_at timestamptz not null default now()
 );
 create index if not exists kc_recommendation_events_date_idx
@@ -388,5 +389,25 @@ create policy kc_membership_plan_products_staff_manage on public.kc_membership_p
   for all to authenticated
   using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')))
   with check (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
+
+
+create or replace function public.kc_log_recommendation_purchases()
+returns trigger language plpgsql set search_path=public,pg_temp as $function$
+begin
+  if new.status='paid' and old.status is distinct from 'paid' then
+    insert into public.kc_recommendation_events(user_id,recommended_product_id,event_type,category_key,event_key)
+    select new.user_id,i.product_id,'purchase',i.product_type,new.id::text||':'||i.id::text||':purchase'
+    from public.kc_digital_order_items i
+    where i.order_id=new.id and i.product_id is not null
+    on conflict(event_key) do nothing;
+  end if;
+  return new;
+end
+$function$;
+revoke all on function public.kc_log_recommendation_purchases() from public,anon,authenticated;
+drop trigger if exists kc_order_recommendation_purchase on public.kc_digital_orders;
+create trigger kc_order_recommendation_purchase
+after update of status on public.kc_digital_orders
+for each row execute function public.kc_log_recommendation_purchases();
 
 commit;
