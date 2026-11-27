@@ -473,6 +473,15 @@ begin
     return jsonb_build_object('success',true,'already_settled',true,'order_id',v_order.id);
   end if;
 
+  if v_order.status='paid' and exists(
+    select 1 from public.kc_digital_payments other_payment
+    where other_payment.order_id=v_order.id
+      and other_payment.id<>v_payment.id
+      and other_payment.status='success'
+  ) then
+    raise exception 'Another payment has already settled this digital order. Contact Mizpah if this transaction was also charged.';
+  end if;
+
   if v_order.status in ('cancelled','refunded','partially_refunded') then
     raise exception 'Digital order is not eligible for payment settlement.';
   end if;
