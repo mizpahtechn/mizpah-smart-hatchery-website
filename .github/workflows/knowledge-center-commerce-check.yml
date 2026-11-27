@@ -1,0 +1,31 @@
+name: Knowledge Center commerce checks
+
+on:
+  push:
+    branches:
+      - feature/knowledge-center-digital-commerce
+    paths:
+      - "supabase/functions/knowledge-center-commerce/**"
+      - "supabase/functions/website-checkout/**"
+      - "supabase/migrations/**"
+  pull_request:
+    paths:
+      - "supabase/functions/knowledge-center-commerce/**"
+      - "supabase/functions/website-checkout/**"
+      - "supabase/migrations/**"
+
+permissions:
+  contents: read
+
+jobs:
+  edge-function-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check Knowledge Center commerce function
+        run: deno check supabase/functions/knowledge-center-commerce/index.ts
