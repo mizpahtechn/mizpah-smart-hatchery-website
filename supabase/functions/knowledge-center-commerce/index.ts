@@ -1013,6 +1013,30 @@ async function adminGrowthReport(req:Request){
     affiliate_commissions:commissionTotals,recommendation_events:count(recommendationEvents.data??[],"event_type")});
 }
 
+
+async function knowledgeSitemap(req:Request){
+  const {data:products,error}=await db().from("kc_digital_products")
+    .select("slug,updated_at").eq("status","published").order("updated_at",{ascending:false}).limit(5000);
+  if(error) throw new Error("Knowledge Center sitemap is temporarily unavailable.");
+  const base="https://mizpahtechnology.com.ng/";
+  const entries=[
+    {url:base+"digital-library.html",lastmod:new Date().toISOString(),priority:"0.8"},
+    {url:base+"academy.html",lastmod:new Date().toISOString(),priority:"0.8"},
+    ...(products??[]).map((p:any)=>({url:base+"knowledge-product.html?slug="+encodeURIComponent(p.slug),
+      lastmod:p.updated_at||new Date().toISOString(),priority:"0.7"}))
+  ];
+  const xmlEscape=(value:string)=>value.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&apos;");
+  const xml='<?xml version="1.0" encoding="UTF-8"?>\n'+
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+
+    entries.map(x=>'  <url><loc>'+xmlEscape(x.url)+'</loc><lastmod>'+xmlEscape(x.lastmod)+'</lastmod><changefreq>weekly</changefreq><priority>'+x.priority+'</priority></url>').join("\n")+
+    '\n</urlset>';
+  const origin=req.headers.get("Origin")??SITE;
+  return new Response(xml,{status:200,headers:{
+    ...corsHeaders(origin),"Content-Type":"application/xml; charset=utf-8",
+    "Cache-Control":"public, max-age=300, s-maxage=300"
+  }});
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(req.headers.get("Origin") ?? SITE) });
   const url = new URL(req.url);
@@ -1044,6 +1068,7 @@ Deno.serve(async (req: Request) => {
     if (url.pathname.endsWith("/recommendations") && req.method === "GET") return await recommendations(req);
     if (url.pathname.endsWith("/recommendation-event") && req.method === "POST") return await recommendationEvent(req);
     if (url.pathname.endsWith("/admin-growth-report") && req.method === "GET") return await adminGrowthReport(req);
+    if (url.pathname.endsWith("/sitemap") && req.method === "GET") return await knowledgeSitemap(req);
     if (url.pathname.endsWith("/admin-report") && req.method === "GET") return await adminReport(req);
 
     if (url.pathname.endsWith("/return") && req.method === "GET") {
