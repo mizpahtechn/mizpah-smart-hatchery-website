@@ -135,9 +135,9 @@ do $customer_test$
 declare v_count integer;
 begin
   select count(*) into v_count from public.kc_digital_orders;
-  if v_count <> 1 then raise exception 'Customer must see only their own digital order; saw %',v_count; end if;
+  if v_count <> 2 then raise exception 'Customer must see only their own digital orders; saw %',v_count; end if;
   select count(*) into v_count from public.kc_digital_order_items;
-  if v_count <> 1 then raise exception 'Customer must see only their own order items; saw %',v_count; end if;
+  if v_count <> 2 then raise exception 'Customer must see only their own order items; saw %',v_count; end if;
   select count(*) into v_count from public.kc_digital_product_files;
   if v_count <> 0 then raise exception 'Non-staff customer must not read private file metadata.'; end if;
   select count(*) into v_count from storage.objects where bucket_id='mizpah-kc-private';
