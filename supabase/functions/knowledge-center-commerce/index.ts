@@ -156,6 +156,9 @@ async function initializeCheckout(req: Request) {
   if (created.status === "paid") {
     return json(req, { success: true, status: "paid", order_number: orderNumber });
   }
+  if (created.status !== "pending") {
+    throw new Error("This digital order is no longer available for payment. Start a new checkout.");
+  }
   if (totalMinor === 0) {
     const { error } = await db().rpc("kc_grant_free_digital_order", { p_order_id: orderId });
     if (error) throw new Error("The free resource could not be added to your library yet.");
