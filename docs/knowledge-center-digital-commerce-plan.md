@@ -141,3 +141,23 @@ Phase 1 acceptance:
 ## Immediate next work
 
 Complete the remaining source inspection and establish the Phase 1 schema/API contracts. Then implement the Phase 1 database migration and secure services on the development branch, test them without touching production, and continue through the Phase 1 user interface and end-to-end acceptance suite.
+
+## Phase 1 implementation status — development branch
+
+Development artifacts now added on `feature/knowledge-center-digital-commerce`:
+- Phase 1 schema migration draft with isolated catalogue, private files, digital orders, payments, entitlements, course structure, enrolments and lesson progress.
+- Atomic server-side digital order creation, verified payment settlement and entitlement/enrolment grants.
+- Knowledge Center commerce Edge Function draft for checkout, provider verification/webhooks, private signed downloads, customer library, course outline/lesson access and admin sales reporting.
+- Public Digital Library, Academy catalogue, product/course detail, payment return, customer library and course lesson pages.
+- Existing site navigation, customer account and admin navigation links to the new area.
+- Dedicated Knowledge Center admin page for product/file/course/lesson management and digital sales reporting.
+- GitHub Actions Deno type-check workflow for the new Edge Function.
+
+Not yet complete or verified:
+- The migration has not been applied to Supabase.
+- The Edge Function has not been deployed and provider callbacks have not been configured.
+- The GitHub Actions type-check has not yet been observed passing.
+- Browser, mobile, end-to-end and provider test-mode checks remain outstanding.
+- Phase 1 needs a full review of payment concurrency, RLS, private storage, customer ownership, course entitlements, download expiry and existing hatchery regression flows before production release.
+
+Do not mark Phase 1 complete or deploy until those checks pass. Production remains unchanged.
