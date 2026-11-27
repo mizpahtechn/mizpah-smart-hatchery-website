@@ -943,6 +943,76 @@ async function sponsorDashboard(req:Request){
   return json(req,{success:true,sponsor,campaigns:campaigns??[]});
 }
 
+
+async function recommendations(req:Request){
+  const url=new URL(req.url);const sourceId=url.searchParams.get("product_id");
+  const client=db();let source:any=null;
+  if(sourceId){
+    const result=await client.from("kc_digital_products").select("id,product_type").eq("id",sourceId).eq("status","published").maybeSingle();
+    if(result.error||!result.data) throw new Error("The requested resource is not available.");
+    source=result.data;
+  }
+  let userId:string|null=null;
+  const token=(req.headers.get("Authorization")??"").match(/^Bearer\s+([^\s]+)$/i)?.[1];
+  if(token){const auth=await client.auth.getUser(token);if(!auth.error&&auth.data.user)userId=auth.data.user.id;}
+  let owned:string[]=[];
+  if(userId){
+    const {data}=await client.from("kc_entitlements").select("product_id").eq("user_id",userId).eq("status","active");
+    owned=(data??[]).map((x:any)=>x.product_id);
+  }
+  let query=client.from("kc_digital_products")
+    .select("id,slug,title,product_type,summary,cover_image_url,price_minor,currency,is_featured")
+    .eq("status","published").neq("product_type","")
+    .order("is_featured",{ascending:false}).order("published_at",{ascending:false}).limit(8);
+  if(source) query=query.eq("product_type",source.product_type).neq("id",source.id);
+  const {data,error}=await query;
+  if(error) throw new Error("Recommendations are temporarily unavailable.");
+  const rows=(data??[]).filter((p:any)=>!owned.includes(p.id)).slice(0,6);
+  return json(req,{success:true,recommendations:rows});
+}
+async function recommendationEvent(req:Request){
+  const body=await req.json().catch(()=>({}));
+  const productId=safeText(body.recommended_product_id,80);
+  const sourceId=body.source_product_id?String(body.source_product_id):null;
+  const type=String(body.event_type??"");
+  const eventKey=safeText(body.event_key,100);
+  if(!/^[0-9a-f-]{36}$/i.test(productId)||sourceId&&!/^[0-9a-f-]{36}$/i.test(sourceId)||
+     !["impression","click"].includes(type)||!/^[A-Za-z0-9_-]{12,100}$/.test(eventKey))
+    throw new Error("Invalid recommendation event.");
+  const client=db();
+  const {data:product,error}=await client.from("kc_digital_products")
+    .select("id,product_type,status").eq("id",productId).eq("status","published").maybeSingle();
+  if(error||!product) throw new Error("Recommended resource is not available.");
+  let userId:string|null=null;
+  const token=(req.headers.get("Authorization")??"").match(/^Bearer\s+([^\s]+)$/i)?.[1];
+  if(token){const auth=await client.auth.getUser(token);if(!auth.error&&auth.data.user)userId=auth.data.user.id;}
+  const key=await sha256(productId+"|"+type+"|"+eventKey);
+  const {error:insertError}=await client.from("kc_recommendation_events").upsert({
+    user_id:userId,source_product_id:sourceId,recommended_product_id:productId,
+    event_type:type,category_key:product.product_type,event_key:key
+  },{onConflict:"event_key",ignoreDuplicates:true});
+  if(insertError) throw new Error("Recommendation event could not be recorded.");
+  return json(req,{success:true,recorded:true});
+}
+async function adminGrowthReport(req:Request){
+  await requireStaff(req);const client=db();
+  const [memberships,campaigns,sponsorEvents,commissions,recommendationEvents]=await Promise.all([
+    client.from("kc_memberships").select("status,currency:kc_membership_plans(currency)"),
+    client.from("kc_sponsor_campaigns").select("id,status"),
+    client.from("kc_sponsor_events").select("event_type"),
+    client.from("kc_affiliate_commissions").select("status,currency,amount_minor"),
+    client.from("kc_recommendation_events").select("event_type")
+  ]);
+  if(memberships.error||campaigns.error||sponsorEvents.error||commissions.error||recommendationEvents.error)
+    throw new Error("Growth reporting is temporarily unavailable.");
+  const count=(rows:any[],key:string)=>rows.reduce((out:any,row:any)=>{out[row[key]]=(out[row[key]]||0)+1;return out;},{});
+  const commissionTotals:any={};
+  for(const row of commissions.data??[]){const k=row.currency+":"+row.status;commissionTotals[k]=(commissionTotals[k]||0)+Number(row.amount_minor||0);}
+  return json(req,{success:true,memberships:count(memberships.data??[],"status"),
+    campaigns:count(campaigns.data??[],"status"),sponsor_events:count(sponsorEvents.data??[],"event_type"),
+    affiliate_commissions:commissionTotals,recommendation_events:count(recommendationEvents.data??[],"event_type")});
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(req.headers.get("Origin") ?? SITE) });
   const url = new URL(req.url);
@@ -971,6 +1041,9 @@ Deno.serve(async (req: Request) => {
     if (url.pathname.endsWith("/affiliate-dashboard") && req.method === "GET") return await affiliateDashboard(req);
     if (url.pathname.endsWith("/sponsor-apply") && req.method === "POST") return await sponsorApply(req);
     if (url.pathname.endsWith("/sponsor-dashboard") && req.method === "GET") return await sponsorDashboard(req);
+    if (url.pathname.endsWith("/recommendations") && req.method === "GET") return await recommendations(req);
+    if (url.pathname.endsWith("/recommendation-event") && req.method === "POST") return await recommendationEvent(req);
+    if (url.pathname.endsWith("/admin-growth-report") && req.method === "GET") return await adminGrowthReport(req);
     if (url.pathname.endsWith("/admin-report") && req.method === "GET") return await adminReport(req);
 
     if (url.pathname.endsWith("/return") && req.method === "GET") {
