@@ -325,7 +325,7 @@ begin
       where i.order_id=new.id
       on conflict(order_item_id) do nothing;
     end if;
-  elsif new.status='refunded' and old.status='paid' then
+  elsif new.status='refunded' and old.status is distinct from 'refunded' then
     update public.kc_affiliate_commissions
       set status='reversed',reversal_reason='Underlying digital order refunded'
       where order_id=new.id and status in ('pending','approved');
