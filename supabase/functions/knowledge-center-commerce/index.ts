@@ -331,7 +331,7 @@ async function customerLibrary(req: Request) {
     .eq("user_id", user.id).eq("status", "active")
     .order("granted_at", { ascending: false });
   if (error) throw new Error("Your Knowledge Library could not be loaded.");
-  const rows = entitlements ?? [];
+  const rows = (entitlements ?? []).filter((row: any) => !row.expires_at || new Date(row.expires_at).getTime() > Date.now());
   const productIds = rows.map((row: any) => row.product_id);
   let filesByProduct: Record<string, any[]> = {};
   if (productIds.length) {
@@ -347,7 +347,7 @@ async function customerLibrary(req: Request) {
     }
   }
   const { data: enrolments, error: enrolmentError } = await client.from("kc_course_enrolments")
-    .select("id,status,enrolled_at,completed_at,kc_courses!inner(id,course_title,course_summary,product_id)")
+    .select("id,status,enrolled_at,completed_at,entitlement_id,kc_courses!inner(id,course_title,course_summary,product_id)")
     .eq("user_id", user.id).in("status", ["active", "completed"])
     .order("enrolled_at", { ascending: false });
   if (enrolmentError) throw new Error("Your course enrolments could not be loaded.");
@@ -360,7 +360,7 @@ async function customerLibrary(req: Request) {
       product: row.kc_digital_products,
       files: filesByProduct[row.product_id] ?? [],
     })),
-    enrolments: enrolments ?? [],
+    enrolments: (enrolments ?? []).filter((enrolment: any) => rows.some((entitlement: any) => entitlement.id === enrolment.entitlement_id)),
   });
 }
 
