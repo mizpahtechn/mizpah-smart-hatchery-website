@@ -12,7 +12,7 @@ create table if not exists public.kc_digital_products (
   cover_image_url text,
   status text not null default 'draft' check (status in ('draft','published','archived')),
   price_minor bigint not null default 0 check (price_minor >= 0),
-  currency text not null default 'NGN' check (currency = 'NGN'),
+  currency text not null default 'NGN' check (currency in ('NGN','USD')),
   compare_at_price_minor bigint check (compare_at_price_minor is null or compare_at_price_minor >= price_minor),
   is_featured boolean not null default false,
   seo_title text,
@@ -52,7 +52,7 @@ create table if not exists public.kc_digital_orders (
   subtotal_minor bigint not null check (subtotal_minor >= 0),
   discount_minor bigint not null default 0 check (discount_minor >= 0),
   total_minor bigint not null check (total_minor >= 0),
-  currency text not null default 'NGN' check (currency='NGN'),
+  currency text not null default 'NGN' check (currency in ('NGN','USD')),
   idempotency_key text not null,
   request_hash text not null,
   paid_at timestamptz,
@@ -389,6 +389,7 @@ declare
   v_product public.kc_digital_products%rowtype;
   v_product_id uuid;
   v_subtotal bigint := 0;
+  v_currency text;
   v_order_number text;
   v_item_count integer;
 begin
@@ -487,6 +488,11 @@ begin
       raise exception 'You already have access to one or more selected products.';
     end if;
 
+    if v_currency is null then
+      v_currency := v_product.currency;
+    elsif v_currency <> v_product.currency then
+      raise exception 'Choose products priced in the same currency for one checkout.';
+    end if;
     v_subtotal := v_subtotal + v_product.price_minor;
   end loop;
 
@@ -496,7 +502,7 @@ begin
     currency,idempotency_key,request_hash
   ) values (
     v_order_number,p_user_id,lower(btrim(p_customer_email)),'pending',
-    v_subtotal,0,v_subtotal,'NGN',p_idempotency_key,p_request_hash
+    v_subtotal,0,v_subtotal,coalesce(v_currency,'NGN'),p_idempotency_key,p_request_hash
   ) on conflict (user_id,idempotency_key) do nothing
   returning * into v_order;
 
