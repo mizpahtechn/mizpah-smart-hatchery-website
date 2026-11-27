@@ -131,3 +131,11 @@ jobs:
         env:
           PGPASSWORD: postgres
         run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_growth_phases3_5_smoke.sql
+      - name: Apply server-side lesson activity validation migration
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/migrations/20261127233619_knowledge_center_lesson_activity_validation.sql
+      - name: Run lesson activity validation security checks
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_lesson_activity_smoke.sql
