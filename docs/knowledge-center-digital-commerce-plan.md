@@ -173,3 +173,36 @@ Do not mark Phase 1 complete or deploy until those checks pass. Production remai
 Phase 1 pricing is initially denominated in NGN. Multi-currency pricing and foreign-currency settlement are deferred until the supported gateway capabilities and settlement arrangements are verified.
 
 Payment isolation: the new function reads only `KC_PAYSTACK_MODE`, `KC_PAYSTACK_SECRET_KEY`, `KC_OPAY_MODE`, `KC_OPAY_CREDENTIALS_MODE`, `KC_OPAY_PUBLIC_KEY`, `KC_OPAY_SECRET_KEY` and `KC_OPAY_MERCHANT_ID`. It deliberately does not reuse the existing hatchery checkout's provider secrets. Configure these `KC_` secrets with sandbox credentials before test deployment; use live credentials only after separate production approval.
+
+## Remaining phase implementation specifications
+
+### Phase 2 — Academy expansion
+- Extend the existing course/module/lesson model with externally hosted video lessons; do not store large lesson videos in the private download bucket.
+- Store provider, provider video reference, playback privacy mode, captions/subtitles metadata and duration; render only through the authenticated course viewer.
+- Add assessments, questions, answer options, attempt records, grading, pass thresholds and per-course attempt limits.
+- Expand student progress to module/course completion and assessment results.
+- Add instructor profiles and course assignments with least-privilege permissions; instructors may manage only assigned courses.
+- Certificates remain excluded until separately approved. If approved, issue unique verifiable certificate IDs and a public verification page without exposing student private data.
+
+### Phase 3 — Membership
+- Add membership plans, customer memberships, billing attempts, renewal events, entitlement rules and expiry/revocation records.
+- Support monthly and annual terms, grace periods, failed-renewal handling, cancellation and renewal history.
+- Integrate only recurring-payment methods confirmed available on the user's provider accounts. Do not assume OPay supports automatic recurring billing; validate provider capability before choosing the recurring-payment route.
+- Keep one-off digital purchases and membership entitlements distinct so expiry of a membership never removes a separately purchased permanent download.
+
+### Phase 4 — Sponsorship and advertising
+- Add sponsor applications, sponsor profiles, campaign approvals, placements, start/end dates, budgets and campaign status.
+- Label every paid placement clearly as “Sponsored” or “Advertisement”; sponsored editorial content must remain distinguishable from independent Knowledge Center articles.
+- Add impression/click reporting with bot filtering and campaign-level summaries.
+- Require admin approval before a sponsor or campaign can appear publicly. Do not place ads inside checkout, payment, customer-account or course-assessment flows.
+
+### Phase 5 — Growth and optimisation
+- Add affiliate partner records, unique referral links/codes, attribution windows, commission rules, a commission ledger and admin approval before payout.
+- Add revenue, product, course, membership, sponsor and affiliate analytics with exportable reports.
+- Add content recommendations using course/resource categories and aggregate engagement; avoid exposing one customer's learning history to another.
+- Expand SEO with product/course-specific metadata, structured data, canonical URLs, generated sitemap entries and indexation monitoring. Sitemap updates do not require repeated manual indexing requests.
+- Add audience-growth experiments only after privacy, consent and analytics controls are reviewed.
+
+### Phase sequencing and acceptance
+- Each phase remains in its own release gate. Do not begin charging for memberships, selling sponsorship placements or accruing affiliate commissions until their ledger, payment, cancellation and reporting tests pass.
+- Every production deployment requires a separate approval. No new Supabase project or paid branch is planned; the existing project remains the target, with new kc_ tables and dedicated Edge Function routes.
