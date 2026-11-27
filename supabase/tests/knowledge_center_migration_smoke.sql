@@ -101,6 +101,17 @@ from public.kc_courses c
 join public.kc_entitlements e on e.product_id=c.product_id
 where c.product_id='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 
+insert into public.kc_digital_products(
+  id,slug,title,product_type,status,summary,price_minor,currency,published_at
+) values
+('77777777-7777-4777-8777-777777777777','payment-test-resource','Payment test resource','ebook','published','Payment settlement test',50000,'NGN',now()),
+('88888888-8888-4888-8888-888888888888','free-test-resource','Free test resource','downloadable_resource','published','Free entitlement test',0,'NGN',now()),
+('12121212-1212-4121-8121-121212121212','payment-test-course','Payment test course','course','published','Course entitlement test',125000,'NGN',now()),
+('13131313-1313-4131-8131-131313131313','mismatch-test-resource','Mismatch test resource','ebook','published','Amount verification test',30000,'NGN',now());
+
+insert into public.kc_courses(product_id,course_title,course_summary,status)
+values('12121212-1212-4121-8121-121212121212','Payment test course','Course entitlement test','published');
+
 begin;
 set local role anon;
 set local request.jwt.claim.sub='';
@@ -176,6 +187,132 @@ begin
   if v_count <> 0 then raise exception 'Other customers must not see archived course records.'; end if;
 end
 $other_course_test$;
+rollback;
+
+
+begin;
+set local role service_role;
+do $settlement_tests$
+declare
+  v_order jsonb;
+  v_repeat jsonb;
+  v_settlement jsonb;
+  v_order_id uuid;
+  v_reference text;
+  v_count integer;
+  v_failed boolean := false;
+begin
+  -- Server-side pricing, order idempotency, payment settlement and entitlement grant.
+  v_order := public.kc_create_digital_order(
+    '11111111-1111-4111-8111-111111111111',
+    'customer@example.test',
+    'payment-test-idempotency-001',
+    repeat('d',64),
+    array['77777777-7777-4777-8777-777777777777'::uuid]
+  );
+  v_order_id := (v_order->>'order_id')::uuid;
+  if (v_order->>'total_minor')::bigint <> 50000 then
+    raise exception 'Order total must be calculated from the catalogue price.';
+  end if;
+  v_repeat := public.kc_create_digital_order(
+    '11111111-1111-4111-8111-111111111111',
+    'customer@example.test',
+    'payment-test-idempotency-001',
+    repeat('d',64),
+    array['77777777-7777-4777-8777-777777777777'::uuid]
+  );
+  if v_repeat->>'order_id' <> v_order->>'order_id' then
+    raise exception 'Repeated idempotent checkout should return the same order.';
+  end if;
+
+  v_reference := 'KCPAYMENTTEST0001';
+  insert into public.kc_digital_payments(order_id,provider,reference,amount_minor,currency,status)
+  values(v_order_id,'paystack',v_reference,50000,'NGN','initialized');
+  v_settlement := public.kc_settle_digital_order_payment(v_reference,'{"status":"success"}'::jsonb);
+  if (v_settlement->>'success')::boolean is distinct from true then
+    raise exception 'Verified payment should settle successfully.';
+  end if;
+  select count(*) into v_count from public.kc_entitlements
+  where user_id='11111111-1111-4111-8111-111111111111'
+    and product_id='77777777-7777-4777-8777-777777777777' and status='active';
+  if v_count <> 1 then raise exception 'Successful payment must grant exactly one entitlement.'; end if;
+
+  v_settlement := public.kc_settle_digital_order_payment(v_reference,'{"status":"success"}'::jsonb);
+  if (v_settlement->>'already_settled')::boolean is distinct from true then
+    raise exception 'Repeated payment callback must be idempotent.';
+  end if;
+
+  v_failed := false;
+  begin
+    perform public.kc_create_digital_order(
+      '11111111-1111-4111-8111-111111111111',
+      'customer@example.test',
+      'duplicate-entitlement-test-01',
+      repeat('e',64),
+      array['77777777-7777-4777-8777-777777777777'::uuid]
+    );
+  exception when others then
+    v_failed := true;
+  end;
+  if not v_failed then raise exception 'A customer with an active entitlement must not buy the same product again.'; end if;
+
+  -- Free resources use the same entitlement grant path without a payment.
+  v_order := public.kc_create_digital_order(
+    '11111111-1111-4111-8111-111111111111',
+    'customer@example.test',
+    'free-test-idempotency-0001',
+    repeat('f',64),
+    array['88888888-8888-4888-8888-888888888888'::uuid]
+  );
+  v_settlement := public.kc_grant_free_digital_order((v_order->>'order_id')::uuid);
+  if (v_settlement->>'success')::boolean is distinct from true then
+    raise exception 'Free digital order should grant successfully.';
+  end if;
+
+  -- Course payment must create both a product entitlement and a course enrolment.
+  v_order := public.kc_create_digital_order(
+    '11111111-1111-4111-8111-111111111111',
+    'customer@example.test',
+    'course-test-idempotency-01',
+    repeat('1',64),
+    array['12121212-1212-4121-8121-121212121212'::uuid]
+  );
+  v_order_id := (v_order->>'order_id')::uuid;
+  v_reference := 'KCCOURSEPAYMENT0001';
+  insert into public.kc_digital_payments(order_id,provider,reference,amount_minor,currency,status)
+  values(v_order_id,'opay',v_reference,125000,'NGN','initialized');
+  perform public.kc_settle_digital_order_payment(v_reference,'{"status":"SUCCESS"}'::jsonb);
+  select count(*) into v_count from public.kc_course_enrolments
+  where user_id='11111111-1111-4111-8111-111111111111'
+    and course_id=(select id from public.kc_courses where product_id='12121212-1212-4121-8121-121212121212')
+    and status='active';
+  if v_count <> 1 then raise exception 'Course purchase must create an active enrolment.'; end if;
+
+  -- Mismatched provider amount must not settle the order or grant access.
+  v_order := public.kc_create_digital_order(
+    '11111111-1111-4111-8111-111111111111',
+    'customer@example.test',
+    'mismatch-test-idempotency-01',
+    repeat('2',64),
+    array['13131313-1313-4131-8131-131313131313'::uuid]
+  );
+  v_order_id := (v_order->>'order_id')::uuid;
+  v_reference := 'KCMISMATCHPAYMENT001';
+  insert into public.kc_digital_payments(order_id,provider,reference,amount_minor,currency,status)
+  values(v_order_id,'paystack',v_reference,20000,'NGN','initialized');
+  v_failed := false;
+  begin
+    perform public.kc_settle_digital_order_payment(v_reference,'{"status":"success"}'::jsonb);
+  exception when others then
+    v_failed := true;
+  end;
+  if not v_failed then raise exception 'Mismatched payment amount must be rejected.'; end if;
+  select count(*) into v_count from public.kc_entitlements
+  where user_id='11111111-1111-4111-8111-111111111111'
+    and product_id='13131313-1313-4131-8131-131313131313';
+  if v_count <> 0 then raise exception 'Mismatched payment must not grant an entitlement.'; end if;
+end
+$settlement_tests$;
 rollback;
 
 select 'Knowledge Center migration smoke tests passed.' as result;
