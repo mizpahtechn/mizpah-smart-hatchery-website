@@ -36,7 +36,7 @@ create table if not exists public.kc_assessments (
   published boolean not null default false,
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 create index if not exists kc_assessments_course_idx
   on public.kc_assessments(course_id, published);
