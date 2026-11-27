@@ -73,6 +73,11 @@ jobs:
           node-version: "22"
       - name: Check inline JavaScript syntax in Knowledge Center pages
         run: node .github/scripts/check-inline-js.mjs
+      - name: Check external Knowledge Center JavaScript syntax
+        run: |
+          node --check assets/js/knowledge-referrals.js
+          node --check assets/js/knowledge-sponsors.js
+          node --check assets/js/knowledge-recommendations.js
 
   database-migration-smoke-test:
     runs-on: ubuntu-latest
