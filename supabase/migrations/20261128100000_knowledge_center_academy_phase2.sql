@@ -170,4 +170,114 @@ create policy kc_responses_owner_read on public.kc_assessment_responses
 create policy kc_responses_staff_read on public.kc_assessment_responses
   for select to authenticated using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
 
+
+-- Trusted, transactional assessment attempt creation and grading.
+create or replace function public.kc_start_assessment_attempt(p_assessment_id uuid,p_user_id uuid)
+returns jsonb language plpgsql set search_path=public,pg_temp as $function$
+declare v_assessment public.kc_assessments%rowtype; v_attempt public.kc_assessment_attempts%rowtype; v_count integer;
+begin
+  perform pg_advisory_xact_lock(hashtextextended(p_assessment_id::text||':'||p_user_id::text,0));
+  select * into v_assessment from public.kc_assessments where id=p_assessment_id and published=true;
+  if not found then raise exception 'Assessment is not available.'; end if;
+  if not exists(select 1 from public.kc_course_enrolments e join public.kc_entitlements en on en.id=e.entitlement_id
+    where e.course_id=v_assessment.course_id and e.user_id=p_user_id and e.status in ('active','completed')
+      and en.status='active' and (en.expires_at is null or en.expires_at>now())) then
+    raise exception 'An active course enrolment is required.';
+  end if;
+  select * into v_attempt from public.kc_assessment_attempts
+    where assessment_id=p_assessment_id and user_id=p_user_id and status='in_progress'
+    order by attempt_number desc limit 1;
+  if found then return jsonb_build_object('attempt_id',v_attempt.id,'attempt_number',v_attempt.attempt_number,
+    'started_at',v_attempt.started_at,'resumed',true,'time_limit_minutes',v_assessment.time_limit_minutes); end if;
+  select count(*) into v_count from public.kc_assessment_attempts
+    where assessment_id=p_assessment_id and user_id=p_user_id and status in ('in_progress','submitted','graded');
+  if v_assessment.max_attempts is not null and v_count>=v_assessment.max_attempts then
+    raise exception 'You have reached the maximum number of attempts for this assessment.';
+  end if;
+  insert into public.kc_assessment_attempts(assessment_id,user_id,attempt_number)
+    values(p_assessment_id,p_user_id,v_count+1) returning * into v_attempt;
+  return jsonb_build_object('attempt_id',v_attempt.id,'attempt_number',v_attempt.attempt_number,
+    'started_at',v_attempt.started_at,'resumed',false,'time_limit_minutes',v_assessment.time_limit_minutes);
+end
+$function$;
+
+create or replace function public.kc_grade_assessment_attempt(p_attempt_id uuid,p_user_id uuid,p_answers jsonb)
+returns jsonb language plpgsql set search_path=public,pg_temp as $function$
+declare
+  v_attempt public.kc_assessment_attempts%rowtype; v_assessment public.kc_assessments%rowtype;
+  v_question record; v_answer jsonb; v_correct boolean; v_awarded numeric(8,2);
+  v_score numeric(8,2):=0; v_max numeric(8,2):=0; v_answer_count integer:=0; v_percent numeric(8,2);
+begin
+  if jsonb_typeof(p_answers)<>'array' or jsonb_array_length(p_answers)>200 then raise exception 'Invalid assessment answers.'; end if;
+  select * into v_attempt from public.kc_assessment_attempts where id=p_attempt_id and user_id=p_user_id for update;
+  if not found then raise exception 'Assessment attempt not found.'; end if;
+  if v_attempt.status in ('submitted','graded') then
+    return jsonb_build_object('attempt_id',v_attempt.id,'attempt_number',v_attempt.attempt_number,
+      'score',v_attempt.score,'max_score',v_attempt.max_score,'passed',v_attempt.passed,'already_submitted',true);
+  end if;
+  if v_attempt.status<>'in_progress' then raise exception 'This attempt cannot be submitted.'; end if;
+  select * into v_assessment from public.kc_assessments where id=v_attempt.assessment_id and published=true;
+  if not found then raise exception 'Assessment is no longer available.'; end if;
+  if not exists(select 1 from public.kc_course_enrolments e join public.kc_entitlements en on en.id=e.entitlement_id
+    where e.course_id=v_assessment.course_id and e.user_id=p_user_id and e.status in ('active','completed')
+      and en.status='active' and (en.expires_at is null or en.expires_at>now())) then
+    raise exception 'Your course access is no longer active.';
+  end if;
+  if v_assessment.time_limit_minutes is not null and now()>v_attempt.started_at+make_interval(mins=>v_assessment.time_limit_minutes) then
+    update public.kc_assessment_attempts set status='submitted',submitted_at=now(),score=0,
+      max_score=(select coalesce(sum(points),0) from public.kc_assessment_questions where assessment_id=v_assessment.id),
+      passed=false,graded_at=now() where id=v_attempt.id returning * into v_attempt;
+    return jsonb_build_object('attempt_id',v_attempt.id,'attempt_number',v_attempt.attempt_number,
+      'score',v_attempt.score,'max_score',v_attempt.max_score,'passed',false,'time_expired',true);
+  end if;
+  if exists(select 1 from jsonb_array_elements(p_answers) a where jsonb_typeof(a)<>'object' or not(a?'question_id') or not(a?'answer')) then
+    raise exception 'Each answer must include a question_id and answer.';
+  end if;
+  if (select count(*) from jsonb_array_elements(p_answers)) <>
+     (select count(distinct a->>'question_id') from jsonb_array_elements(p_answers) a) then
+    raise exception 'Duplicate answers were submitted for a question.';
+  end if;
+  if exists(select 1 from jsonb_array_elements(p_answers) a
+    where not exists(select 1 from public.kc_assessment_questions q where q.id=(a->>'question_id')::uuid and q.assessment_id=v_assessment.id)) then
+    raise exception 'An answer references a question outside this assessment.';
+  end if;
+  for v_question in select id,question_type,correct_answer,points from public.kc_assessment_questions
+    where assessment_id=v_assessment.id order by sort_order
+  loop
+    v_max:=v_max+v_question.points;
+    select a->'answer' into v_answer from jsonb_array_elements(p_answers) a where a->>'question_id'=v_question.id::text;
+    if found then
+      v_answer_count:=v_answer_count+1;
+      if v_question.question_type='short_text' then
+        v_correct:=lower(btrim(coalesce(v_answer#>>'{}','')))=lower(btrim(coalesce(v_question.correct_answer#>>'{}','')));
+      elsif v_question.question_type='multiple_choice' then
+        if jsonb_typeof(v_answer)<>'array' or jsonb_typeof(v_question.correct_answer)<>'array' then
+          v_correct:=false;
+        else
+          v_correct:=(select coalesce(jsonb_agg(x order by x::text),'[]'::jsonb) from jsonb_array_elements(v_answer) x)=
+            (select coalesce(jsonb_agg(x order by x::text),'[]'::jsonb) from jsonb_array_elements(v_question.correct_answer) x);
+        end if;
+      else v_correct:=v_answer=v_question.correct_answer;
+      end if;
+    else v_correct:=false; v_answer:='null'::jsonb;
+    end if;
+    v_awarded:=case when v_correct then v_question.points else 0 end;
+    v_score:=v_score+v_awarded;
+    insert into public.kc_assessment_responses(attempt_id,question_id,answer,awarded_points,is_correct,feedback)
+      values(v_attempt.id,v_question.id,v_answer,v_awarded,v_correct,case when v_correct then 'Correct.' else '' end);
+  end loop;
+  if v_max<=0 then raise exception 'This assessment has no gradeable questions.'; end if;
+  v_percent:=(v_score/v_max)*100;
+  update public.kc_assessment_attempts set status='graded',submitted_at=now(),score=v_score,max_score=v_max,
+    passed=(v_percent>=v_assessment.pass_mark),graded_at=now() where id=v_attempt.id returning * into v_attempt;
+  return jsonb_build_object('attempt_id',v_attempt.id,'attempt_number',v_attempt.attempt_number,
+    'score',v_attempt.score,'max_score',v_attempt.max_score,'percentage',round(v_percent,2),
+    'passed',v_attempt.passed,'submitted_at',v_attempt.submitted_at,'answered_questions',v_answer_count,'already_submitted',false);
+end
+$function$;
+
+revoke all on function public.kc_start_assessment_attempt(uuid,uuid) from public,anon,authenticated;
+revoke all on function public.kc_grade_assessment_attempt(uuid,uuid,jsonb) from public,anon,authenticated;
+grant execute on function public.kc_start_assessment_attempt(uuid,uuid) to service_role;
+grant execute on function public.kc_grade_assessment_attempt(uuid,uuid,jsonb) to service_role;
 commit;
