@@ -770,7 +770,7 @@ async function membershipCheckout(req:Request){
     await client.from("kc_memberships").update({cancel_at_period_end:false,updated_at:new Date().toISOString()}).eq("id",membership.id);
   }
   const {data:prior,error:priorError}=await client.from("kc_membership_renewals")
-    .select("reference,provider,checkout_url,status,amount_minor,currency")
+    .select("reference,provider,checkout_url,status,amount_minor,currency,created_at")
     .eq("membership_id",membership.id).in("status",["pending","initialized"])
     .order("created_at",{ascending:false}).limit(1).maybeSingle();
   if(priorError) throw new Error("Existing membership payment could not be checked.");
