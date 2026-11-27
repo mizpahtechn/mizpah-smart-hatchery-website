@@ -342,6 +342,7 @@ create policy kc_private_files_staff_delete on storage.objects
 
 
 
+
 create or replace function public.kc_create_digital_order(
   p_user_id uuid,
   p_customer_email text,
@@ -353,7 +354,7 @@ returns jsonb
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $kc$
 declare
   v_existing public.kc_digital_orders%rowtype;
   v_order public.kc_digital_orders%rowtype;
@@ -366,13 +367,148 @@ begin
   if p_user_id is null or p_customer_email is null or position('@' in p_customer_email)=0 then
     raise exception 'A verified customer account is required.';
   end if;
-  if p_idempotency_key is null or p_idempotency_key !~ '^[A-Za-z0-9_-]{16,100} Kept private to trusted server-side settlement.
+  if p_idempotency_key is null or p_idempotency_key !~ '^[A-Za-z0-9_-]{16,100}$' then
+    raise exception 'Invalid checkout idempotency key.';
+  end if;
+  if p_request_hash is null or p_request_hash !~ '^[a-f0-9]{64}$' then
+    raise exception 'Invalid checkout request fingerprint.';
+  end if;
+  if p_product_ids is null or cardinality(p_product_ids) < 1 or cardinality(p_product_ids) > 10 then
+    raise exception 'Choose between one and ten digital products.';
+  end if;
+
+  select count(distinct product_id) into v_item_count
+  from unnest(p_product_ids) as input(product_id);
+  if v_item_count <> cardinality(p_product_ids) then
+    raise exception 'Duplicate digital products are not allowed in one checkout.';
+  end if;
+
+  select * into v_existing
+  from public.kc_digital_orders
+  where user_id=p_user_id and idempotency_key=p_idempotency_key
+  for update;
+  if found then
+    if v_existing.request_hash <> p_request_hash then
+      raise exception 'This checkout key was already used for a different cart.';
+    end if;
+    return jsonb_build_object(
+      'order_id',v_existing.id,'order_number',v_existing.order_number,
+      'status',v_existing.status,'total_minor',v_existing.total_minor,'currency',v_existing.currency
+    );
+  end if;
+
+  -- Resume an existing pending order for exactly the same cart rather than opening another provider checkout.
+  select o.* into v_existing
+  from public.kc_digital_orders o
+  where o.user_id=p_user_id
+    and o.status='pending'
+    and (
+      select array_agg(oi.product_id order by oi.product_id)
+      from public.kc_digital_order_items oi
+      where oi.order_id=o.id
+    ) = (
+      select array_agg(input.product_id order by input.product_id)
+      from unnest(p_product_ids) as input(product_id)
+    )
+  order by o.created_at desc
+  limit 1
+  for update;
+  if found then
+    return jsonb_build_object(
+      'order_id',v_existing.id,'order_number',v_existing.order_number,
+      'status',v_existing.status,'total_minor',v_existing.total_minor,'currency',v_existing.currency
+    );
+  end if;
+
+  -- Do not let one customer create parallel pending checkouts for overlapping products.
+  if exists(
+    select 1
+    from public.kc_digital_order_items oi
+    join public.kc_digital_orders o on o.id=oi.order_id
+    where o.user_id=p_user_id and o.status='pending'
+      and oi.product_id=any(p_product_ids)
+  ) then
+    raise exception 'You already have an unfinished checkout for one or more selected products. Return to that checkout before starting another.';
+  end if;
+
+  foreach v_product_id in array p_product_ids loop
+    select * into v_product
+    from public.kc_digital_products
+    where id=v_product_id
+      and status='published'
+      and (published_at is null or published_at<=now())
+    for share;
+    if not found then
+      raise exception 'One or more selected digital products are no longer available.';
+    end if;
+
+    if v_product.product_type='course' and not exists(
+      select 1 from public.kc_courses c
+      where c.product_id=v_product.id and c.status='published'
+    ) then
+      raise exception 'One or more selected courses are not available for enrolment.';
+    end if;
+
+    if exists(
+      select 1 from public.kc_entitlements e
+      where e.user_id=p_user_id
+        and e.product_id=v_product.id
+        and e.status='active'
+        and (e.expires_at is null or e.expires_at>now())
+    ) then
+      raise exception 'You already have access to one or more selected products.';
+    end if;
+
+    v_subtotal := v_subtotal + v_product.price_minor;
+  end loop;
+
+  v_order_number := 'KC-' || upper(substr(replace(gen_random_uuid()::text,'-',''),1,14));
+  insert into public.kc_digital_orders(
+    order_number,user_id,customer_email,status,subtotal_minor,discount_minor,total_minor,
+    currency,idempotency_key,request_hash
+  ) values (
+    v_order_number,p_user_id,lower(btrim(p_customer_email)),'pending',
+    v_subtotal,0,v_subtotal,'NGN',p_idempotency_key,p_request_hash
+  ) on conflict (user_id,idempotency_key) do nothing
+  returning * into v_order;
+
+  if not found then
+    select * into v_order
+    from public.kc_digital_orders
+    where user_id=p_user_id and idempotency_key=p_idempotency_key
+    for update;
+    if not found or v_order.request_hash <> p_request_hash then
+      raise exception 'This checkout key was already used for a different cart.';
+    end if;
+    return jsonb_build_object(
+      'order_id',v_order.id,'order_number',v_order.order_number,
+      'status',v_order.status,'total_minor',v_order.total_minor,'currency',v_order.currency
+    );
+  end if;
+
+  foreach v_product_id in array p_product_ids loop
+    select * into v_product from public.kc_digital_products where id=v_product_id;
+    insert into public.kc_digital_order_items(
+      order_id,product_id,product_title,product_slug,product_type,quantity,unit_price_minor,line_total_minor
+    ) values (
+      v_order.id,v_product.id,v_product.title,v_product.slug,v_product.product_type,1,
+      v_product.price_minor,v_product.price_minor
+    );
+  end loop;
+
+  return jsonb_build_object(
+    'order_id',v_order.id,'order_number',v_order.order_number,
+    'status',v_order.status,'total_minor',v_order.total_minor,'currency',v_order.currency
+  );
+end;
+$kc$;
+
 create or replace function public.kc_issue_digital_order_entitlements(p_order_id uuid)
 returns integer
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $kc$
 declare
   v_order public.kc_digital_orders%rowtype;
   v_item record;
@@ -390,13 +526,24 @@ begin
   end if;
 
   for v_item in
-    select id, product_id, product_type
+    select id,product_id,product_type
     from public.kc_digital_order_items
     where order_id=v_order.id
     order by id
   loop
     if v_item.product_id is null then
       raise exception 'A purchased digital product is no longer available.';
+    end if;
+
+    if exists(
+      select 1 from public.kc_entitlements e
+      where e.user_id=v_order.user_id
+        and e.product_id=v_item.product_id
+        and e.status='active'
+        and (e.expires_at is null or e.expires_at>now())
+        and e.order_item_id<>v_item.id
+    ) then
+      raise exception 'The customer already has an active entitlement for this product.';
     end if;
 
     insert into public.kc_entitlements(user_id,product_id,order_item_id)
@@ -430,7 +577,7 @@ begin
 
   return v_count;
 end;
-$;
+$kc$;
 
 create or replace function public.kc_settle_digital_order_payment(
   p_reference text,
@@ -440,7 +587,7 @@ returns jsonb
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $kc$
 declare
   v_payment public.kc_digital_payments%rowtype;
   v_order public.kc_digital_orders%rowtype;
@@ -497,17 +644,19 @@ begin
 
   v_granted := public.kc_issue_digital_order_entitlements(v_order.id);
 
-  return jsonb_build_object('success',true,'already_settled',false,
-    'order_id',v_order.id,'entitlements_granted',v_granted);
+  return jsonb_build_object(
+    'success',true,'already_settled',false,
+    'order_id',v_order.id,'entitlements_granted',v_granted
+  );
 end;
-$;
+$kc$;
 
 create or replace function public.kc_grant_free_digital_order(p_order_id uuid)
 returns jsonb
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $kc$
 declare
   v_order public.kc_digital_orders%rowtype;
   v_granted integer;
@@ -535,300 +684,19 @@ begin
   where id=v_order.id;
 
   v_granted := public.kc_issue_digital_order_entitlements(v_order.id);
-  return jsonb_build_object('success',true,'already_settled',false,
-    'order_id',v_order.id,'entitlements_granted',v_granted);
+  return jsonb_build_object(
+    'success',true,'already_settled',false,
+    'order_id',v_order.id,'entitlements_granted',v_granted
+  );
 end;
-$;
-
-revoke all on function public.kc_issue_digital_order_entitlements(uuid) from public, anon, authenticated;
-revoke all on function public.kc_settle_digital_order_payment(text,jsonb) from public, anon, authenticated;
-revoke all on function public.kc_grant_free_digital_order(uuid) from public, anon, authenticated;
-grant execute on function public.kc_issue_digital_order_entitlements(uuid) to service_role;
-grant execute on function public.kc_settle_digital_order_payment(text,jsonb) to service_role;
-grant execute on function public.kc_grant_free_digital_order(uuid) to service_role;
-
-
-commit;
- then
-    raise exception 'Invalid checkout idempotency key.';
-  end if;
-  if p_request_hash is null or p_request_hash !~ '^[a-f0-9]{64} Kept private to trusted server-side settlement.
-create or replace function public.kc_issue_digital_order_entitlements(p_order_id uuid)
-returns integer
-language plpgsql
-security definer
-set search_path = public, pg_temp
-as $
-declare
-  v_order public.kc_digital_orders%rowtype;
-  v_item record;
-  v_entitlement_id uuid;
-  v_course_id uuid;
-  v_count integer := 0;
-begin
-  select * into v_order
-  from public.kc_digital_orders
-  where id=p_order_id
-  for update;
-
-  if not found or v_order.status <> 'paid' then
-    raise exception 'Digital order is not paid.';
-  end if;
-
-  for v_item in
-    select id, product_id, product_type
-    from public.kc_digital_order_items
-    where order_id=v_order.id
-    order by id
-  loop
-    if v_item.product_id is null then
-      raise exception 'A purchased digital product is no longer available.';
-    end if;
-
-    insert into public.kc_entitlements(user_id,product_id,order_item_id)
-    values(v_order.user_id,v_item.product_id,v_item.id)
-    on conflict (order_item_id) do nothing
-    returning id into v_entitlement_id;
-
-    if v_entitlement_id is null then
-      select id into v_entitlement_id
-      from public.kc_entitlements
-      where order_item_id=v_item.id;
-    else
-      v_count := v_count + 1;
-    end if;
-
-    if v_item.product_type='course' then
-      select id into v_course_id
-      from public.kc_courses
-      where product_id=v_item.product_id and status='published';
-
-      if v_course_id is null then
-        raise exception 'The purchased course is not published.';
-      end if;
-
-      insert into public.kc_course_enrolments(user_id,course_id,entitlement_id)
-      values(v_order.user_id,v_course_id,v_entitlement_id)
-      on conflict (user_id,course_id) do nothing;
-    end if;
-    v_entitlement_id := null;
-  end loop;
-
-  return v_count;
-end;
-$;
-
-create or replace function public.kc_settle_digital_order_payment(
-  p_reference text,
-  p_raw_verify jsonb
-)
-returns jsonb
-language plpgsql
-security definer
-set search_path = public, pg_temp
-as $
-declare
-  v_payment public.kc_digital_payments%rowtype;
-  v_order public.kc_digital_orders%rowtype;
-  v_granted integer;
-begin
-  select * into v_payment
-  from public.kc_digital_payments
-  where reference=p_reference
-  for update;
-
-  if not found then
-    raise exception 'Digital payment reference not found.';
-  end if;
-
-  select * into v_order
-  from public.kc_digital_orders
-  where id=v_payment.order_id
-  for update;
-
-  if not found then
-    raise exception 'Digital order not found.';
-  end if;
-
-  if v_payment.amount_minor <> v_order.total_minor
-     or v_payment.currency <> v_order.currency then
-    raise exception 'Digital payment amount or currency does not match its order.';
-  end if;
-
-  if v_payment.status='success' and v_order.status='paid' then
-    return jsonb_build_object('success',true,'already_settled',true,'order_id',v_order.id);
-  end if;
-
-  if v_order.status in ('cancelled','refunded','partially_refunded') then
-    raise exception 'Digital order is not eligible for payment settlement.';
-  end if;
-
-  update public.kc_digital_payments
-  set status='success',raw_verify=coalesce(p_raw_verify,'{}'::jsonb),
-      verified_at=now(),updated_at=now()
-  where id=v_payment.id;
-
-  update public.kc_digital_orders
-  set status='paid',paid_at=coalesce(paid_at,now()),updated_at=now()
-  where id=v_order.id;
-
-  v_granted := public.kc_issue_digital_order_entitlements(v_order.id);
-
-  return jsonb_build_object('success',true,'already_settled',false,
-    'order_id',v_order.id,'entitlements_granted',v_granted);
-end;
-$;
-
-create or replace function public.kc_grant_free_digital_order(p_order_id uuid)
-returns jsonb
-language plpgsql
-security definer
-set search_path = public, pg_temp
-as $
-declare
-  v_order public.kc_digital_orders%rowtype;
-  v_granted integer;
-begin
-  select * into v_order
-  from public.kc_digital_orders
-  where id=p_order_id
-  for update;
-
-  if not found then
-    raise exception 'Digital order not found.';
-  end if;
-  if v_order.total_minor <> 0 then
-    raise exception 'Only zero-value digital orders can be granted without payment.';
-  end if;
-  if v_order.status='paid' then
-    return jsonb_build_object('success',true,'already_settled',true,'order_id',v_order.id);
-  end if;
-  if v_order.status <> 'pending' then
-    raise exception 'Digital order is not eligible for free fulfilment.';
-  end if;
-
-  update public.kc_digital_orders
-  set status='paid',paid_at=now(),updated_at=now()
-  where id=v_order.id;
-
-  v_granted := public.kc_issue_digital_order_entitlements(v_order.id);
-  return jsonb_build_object('success',true,'already_settled',false,
-    'order_id',v_order.id,'entitlements_granted',v_granted);
-end;
-$;
-
-revoke all on function public.kc_issue_digital_order_entitlements(uuid) from public, anon, authenticated;
-revoke all on function public.kc_settle_digital_order_payment(text,jsonb) from public, anon, authenticated;
-revoke all on function public.kc_grant_free_digital_order(uuid) from public, anon, authenticated;
-grant execute on function public.kc_issue_digital_order_entitlements(uuid) to service_role;
-grant execute on function public.kc_settle_digital_order_payment(text,jsonb) to service_role;
-grant execute on function public.kc_grant_free_digital_order(uuid) to service_role;
-
-
-commit;
- then
-    raise exception 'Invalid checkout request fingerprint.';
-  end if;
-  if p_product_ids is null or cardinality(p_product_ids) < 1 or cardinality(p_product_ids) > 10 then
-    raise exception 'Choose between one and ten digital products.';
-  end if;
-  select count(distinct product_id) into v_item_count from unnest(p_product_ids) as input(product_id);
-  if v_item_count <> cardinality(p_product_ids) then
-    raise exception 'Duplicate digital products are not allowed in one checkout.';
-  end if;
-
-  select * into v_existing
-  from public.kc_digital_orders
-  where user_id=p_user_id and idempotency_key=p_idempotency_key
-  for update;
-  if found then
-    if v_existing.request_hash <> p_request_hash then
-      raise exception 'This checkout key was already used for a different cart.';
-    end if;
-    return jsonb_build_object('order_id',v_existing.id,'order_number',v_existing.order_number,
-      'status',v_existing.status,'total_minor',v_existing.total_minor,'currency',v_existing.currency);
-  end if;
-
-  foreach v_product_id in array p_product_ids loop
-    select * into v_product
-    from public.kc_digital_products
-    where id=v_product_id and status='published'
-      and (published_at is null or published_at<=now())
-    for share;
-    if not found then
-      raise exception 'One or more selected digital products are no longer available.';
-    end if;
-    if v_product.product_type='course' and not exists(
-      select 1 from public.kc_courses c
-      where c.product_id=v_product.id and c.status='published'
-    ) then
-      raise exception 'One or more selected courses are not available for enrolment.';
-    end if;
-    if exists(
-      select 1 from public.kc_entitlements e
-      where e.user_id=p_user_id and e.product_id=v_product.id and e.status='active'
-        and (e.expires_at is null or e.expires_at>now())
-    ) then
-      raise exception 'You already have access to one or more selected products.';
-    end if;
-    if exists(
-      select 1
-      from public.kc_digital_order_items oi
-      join public.kc_digital_orders o on o.id=oi.order_id
-      where o.user_id=p_user_id and o.status='pending'
-        and oi.product_id=v_product.id
-    ) then
-      raise exception 'You already have an unfinished checkout for one or more selected products. Return to your existing checkout or wait for it to expire.';
-    end if;
-    v_subtotal := v_subtotal + v_product.price_minor;
-  end loop;
-
-  v_order_number := 'KC-' || upper(substr(replace(gen_random_uuid()::text,'-',''),1,14));
-  insert into public.kc_digital_orders(
-    order_number,user_id,customer_email,status,subtotal_minor,discount_minor,total_minor,
-    currency,idempotency_key,request_hash
-  ) values (
-    v_order_number,p_user_id,lower(btrim(p_customer_email)),'pending',
-    v_subtotal,0,v_subtotal,'NGN',p_idempotency_key,p_request_hash
-  ) on conflict (user_id,idempotency_key) do nothing
-  returning * into v_order;
-
-  if not found then
-    select * into v_order from public.kc_digital_orders
-    where user_id=p_user_id and idempotency_key=p_idempotency_key
-    for update;
-    if not found or v_order.request_hash <> p_request_hash then
-      raise exception 'This checkout key was already used for a different cart.';
-    end if;
-    return jsonb_build_object('order_id',v_order.id,'order_number',v_order.order_number,
-      'status',v_order.status,'total_minor',v_order.total_minor,'currency',v_order.currency);
-  end if;
-
-  foreach v_product_id in array p_product_ids loop
-    select * into v_product from public.kc_digital_products where id=v_product_id;
-    insert into public.kc_digital_order_items(
-      order_id,product_id,product_title,product_slug,product_type,quantity,unit_price_minor,line_total_minor
-    ) values (
-      v_order.id,v_product.id,v_product.title,v_product.slug,v_product.product_type,1,
-      v_product.price_minor,v_product.price_minor
-    );
-  end loop;
-
-  return jsonb_build_object('order_id',v_order.id,'order_number',v_order.order_number,
-    'status',v_order.status,'total_minor',v_order.total_minor,'currency',v_order.currency);
-end;
-$;
-
-revoke all on function public.kc_create_digital_order(uuid,text,text,text,uuid[]) from public, anon, authenticated;
-grant execute on function public.kc_create_digital_order(uuid,text,text,text,uuid[]) to service_role;
-
+$kc$;
 
 create or replace function public.kc_digital_sales_summary()
 returns jsonb
 language sql
 security definer
 set search_path = public, pg_temp
-as $
+as $kc$
   select jsonb_build_object(
     'orders', (select count(*) from public.kc_digital_orders),
     'paid_orders', (select count(*) from public.kc_digital_orders where status='paid'),
@@ -836,182 +704,18 @@ as $
     'gross_revenue_minor', (select coalesce(sum(total_minor),0) from public.kc_digital_orders where status='paid'),
     'published_products', (select count(*) from public.kc_digital_products where status='published')
   );
-$;
+$kc$;
 
-revoke all on function public.kc_digital_sales_summary() from public, anon, authenticated;
-grant execute on function public.kc_digital_sales_summary() to service_role;
-
--- Transactional entitlement grant. Kept private to trusted server-side settlement.
-create or replace function public.kc_issue_digital_order_entitlements(p_order_id uuid)
-returns integer
-language plpgsql
-security definer
-set search_path = public, pg_temp
-as $
-declare
-  v_order public.kc_digital_orders%rowtype;
-  v_item record;
-  v_entitlement_id uuid;
-  v_course_id uuid;
-  v_count integer := 0;
-begin
-  select * into v_order
-  from public.kc_digital_orders
-  where id=p_order_id
-  for update;
-
-  if not found or v_order.status <> 'paid' then
-    raise exception 'Digital order is not paid.';
-  end if;
-
-  for v_item in
-    select id, product_id, product_type
-    from public.kc_digital_order_items
-    where order_id=v_order.id
-    order by id
-  loop
-    if v_item.product_id is null then
-      raise exception 'A purchased digital product is no longer available.';
-    end if;
-
-    insert into public.kc_entitlements(user_id,product_id,order_item_id)
-    values(v_order.user_id,v_item.product_id,v_item.id)
-    on conflict (order_item_id) do nothing
-    returning id into v_entitlement_id;
-
-    if v_entitlement_id is null then
-      select id into v_entitlement_id
-      from public.kc_entitlements
-      where order_item_id=v_item.id;
-    else
-      v_count := v_count + 1;
-    end if;
-
-    if v_item.product_type='course' then
-      select id into v_course_id
-      from public.kc_courses
-      where product_id=v_item.product_id and status='published';
-
-      if v_course_id is null then
-        raise exception 'The purchased course is not published.';
-      end if;
-
-      insert into public.kc_course_enrolments(user_id,course_id,entitlement_id)
-      values(v_order.user_id,v_course_id,v_entitlement_id)
-      on conflict (user_id,course_id) do nothing;
-    end if;
-    v_entitlement_id := null;
-  end loop;
-
-  return v_count;
-end;
-$;
-
-create or replace function public.kc_settle_digital_order_payment(
-  p_reference text,
-  p_raw_verify jsonb
-)
-returns jsonb
-language plpgsql
-security definer
-set search_path = public, pg_temp
-as $
-declare
-  v_payment public.kc_digital_payments%rowtype;
-  v_order public.kc_digital_orders%rowtype;
-  v_granted integer;
-begin
-  select * into v_payment
-  from public.kc_digital_payments
-  where reference=p_reference
-  for update;
-
-  if not found then
-    raise exception 'Digital payment reference not found.';
-  end if;
-
-  select * into v_order
-  from public.kc_digital_orders
-  where id=v_payment.order_id
-  for update;
-
-  if not found then
-    raise exception 'Digital order not found.';
-  end if;
-
-  if v_payment.amount_minor <> v_order.total_minor
-     or v_payment.currency <> v_order.currency then
-    raise exception 'Digital payment amount or currency does not match its order.';
-  end if;
-
-  if v_payment.status='success' and v_order.status='paid' then
-    return jsonb_build_object('success',true,'already_settled',true,'order_id',v_order.id);
-  end if;
-
-  if v_order.status in ('cancelled','refunded','partially_refunded') then
-    raise exception 'Digital order is not eligible for payment settlement.';
-  end if;
-
-  update public.kc_digital_payments
-  set status='success',raw_verify=coalesce(p_raw_verify,'{}'::jsonb),
-      verified_at=now(),updated_at=now()
-  where id=v_payment.id;
-
-  update public.kc_digital_orders
-  set status='paid',paid_at=coalesce(paid_at,now()),updated_at=now()
-  where id=v_order.id;
-
-  v_granted := public.kc_issue_digital_order_entitlements(v_order.id);
-
-  return jsonb_build_object('success',true,'already_settled',false,
-    'order_id',v_order.id,'entitlements_granted',v_granted);
-end;
-$;
-
-create or replace function public.kc_grant_free_digital_order(p_order_id uuid)
-returns jsonb
-language plpgsql
-security definer
-set search_path = public, pg_temp
-as $
-declare
-  v_order public.kc_digital_orders%rowtype;
-  v_granted integer;
-begin
-  select * into v_order
-  from public.kc_digital_orders
-  where id=p_order_id
-  for update;
-
-  if not found then
-    raise exception 'Digital order not found.';
-  end if;
-  if v_order.total_minor <> 0 then
-    raise exception 'Only zero-value digital orders can be granted without payment.';
-  end if;
-  if v_order.status='paid' then
-    return jsonb_build_object('success',true,'already_settled',true,'order_id',v_order.id);
-  end if;
-  if v_order.status <> 'pending' then
-    raise exception 'Digital order is not eligible for free fulfilment.';
-  end if;
-
-  update public.kc_digital_orders
-  set status='paid',paid_at=now(),updated_at=now()
-  where id=v_order.id;
-
-  v_granted := public.kc_issue_digital_order_entitlements(v_order.id);
-  return jsonb_build_object('success',true,'already_settled',false,
-    'order_id',v_order.id,'entitlements_granted',v_granted);
-end;
-$;
-
+revoke all on function public.kc_create_digital_order(uuid,text,text,text,uuid[]) from public, anon, authenticated;
 revoke all on function public.kc_issue_digital_order_entitlements(uuid) from public, anon, authenticated;
 revoke all on function public.kc_settle_digital_order_payment(text,jsonb) from public, anon, authenticated;
 revoke all on function public.kc_grant_free_digital_order(uuid) from public, anon, authenticated;
+revoke all on function public.kc_digital_sales_summary() from public, anon, authenticated;
+
+grant execute on function public.kc_create_digital_order(uuid,text,text,text,uuid[]) to service_role;
 grant execute on function public.kc_issue_digital_order_entitlements(uuid) to service_role;
 grant execute on function public.kc_settle_digital_order_payment(text,jsonb) to service_role;
 grant execute on function public.kc_grant_free_digital_order(uuid) to service_role;
-
+grant execute on function public.kc_digital_sales_summary() to service_role;
 
 commit;
