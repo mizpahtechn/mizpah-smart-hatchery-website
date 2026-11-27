@@ -38,17 +38,17 @@ function secret(name: string) {
   return value;
 }
 function paystackKey() {
-  const mode = paystackMode(Deno.env.get("PAYSTACK_MODE"));
-  const key = secret("PAYSTACK_SECRET_KEY");
+  const mode = paystackMode(Deno.env.get("KC_PAYSTACK_MODE"));
+  const key = secret("KC_PAYSTACK_SECRET_KEY");
   assertPaystackSecretMatchesMode(mode, key);
   return key;
 }
 function opayCredentials() {
-  const mode = opayMode(Deno.env.get("OPAY_MODE"));
-  const publicKey = secret("OPAY_PUBLIC_KEY");
-  const secretKey = secret("OPAY_SECRET_KEY");
-  const merchantId = secret("OPAY_MERCHANT_ID");
-  assertOpayCredentialsMatchMode(mode, Deno.env.get("OPAY_CREDENTIALS_MODE"), publicKey, secretKey, merchantId);
+  const mode = opayMode(Deno.env.get("KC_OPAY_MODE"));
+  const publicKey = secret("KC_OPAY_PUBLIC_KEY");
+  const secretKey = secret("KC_OPAY_SECRET_KEY");
+  const merchantId = secret("KC_OPAY_MERCHANT_ID");
+  assertOpayCredentialsMatchMode(mode, Deno.env.get("KC_OPAY_CREDENTIALS_MODE"), publicKey, secretKey, merchantId);
   return { mode, publicKey, secretKey, merchantId };
 }
 async function providerJson(url: string, init: RequestInit) {
