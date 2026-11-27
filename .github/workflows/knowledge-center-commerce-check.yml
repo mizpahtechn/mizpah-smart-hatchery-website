@@ -95,14 +95,14 @@ jobs:
         env:
           PGPASSWORD: postgres
         run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/migrations/20261128100000_knowledge_center_academy_phase2.sql
-      - name: Run Phase 2 assessment and answer-key security checks
-        env:
-          PGPASSWORD: postgres
-        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_phase2_smoke.sql
       - name: Apply Phases 3–5 growth migration to disposable database
         env:
           PGPASSWORD: postgres
         run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/migrations/20261128110000_knowledge_center_growth_phases3_5.sql
+      - name: Run Phase 2 assessment and answer-key security checks
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_phase2_smoke.sql
       - name: Run membership, sponsorship and affiliate security checks
         env:
           PGPASSWORD: postgres
