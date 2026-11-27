@@ -90,6 +90,13 @@ create table if not exists public.kc_assessment_responses (
 create index if not exists kc_assessment_responses_attempt_idx
   on public.kc_assessment_responses(attempt_id);
 
+alter table public.kc_course_lessons
+  add column if not exists video_privacy_mode text not null default 'unlisted'
+    check (video_privacy_mode in ('public','unlisted')),
+  add column if not exists captions_url text,
+  add column if not exists video_duration_seconds integer
+    check (video_duration_seconds is null or video_duration_seconds between 1 and 86400);
+
 alter table public.kc_instructors enable row level security;
 alter table public.kc_course_instructors enable row level security;
 alter table public.kc_assessments enable row level security;
