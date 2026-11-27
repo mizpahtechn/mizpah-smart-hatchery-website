@@ -309,7 +309,12 @@ create policy kc_progress_staff_read on public.kc_lesson_progress
   for select to authenticated using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
 create policy kc_progress_owner_insert on public.kc_lesson_progress
   for insert to authenticated
-  with check (user_id=(select auth.uid()) and exists(select 1 from public.kc_course_enrolments e join public.kc_course_modules m on m.course_id=e.course_id join public.kc_course_lessons l on l.module_id=m.id where e.user_id=(select auth.uid()) and e.status='active' and l.id=lesson_id and l.published=true));
+  with check (user_id=(select auth.uid()) and exists(select 1 from public.kc_course_enrolments e join public.kc_course_modules m on m.course_id=e.course_id join public.kc_course_lessons l on l.module_id=m.id join public.kc_entitlements en on en.id=e.entitlement_id
+    where e.user_id=(select auth.uid())
+      and e.status in ('active','completed')
+      and en.status='active'
+      and (en.expires_at is null or en.expires_at>now())
+      and l.id=lesson_id and l.published=true));
 create policy kc_progress_owner_update on public.kc_lesson_progress
   for update to authenticated
   using (user_id=(select auth.uid()))
