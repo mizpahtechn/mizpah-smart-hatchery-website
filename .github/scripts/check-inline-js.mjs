@@ -9,6 +9,9 @@ const files = [
   "knowledge-library.html",
   "academy-course.html",
   "admin/knowledge-center.html",
+  "knowledge-membership.html",
+  "knowledge-growth.html",
+  "admin/knowledge-center-growth.html",
 ];
 
 let failures = 0;
