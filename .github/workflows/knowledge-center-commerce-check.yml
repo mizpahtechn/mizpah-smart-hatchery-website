@@ -5,15 +5,34 @@ on:
     branches:
       - feature/knowledge-center-digital-commerce
     paths:
+      - ".github/scripts/**"
+      - ".github/workflows/knowledge-center-commerce-check.yml"
+      - "digital-library.html"
+      - "academy.html"
+      - "knowledge-product.html"
+      - "knowledge-checkout.html"
+      - "knowledge-library.html"
+      - "academy-course.html"
+      - "admin/knowledge-center.html"
       - "supabase/functions/knowledge-center-commerce/**"
       - "supabase/functions/website-checkout/**"
       - "supabase/migrations/**"
       - "supabase/tests/**"
   pull_request:
     paths:
+      - ".github/scripts/**"
+      - ".github/workflows/knowledge-center-commerce-check.yml"
+      - "digital-library.html"
+      - "academy.html"
+      - "knowledge-product.html"
+      - "knowledge-checkout.html"
+      - "knowledge-library.html"
+      - "academy-course.html"
+      - "admin/knowledge-center.html"
       - "supabase/functions/knowledge-center-commerce/**"
       - "supabase/functions/website-checkout/**"
       - "supabase/migrations/**"
+      - "supabase/tests/**"
 
 permissions:
   contents: read
