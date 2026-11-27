@@ -1069,21 +1069,26 @@ async function recommendationEvent(req:Request){
 }
 async function adminGrowthReport(req:Request){
   await requireStaff(req);const client=db();
-  const [memberships,campaigns,sponsorEvents,commissions,recommendationEvents]=await Promise.all([
+  const [memberships,campaigns,sponsorEvents,commissions,recommendationEvents,orders,renewals]=await Promise.all([
     client.from("kc_memberships").select("status"),
     client.from("kc_sponsor_campaigns").select("id,status"),
     client.from("kc_sponsor_events").select("event_type"),
     client.from("kc_affiliate_commissions").select("status,currency,amount_minor"),
-    client.from("kc_recommendation_events").select("event_type")
+    client.from("kc_recommendation_events").select("event_type"),
+    client.from("kc_digital_orders").select("status,currency,total_minor"),
+    client.from("kc_membership_renewals").select("status,currency,amount_minor")
   ]);
-  if(memberships.error||campaigns.error||sponsorEvents.error||commissions.error||recommendationEvents.error)
+  if(memberships.error||campaigns.error||sponsorEvents.error||commissions.error||recommendationEvents.error||orders.error||renewals.error)
     throw new Error("Growth reporting is temporarily unavailable.");
   const count=(rows:any[],key:string)=>rows.reduce((out:any,row:any)=>{out[row[key]]=(out[row[key]]||0)+1;return out;},{});
-  const commissionTotals:any={};
+  const commissionTotals:any={},revenueTotals:any={};
   for(const row of commissions.data??[]){const k=row.currency+":"+row.status;commissionTotals[k]=(commissionTotals[k]||0)+Number(row.amount_minor||0);}
+  for(const row of orders.data??[]){if(row.status==="paid"){const k="digital_orders:"+row.currency;revenueTotals[k]=(revenueTotals[k]||0)+Number(row.total_minor||0);}}
+  for(const row of renewals.data??[]){if(row.status==="success"){const k="membership_renewals:"+row.currency;revenueTotals[k]=(revenueTotals[k]||0)+Number(row.amount_minor||0);}}
   return json(req,{success:true,memberships:count(memberships.data??[],"status"),
     campaigns:count(campaigns.data??[],"status"),sponsor_events:count(sponsorEvents.data??[],"event_type"),
-    affiliate_commissions:commissionTotals,recommendation_events:count(recommendationEvents.data??[],"event_type")});
+    affiliate_commissions:commissionTotals,recommendation_events:count(recommendationEvents.data??[],"event_type"),
+    verified_revenue_minor:revenueTotals});
 }
 
 
