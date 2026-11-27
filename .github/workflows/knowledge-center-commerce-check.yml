@@ -49,6 +49,8 @@ jobs:
           deno-version: v2.x
       - name: Type-check Knowledge Center commerce function
         run: deno check supabase/functions/knowledge-center-commerce/index.ts
+      - name: Run payment provider helper tests
+        run: deno test supabase/functions/knowledge-center-commerce/provider_helpers_test.ts
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
