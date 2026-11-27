@@ -169,9 +169,10 @@ create table if not exists public.kc_affiliate_attributions (
   customer_user_id uuid not null references auth.users(id) on delete restrict,
   attributed_at timestamptz not null default now(),
   expires_at timestamptz not null,
-  status text not null default 'active' check (status in ('active','expired','revoked')),
-  unique(customer_user_id)
+  status text not null default 'active' check (status in ('active','expired','revoked'))
 );
+create unique index if not exists kc_affiliate_attributions_active_customer_idx
+  on public.kc_affiliate_attributions(customer_user_id) where status='active';
 create table if not exists public.kc_affiliate_commissions (
   id uuid primary key default gen_random_uuid(),
   attribution_id uuid not null references public.kc_affiliate_attributions(id) on delete restrict,
