@@ -601,7 +601,7 @@ async function verifyMembershipReference(referenceValue: string, userId?: string
     .eq("reference",reference).maybeSingle();
   if(error||!renewal) throw new Error("Membership payment reference was not found.");
   const {data:membership,error:membershipError}=await client.from("kc_memberships")
-    .select("id,user_id,plan_id,status").eq("id",renewal.membership_id).maybeSingle();
+    .select("id,user_id,plan_id,status,current_period_end,kc_membership_plans(grace_period_days)").eq("id",renewal.membership_id).maybeSingle();
   if(membershipError||!membership) throw new Error("Membership record was not found.");
   if(userId&&membership.user_id!==userId) throw new Error("This membership payment does not belong to your account.");
   if(renewal.status==="success") return {success:true,status:"paid",membership_id:membership.id};
@@ -616,6 +616,11 @@ async function verifyMembershipReference(referenceValue: string, userId?: string
     if(providerStatus!=="success"){
       if(["failed","abandoned","reversed"].includes(providerStatus)){
         await client.from("kc_membership_renewals").update({status:"failed",updated_at:new Date().toISOString()}).eq("id",renewal.id);
+        if(membership.current_period_end){
+          const graceDays=Number((membership as any).kc_membership_plans?.grace_period_days)||0;
+          const graceEnd=new Date(new Date(membership.current_period_end).getTime()+graceDays*86400000).toISOString();
+          await client.from("kc_memberships").update({status:"past_due",grace_ends_at:graceEnd,updated_at:new Date().toISOString()}).eq("id",membership.id);
+        }
         return {success:false,status:"failed",membership_id:membership.id};
       }
       return {success:false,status:"pending",membership_id:membership.id};
@@ -628,6 +633,11 @@ async function verifyMembershipReference(referenceValue: string, userId?: string
     if(parsed.status!=="SUCCESS"){
       if(["FAILED","FAIL","CANCELLED","CANCELED","CLOSED","EXPIRED"].includes(parsed.status)){
         await client.from("kc_membership_renewals").update({status:"failed",updated_at:new Date().toISOString()}).eq("id",renewal.id);
+        if(membership.current_period_end){
+          const graceDays=Number((membership as any).kc_membership_plans?.grace_period_days)||0;
+          const graceEnd=new Date(new Date(membership.current_period_end).getTime()+graceDays*86400000).toISOString();
+          await client.from("kc_memberships").update({status:"past_due",grace_ends_at:graceEnd,updated_at:new Date().toISOString()}).eq("id",membership.id);
+        }
         return {success:false,status:"failed",membership_id:membership.id};
       }
       return {success:false,status:"pending",membership_id:membership.id};
