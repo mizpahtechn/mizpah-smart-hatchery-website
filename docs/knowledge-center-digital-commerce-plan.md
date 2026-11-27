@@ -158,6 +158,7 @@ Automated checks passed on the development branch:
 - Unit tests for Paystack/OPay mode, deterministic payload signing, cashier-host validation, and reference/amount/currency verification.
 - Inline JavaScript syntax checks for all new customer-facing and admin pages.
 - PostgreSQL 16 migration smoke test using a disposable Supabase-like fixture, including enrolled-customer access to archived courses.
+- Transactional tests for server-side catalogue pricing, checkout idempotency and pending-order resumption, duplicate-entitlement prevention, Paystack/OPay settlement record handling, callback replay idempotency, free-resource grants, course enrolment creation and mismatched-payment rejection.
 - RLS checks for published-vs-draft catalogue visibility, customer order isolation, staff-only file metadata/storage access, private bucket configuration, payment payload column restrictions and service-role-only order creation.
 
 Not yet complete or verified:
