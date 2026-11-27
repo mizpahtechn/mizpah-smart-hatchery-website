@@ -228,7 +228,6 @@ grant select on public.kc_sponsor_placements to anon,authenticated;
 grant select,insert on public.kc_sponsor_events to service_role;
 grant select on public.kc_affiliate_links to anon,authenticated;
 grant select on public.kc_affiliate_partners to authenticated;
-grant select on public.kc_affiliate_commissions to authenticated;
 grant select on public.kc_recommendation_events to service_role;
 
 create policy kc_membership_plans_public_read on public.kc_membership_plans
@@ -293,5 +292,48 @@ create policy kc_affiliate_commissions_staff_manage on public.kc_affiliate_commi
   for all to authenticated
   using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')))
   with check (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
+
+
+-- Commission accrual is tied to verified order settlement, never to a browser redirect.
+create or replace function public.kc_record_affiliate_commissions()
+returns trigger
+language plpgsql
+set search_path=public,pg_temp
+as $function$
+declare v_attribution public.kc_affiliate_attributions%rowtype; v_basis integer;
+begin
+  if new.status='paid' and old.status is distinct from 'paid' then
+    select a.*,p.default_commission_basis_points into v_attribution,v_basis
+    from public.kc_affiliate_attributions a
+    join public.kc_affiliate_partners p on p.id=a.partner_id
+    where a.customer_user_id=new.user_id and a.status='active'
+      and a.expires_at>now() and p.status='approved'
+    order by a.attributed_at desc limit 1;
+    if found then
+      insert into public.kc_affiliate_commissions(
+        attribution_id,partner_id,order_id,order_item_id,basis_points,amount_minor,currency,status
+      )
+      select v_attribution.id,v_attribution.partner_id,new.id,i.id,v_basis,
+        floor(i.line_total_minor::numeric*v_basis/10000)::bigint,new.currency,'pending'
+      from public.kc_digital_order_items i
+      where i.order_id=new.id
+      on conflict(order_item_id) do nothing;
+    end if;
+  elsif new.status='refunded' and old.status='paid' then
+    update public.kc_affiliate_commissions
+      set status='reversed',reversal_reason='Underlying digital order refunded'
+      where order_id=new.id and status in ('pending','approved');
+  end if;
+  return new;
+end
+$function$;
+revoke all on function public.kc_record_affiliate_commissions() from public,anon,authenticated;
+drop trigger if exists kc_order_affiliate_commission on public.kc_digital_orders;
+create trigger kc_order_affiliate_commission
+after update of status on public.kc_digital_orders
+for each row execute function public.kc_record_affiliate_commissions();
+
+grant usage,select on sequence public.kc_sponsor_events_id_seq,public.kc_recommendation_events_id_seq,
+  public.kc_affiliate_clicks_id_seq to service_role;
 
 commit;
