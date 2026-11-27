@@ -182,10 +182,14 @@ create policy kc_responses_staff_read on public.kc_assessment_responses
 create or replace function public.kc_validate_assessment_publish()
 returns trigger language plpgsql set search_path=public,pg_temp as $function$
 begin
-  if new.published=true and (tg_op='INSERT' or old.published=false) and not exists(
-    select 1 from public.kc_assessment_questions q where q.assessment_id=new.id
-  ) then
-    raise exception 'Add at least one question before publishing an assessment.';
+  if tg_op='INSERT' then
+    if new.published=true and not exists(
+      select 1 from public.kc_assessment_questions q where q.assessment_id=new.id
+    ) then raise exception 'Add at least one question before publishing an assessment.'; end if;
+  elsif tg_op='UPDATE' then
+    if new.published=true and old.published=false and not exists(
+      select 1 from public.kc_assessment_questions q where q.assessment_id=new.id
+    ) then raise exception 'Add at least one question before publishing an assessment.'; end if;
   end if;
   return new;
 end
