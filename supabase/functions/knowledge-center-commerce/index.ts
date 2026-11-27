@@ -486,7 +486,7 @@ async function lessonContent(req: Request) {
   const lessonId = safeText(url.searchParams.get("lesson_id"), 80);
   const client = db();
   const { data: lesson, error } = await client.from("kc_course_lessons")
-    .select("id,title,lesson_type,content_markdown,video_provider,video_reference,duration_minutes,is_preview,published,module_id,kc_course_modules!inner(id,course_id,published,kc_courses!inner(id,product_id,status))")
+    .select("id,title,lesson_type,content_markdown,video_provider,video_reference,video_privacy_mode,captions_url,video_duration_seconds,duration_minutes,is_preview,published,module_id,kc_course_modules!inner(id,course_id,published,kc_courses!inner(id,product_id,status))")
     .eq("id", lessonId).eq("published", true).maybeSingle();
   if (error || !lesson) throw new Error("This lesson is not available.");
   const module = (lesson as any).kc_course_modules;
@@ -498,12 +498,25 @@ async function lessonContent(req: Request) {
   if (!lesson.is_preview) {
     await requireCourseEntitlement(user.id, course.id);
   }
+  let videoEmbedUrl:string|null=null;
+  if(lesson.lesson_type==="external_video"){
+    const reference=String(lesson.video_reference??"");
+    if(lesson.video_provider==="youtube"&&/^[A-Za-z0-9_-]{6,20}$/.test(reference)){
+      videoEmbedUrl="https://www.youtube-nocookie.com/embed/"+reference+"?rel=0";
+    }else if(lesson.video_provider==="vimeo"&&/^[0-9]{1,15}$/.test(reference)){
+      videoEmbedUrl="https://player.vimeo.com/video/"+reference;
+    }else{
+      throw new Error("This lesson video is not configured with a supported provider.");
+    }
+  }
   return json(req, {
     success: true,
     lesson: {
       id: lesson.id, title: lesson.title, lesson_type: lesson.lesson_type,
       content_markdown: lesson.content_markdown, video_provider: lesson.video_provider,
-      video_reference: lesson.video_reference, duration_minutes: lesson.duration_minutes,
+      video_reference: lesson.video_reference, video_embed_url:videoEmbedUrl,
+      video_privacy_mode:lesson.video_privacy_mode,captions_url:lesson.captions_url,
+      video_duration_seconds:lesson.video_duration_seconds,duration_minutes: lesson.duration_minutes,
     },
   });
 }
