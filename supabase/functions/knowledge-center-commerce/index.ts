@@ -373,6 +373,21 @@ async function customerLibrary(req: Request) {
     .eq("user_id", user.id).in("status", ["active", "completed"])
     .order("enrolled_at", { ascending: false });
   if (enrolmentError) throw new Error("Your course enrolments could not be loaded.");
+
+  const { data: orders, error: ordersError } = await client.from("kc_digital_orders")
+    .select("id,order_number,status,total_minor,currency,created_at,paid_at")
+    .eq("user_id", user.id).order("created_at", { ascending: false }).limit(50);
+  if (ordersError) throw new Error("Your digital purchase history could not be loaded.");
+  const orderIds = (orders ?? []).map((order: any) => order.id);
+  let orderItems: any[] = [];
+  if (orderIds.length) {
+    const { data: itemRows, error: itemError } = await client.from("kc_digital_order_items")
+      .select("order_id,product_title,product_type,quantity,line_total_minor")
+      .in("order_id", orderIds);
+    if (itemError) throw new Error("Your digital purchase details could not be loaded.");
+    orderItems = itemRows ?? [];
+  }
+
   return json(req, {
     success: true,
     customer: { email: user.email },
@@ -383,6 +398,10 @@ async function customerLibrary(req: Request) {
       files: filesByProduct[row.product_id] ?? [],
     })),
     enrolments: (enrolments ?? []).filter((enrolment: any) => rows.some((entitlement: any) => entitlement.id === enrolment.entitlement_id)),
+    orders: (orders ?? []).map((order: any) => ({
+      ...order,
+      items: orderItems.filter((item: any) => item.order_id === order.id),
+    })),
   });
 }
 
