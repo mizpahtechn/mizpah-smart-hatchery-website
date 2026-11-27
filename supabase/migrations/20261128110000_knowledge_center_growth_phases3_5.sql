@@ -190,6 +190,27 @@ create table if not exists public.kc_affiliate_commissions (
   created_at timestamptz not null default now(),
   unique(order_item_id)
 );
+create or replace function public.kc_validate_affiliate_commission_transition()
+returns trigger language plpgsql set search_path=public,pg_temp as $function$
+begin
+  if new.status is distinct from old.status then
+    if new.status='approved' and (old.status<>'pending' or new.approved_by is null or new.approved_at is null) then
+      raise exception 'A pending commission must be approved by an authorised staff member.';
+    elsif new.status='paid' and (old.status<>'approved' or new.paid_at is null) then
+      raise exception 'Only an approved commission can be marked paid.';
+    elsif new.status='reversed' and (old.status not in ('pending','approved') or nullif(btrim(new.reversal_reason),'') is null) then
+      raise exception 'Only unpaid commissions can be reversed, with a reason.';
+    end if;
+  end if;
+  return new;
+end
+$function$;
+revoke all on function public.kc_validate_affiliate_commission_transition() from public,anon,authenticated;
+drop trigger if exists kc_affiliate_commission_transition_guard on public.kc_affiliate_commissions;
+create trigger kc_affiliate_commission_transition_guard
+before update of status on public.kc_affiliate_commissions
+for each row execute function public.kc_validate_affiliate_commission_transition();
+
 create index if not exists kc_affiliate_commissions_partner_idx
   on public.kc_affiliate_commissions(partner_id,status,created_at desc);
 create table if not exists public.kc_recommendation_events (
