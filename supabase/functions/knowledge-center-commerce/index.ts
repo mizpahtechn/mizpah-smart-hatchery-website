@@ -797,15 +797,21 @@ async function sponsorPlacements(req:Request){
     .eq("placement_key",slot).eq("active",true).order("priority").limit(5);
   if(error) throw new Error("Sponsored placements are temporarily unavailable.");
   const now=Date.now();
+  const now=Date.now();
   const rows=(data??[]).filter((p:any)=>{
     const c=p.kc_sponsor_campaigns, s=c?.kc_sponsors, cr=c?.kc_sponsor_creatives;
-    return s?.status==="approved"&&Array.isArray(cr)&&cr.some((x:any)=>x.active);
+    return c?.status==="approved"&&s?.status==="approved"&&
+      (!c.starts_at||new Date(c.starts_at).getTime()<=now)&&
+      (!c.ends_at||new Date(c.ends_at).getTime()>now)&&
+      Array.isArray(cr)&&cr.some((x:any)=>x.active);
   }).map((p:any)=>{
     const c=p.kc_sponsor_campaigns,cr=(c.kc_sponsor_creatives||[]).find((x:any)=>x.active);
+    let destinationUrl="";
+    try{const parsed=new URL(String(c.destination_url||""));if(parsed.protocol==="https:")destinationUrl=parsed.toString();}catch{}
     return {placement_id:p.id,placement_key:p.placement_key,disclosure_label:c.disclosure_label,
-      sponsor:c.kc_sponsors?.organisation_name,campaign_title:c.title,destination_url:c.destination_url,
+      sponsor:c.kc_sponsors?.organisation_name,campaign_title:c.title,destination_url:destinationUrl,
       creative:cr};
-  });
+  }).filter((p:any)=>p.destination_url);
   return json(req,{success:true,placements:rows});
 }
 async function sponsorEvent(req:Request){
