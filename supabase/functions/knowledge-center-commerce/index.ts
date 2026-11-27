@@ -463,7 +463,10 @@ async function lessonContent(req: Request) {
   if (error || !lesson) throw new Error("This lesson is not available.");
   const module = (lesson as any).kc_course_modules;
   const course = module?.kc_courses;
-  if (!module?.published || course?.status !== "published") throw new Error("This lesson is not available.");
+  if (!module?.published || !course) throw new Error("This lesson is not available.");
+  if (lesson.is_preview && course.status !== "published") {
+    throw new Error("This preview is not currently available.");
+  }
   if (!lesson.is_preview) {
     await requireCourseEntitlement(user.id, course.id);
   }
