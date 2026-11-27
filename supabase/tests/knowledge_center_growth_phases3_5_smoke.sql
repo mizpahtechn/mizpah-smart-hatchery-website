@@ -114,6 +114,23 @@ begin
 end
 $commission_test$;
 
+do $commission_transition_test$
+declare v_blocked boolean:=false;
+begin
+  begin
+    update public.kc_affiliate_commissions set status='paid',paid_at=now()
+    where order_item_id='26262626-2626-4626-8626-262626262626';
+  exception when others then v_blocked:=true;
+  end;
+  if not v_blocked then raise exception 'Pending commissions must not be paid before approval.'; end if;
+end
+$commission_transition_test$;
+update public.kc_affiliate_commissions set status='approved',
+  approved_by='33333333-3333-4333-8333-333333333333',approved_at=now()
+where order_item_id='26262626-2626-4626-8626-262626262626';
+update public.kc_affiliate_commissions set status='paid',paid_at=now()
+where order_item_id='26262626-2626-4626-8626-262626262626';
+
 begin;
 set local role authenticated;
 set local request.jwt.claim.sub='22222222-2222-4222-8222-222222222222';
