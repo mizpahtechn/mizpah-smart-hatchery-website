@@ -484,8 +484,12 @@ async function courseOutline(req: Request) {
     if(progressError) throw new Error("Your learning progress could not be loaded.");
     progress=progressRows??[];
   }
+  const {data:instructorRows,error:instructorError}=await client.from("kc_course_instructors")
+    .select("kc_instructors(id,display_name,biography,avatar_url)").eq("course_id",courseId);
+  if(instructorError) throw new Error("Course instructors could not be loaded.");
   return json(req, {
     success: true,
+    instructors:(instructorRows??[]).map((row:any)=>row.kc_instructors).filter(Boolean),
     modules: (modules ?? []).map((m: any) => ({
       ...m,
       lessons: lessons.filter((lesson: any) => lesson.module_id === m.id).map((lesson:any)=>({
