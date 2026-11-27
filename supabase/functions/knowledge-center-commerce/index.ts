@@ -572,6 +572,256 @@ async function submitAssessment(req: Request) {
   return json(req, { success: true, result });
 }
 
+
+async function verifyMembershipReference(referenceValue: string, userId?: string) {
+  const reference=referenceValue.trim();
+  if(!/^[A-Za-z0-9_-]{12,80}$/.test(reference)) throw new Error("Invalid membership payment reference.");
+  const client=db();
+  const {data:renewal,error}=await client.from("kc_membership_renewals")
+    .select("id,membership_id,provider,reference,amount_minor,currency,status,period_start,period_end")
+    .eq("reference",reference).maybeSingle();
+  if(error||!renewal) throw new Error("Membership payment reference was not found.");
+  const {data:membership,error:membershipError}=await client.from("kc_memberships")
+    .select("id,user_id,plan_id,status").eq("id",renewal.membership_id).maybeSingle();
+  if(membershipError||!membership) throw new Error("Membership record was not found.");
+  if(userId&&membership.user_id!==userId) throw new Error("This membership payment does not belong to your account.");
+  if(renewal.status==="success") return {success:true,status:"paid",membership_id:membership.id};
+  let raw:Record<string,any>;
+  if(renewal.provider==="paystack"){
+    raw=await providerJson("https://api.paystack.co/transaction/verify/"+encodeURIComponent(reference),{
+      method:"GET",headers:{Authorization:"Bearer "+paystackKey(),"Content-Type":"application/json"}
+    });
+    const data=raw.data??{};
+    if(raw.status!==true||String(data.reference??"")!==reference) throw new Error("Paystack could not verify this membership payment.");
+    const providerStatus=String(data.status??"").toLowerCase();
+    if(providerStatus!=="success"){
+      if(["failed","abandoned","reversed"].includes(providerStatus)){
+        await client.from("kc_membership_renewals").update({status:"failed",updated_at:new Date().toISOString()}).eq("id",renewal.id);
+        return {success:false,status:"failed",membership_id:membership.id};
+      }
+      return {success:false,status:"pending",membership_id:membership.id};
+    }
+    if(Number(data.amount)!==Number(renewal.amount_minor)||String(data.currency??"").toUpperCase()!==renewal.currency)
+      throw new Error("The verified Paystack membership amount or currency does not match.");
+  }else if(renewal.provider==="opay"){
+    raw=await opayRequest("status",{country:"NG",reference});
+    const parsed=parseOpayStatusResponse(raw,reference,Number(renewal.amount_minor));
+    if(parsed.status!=="SUCCESS"){
+      if(["FAILED","FAIL","CANCELLED","CANCELED","CLOSED","EXPIRED"].includes(parsed.status)){
+        await client.from("kc_membership_renewals").update({status:"failed",updated_at:new Date().toISOString()}).eq("id",renewal.id);
+        return {success:false,status:"failed",membership_id:membership.id};
+      }
+      return {success:false,status:"pending",membership_id:membership.id};
+    }
+  }else throw new Error("Unsupported membership payment provider.");
+  const {data:settlement,error:settlementError}=await client.rpc("kc_settle_membership_renewal",{
+    p_reference:reference,p_provider_event:raw
+  });
+  if(settlementError||!settlement?.success) throw new Error("Payment verified, but membership access could not yet be activated. Contact Mizpah with reference "+reference+".");
+  return {success:true,status:"paid",membership_id:membership.id,period_end:settlement.period_end};
+}
+
+async function membershipCheckout(req:Request){
+  const user=await requireUser(req);
+  const body=await req.json().catch(()=>({}));
+  const planId=safeText(body.plan_id,80);
+  const provider=String(body.provider??"").toLowerCase();
+  if(!/^[0-9a-f-]{36}$/i.test(planId)||!["paystack","opay"].includes(provider)) throw new Error("Choose a valid membership plan and payment provider.");
+  const client=db();
+  const {data:plan,error:planError}=await client.from("kc_membership_plans")
+    .select("id,name,price_minor,currency,billing_interval,billing_mode,automatic_billing_enabled,grace_period_days")
+    .eq("id",planId).eq("active",true).maybeSingle();
+  if(planError||!plan) throw new Error("This membership plan is not available.");
+  if(plan.billing_mode!=="manual"||plan.automatic_billing_enabled) throw new Error("Automatic renewals are not enabled. Choose a manual renewal plan or contact Mizpah.");
+  const currency=String(plan.currency);
+  if(provider==="opay"&&currency!=="NGN") throw new Error("OPay membership payments are available for NGN plans only.");
+  if(currency==="USD"&&Deno.env.get("KC_PAYSTACK_USD_ENABLED")?.trim().toLowerCase()!=="true")
+    throw new Error("USD membership checkout is not enabled for this merchant account yet.");
+  const amount=Number(plan.price_minor);
+  if(!Number.isSafeInteger(amount)||amount<=0) throw new Error("Membership price is invalid.");
+  if(provider==="paystack"&&((currency==="NGN"&&amount<5000)||(currency==="USD"&&amount<200)))
+    throw new Error(currency==="USD"?"Paystack USD transactions must be at least $2.00.":"Paystack NGN transactions must be at least ₦50.00.");
+  let membershipId=body.membership_id?String(body.membership_id):"";
+  let membership:any=null;
+  if(membershipId){
+    const found=await client.from("kc_memberships").select("id,user_id,plan_id,status,current_period_end")
+      .eq("id",membershipId).eq("user_id",user.id).eq("plan_id",planId).maybeSingle();
+    if(found.error||!found.data) throw new Error("Membership record not found.");
+    membership=found.data;
+  }else{
+    const found=await client.from("kc_memberships").select("id,user_id,plan_id,status,current_period_end")
+      .eq("user_id",user.id).eq("plan_id",planId).in("status",["pending","active","past_due"])
+      .order("created_at",{ascending:false}).limit(1).maybeSingle();
+    if(found.error) throw new Error("Your existing membership could not be checked.");
+    membership=found.data;
+  }
+  if(!membership){
+    const created=await client.from("kc_memberships").insert({user_id:user.id,plan_id:planId,billing_mode:"manual",status:"pending"})
+      .select("id,user_id,plan_id,status,current_period_end").single();
+    if(created.error||!created.data) throw new Error("Your membership could not be created.");
+    membership=created.data;
+  }
+  const {data:prior,error:priorError}=await client.from("kc_membership_renewals")
+    .select("reference,provider,checkout_url,status,amount_minor,currency")
+    .eq("membership_id",membership.id).in("status",["pending","initialized"])
+    .order("created_at",{ascending:false}).limit(1).maybeSingle();
+  if(priorError) throw new Error("Existing membership payment could not be checked.");
+  if(prior?.status==="initialized"&&prior.checkout_url&&Number(prior.amount_minor)===amount&&prior.currency===currency)
+    return json(req,{success:true,status:"pending",reference:prior.reference,checkout_url:prior.checkout_url,provider:prior.provider});
+  if(prior?.status==="pending") throw new Error("A membership payment is already being prepared. Please wait and refresh.");
+  if(prior?.status==="initialized") throw new Error("An existing membership payment needs review before a new one can be started.");
+  const now=new Date();
+  const currentEnd=membership.current_period_end?new Date(membership.current_period_end):now;
+  const periodStart=currentEnd>now?currentEnd:now;
+  const periodEnd=new Date(periodStart);
+  if(plan.billing_interval==="year") periodEnd.setUTCFullYear(periodEnd.getUTCFullYear()+1);
+  else periodEnd.setUTCMonth(periodEnd.getUTCMonth()+1);
+  const reference=newReference();
+  const inserted=await client.from("kc_membership_renewals").insert({
+    membership_id:membership.id,provider,reference,amount_minor:amount,currency,status:"pending",
+    period_start:periodStart.toISOString(),period_end:periodEnd.toISOString()
+  });
+  if(inserted.error) throw new Error("Membership payment attempt could not be recorded.");
+  try{
+    let checkoutUrl="",raw:Record<string,any>;
+    if(provider==="paystack"){
+      raw=await providerJson("https://api.paystack.co/transaction/initialize",{
+        method:"POST",headers:{Authorization:"Bearer "+paystackKey(),"Content-Type":"application/json"},
+        body:JSON.stringify({email:user.email,amount:String(amount),currency,reference,
+          callback_url:SITE+"/knowledge-membership.html?payment=return&reference="+encodeURIComponent(reference),
+          metadata:{source:"mizpah_knowledge_center_membership",membershipId:membership.id,planId}})
+      });
+      if(raw.status!==true||!raw.data?.authorization_url) throw new Error("Paystack did not return a membership checkout link.");
+      checkoutUrl=String(raw.data.authorization_url);
+    }else{
+      const credentials=opayCredentials();
+      const payload={country:"NG",reference,amount:{total:amount,currency:"NGN"},
+        returnUrl:SUPABASE_URL+"/functions/v1/knowledge-center-commerce/return?reference="+encodeURIComponent(reference),
+        cancelUrl:SITE+"/knowledge-membership.html?payment=cancelled&reference="+encodeURIComponent(reference),
+        expireAt:30,callbackUrl:SUPABASE_URL+"/functions/v1/knowledge-center-commerce/webhook?provider=opay",
+        userInfo:{userEmail:user.email,userId:"kc-membership-"+membership.id,userName:user.email},
+        product:{name:"Mizpah Academy "+plan.name,description:"Membership "+plan.billing_interval+" renewal"}};
+      raw=await opayRequest("create",payload);
+      checkoutUrl=parseOpayInitializationResponse(raw,credentials.mode).cashierUrl;
+    }
+    const updated=await client.from("kc_membership_renewals").update({
+      status:"initialized",checkout_url:checkoutUrl,raw_event:raw,updated_at:new Date().toISOString()
+    }).eq("reference",reference);
+    if(updated.error) throw new Error("Membership checkout could not be saved.");
+    return json(req,{success:true,status:"pending",reference,checkout_url:checkoutUrl,provider,membership_id:membership.id});
+  }catch(error){
+    await client.from("kc_membership_renewals").update({status:"failed",updated_at:new Date().toISOString()}).eq("reference",reference);
+    throw error;
+  }
+}
+
+async function membershipVerify(req:Request){
+  const user=await requireUser(req);
+  const reference=safeText(new URL(req.url).searchParams.get("reference"),80);
+  return json(req,await verifyMembershipReference(reference,user.id));
+}
+async function customerMemberships(req:Request){
+  const user=await requireUser(req);
+  const {data:memberships,error}=await db().from("kc_memberships")
+    .select("id,status,billing_mode,provider,current_period_start,current_period_end,grace_ends_at,cancel_at_period_end,created_at,kc_membership_plans(name,description,billing_interval,price_minor,currency)")
+    .eq("user_id",user.id).order("created_at",{ascending:false});
+  if(error) throw new Error("Your memberships could not be loaded.");
+  const ids=(memberships??[]).map((m:any)=>m.id);let renewals:any[]=[];
+  if(ids.length){const result=await db().from("kc_membership_renewals")
+    .select("membership_id,reference,amount_minor,currency,status,period_start,period_end,paid_at,created_at")
+    .in("membership_id",ids).order("created_at",{ascending:false});
+    if(result.error) throw new Error("Membership billing history could not be loaded.");renewals=result.data??[];}
+  return json(req,{success:true,memberships:(memberships??[]).map((m:any)=>({...m,renewals:renewals.filter((r:any)=>r.membership_id===m.id)}))});
+}
+
+async function sponsorPlacements(req:Request){
+  const url=new URL(req.url);const slot=safeText(url.searchParams.get("slot"),40);
+  if(!["home_feature","article_inline","library_sidebar","academy_sidebar","newsletter"].includes(slot)) throw new Error("Invalid sponsorship placement.");
+  const {data,error}=await db().from("kc_sponsor_placements")
+    .select("id,placement_key,priority,kc_sponsor_campaigns!inner(id,title,disclosure_label,destination_url,kc_sponsors!inner(organisation_name,status),kc_sponsor_creatives!inner(id,headline,body,image_url,alt_text,active))")
+    .eq("placement_key",slot).eq("active",true).order("priority").limit(5);
+  if(error) throw new Error("Sponsored placements are temporarily unavailable.");
+  const now=Date.now();
+  const rows=(data??[]).filter((p:any)=>{
+    const c=p.kc_sponsor_campaigns, s=c?.kc_sponsors, cr=c?.kc_sponsor_creatives;
+    return s?.status==="approved"&&Array.isArray(cr)&&cr.some((x:any)=>x.active);
+  }).map((p:any)=>{
+    const c=p.kc_sponsor_campaigns,cr=(c.kc_sponsor_creatives||[]).find((x:any)=>x.active);
+    return {placement_id:p.id,placement_key:p.placement_key,disclosure_label:c.disclosure_label,
+      sponsor:c.kc_sponsors?.organisation_name,campaign_title:c.title,destination_url:c.destination_url,
+      creative:cr};
+  });
+  return json(req,{success:true,placements:rows});
+}
+async function sponsorEvent(req:Request){
+  const body=await req.json().catch(()=>({}));
+  const placementId=safeText(body.placement_id,80),eventType=String(body.event_type??"");
+  const eventKey=safeText(body.event_key,100);
+  if(!/^[0-9a-f-]{36}$/i.test(placementId)||!["impression","click"].includes(eventType)||!/^[A-Za-z0-9_-]{12,100}$/.test(eventKey))
+    throw new Error("Invalid sponsorship event.");
+  const {data:placement,error}=await db().from("kc_sponsor_placements")
+    .select("id,campaign_id,active,kc_sponsor_campaigns!inner(status,starts_at,ends_at,kc_sponsors!inner(status))")
+    .eq("id",placementId).eq("active",true).maybeSingle();
+  if(error||!placement) throw new Error("This sponsored placement is not active.");
+  const campaign=(placement as any).kc_sponsor_campaigns;
+  if(campaign?.status!=="approved"||campaign.kc_sponsors?.status!=="approved"||
+     (campaign.starts_at&&new Date(campaign.starts_at).getTime()>Date.now())||
+     (campaign.ends_at&&new Date(campaign.ends_at).getTime()<=Date.now()))
+    throw new Error("This sponsored placement is not currently approved.");
+  const eventHash=await sha256(placementId+"|"+eventKey);
+  const {error:insertError}=await db().from("kc_sponsor_events").upsert({
+    campaign_id:placement.campaign_id,placement_id:placement.id,event_type:eventType,event_key:eventHash
+  },{onConflict:"event_key,event_type",ignoreDuplicates:true});
+  if(insertError) throw new Error("Sponsorship event could not be recorded.");
+  return json(req,{success:true,recorded:true});
+}
+
+async function affiliateClick(req:Request){
+  const body=await req.json().catch(()=>({}));
+  const code=safeText(body.code,32);
+  const {data:link,error}=await db().from("kc_affiliate_links")
+    .select("id,code,destination_path,kc_affiliate_partners!inner(id,status,attribution_days)")
+    .eq("code",code).eq("active",true).maybeSingle();
+  if(error||!link||(link as any).kc_affiliate_partners?.status!=="approved")
+    throw new Error("This affiliate link is not active.");
+  const destination=String(link.destination_path||"/digital-library.html");
+  if(!destination.startsWith("/")||destination.startsWith("//")||destination.includes("\\"))
+    throw new Error("Affiliate destination is invalid.");
+  const clickToken=crypto.randomUUID().replaceAll("-","");
+  const referrer=req.headers.get("Referer")||"";
+  let referrerHost=null;try{if(referrer)referrerHost=new URL(referrer).host;}catch{}
+  const ua=req.headers.get("User-Agent")||"";
+  const inserted=await db().from("kc_affiliate_clicks").insert({
+    link_id:link.id,click_token:clickToken,referrer_host:referrerHost,user_agent_hash:await sha256(ua)
+  });
+  if(inserted.error) throw new Error("Affiliate click could not be recorded.");
+  return json(req,{success:true,click_token:clickToken,destination});
+}
+async function affiliateAttribute(req:Request){
+  const user=await requireUser(req);const body=await req.json().catch(()=>({}));
+  const clickToken=safeText(body.click_token,64);
+  const {data:click,error}=await db().from("kc_affiliate_clicks").select("id,link_id,clicked_at")
+    .eq("click_token",clickToken).maybeSingle();
+  if(error||!click) throw new Error("Affiliate referral was not found.");
+  const {data:link,error:linkError}=await db().from("kc_affiliate_links")
+    .select("id,partner_id,active,kc_affiliate_partners!inner(status,attribution_days)")
+    .eq("id",click.link_id).eq("active",true).maybeSingle();
+  if(linkError||!link||(link as any).kc_affiliate_partners?.status!=="approved")
+    throw new Error("Affiliate referral is no longer active.");
+  const days=Number((link as any).kc_affiliate_partners.attribution_days)||30;
+  if(Date.now()-new Date(click.clicked_at).getTime()>days*86400000) throw new Error("Affiliate referral has expired.");
+  const expires=new Date(Date.now()+days*86400000).toISOString();
+  const {error:insertError}=await db().from("kc_affiliate_attributions").insert({
+    partner_id:link.partner_id,link_id:link.id,click_id:click.id,customer_user_id:user.id,
+    expires_at:expires,status:"active"
+  });
+  if(insertError){
+    if(insertError.code==="23505") return json(req,{success:true,already_attributed:true});
+    throw new Error("Affiliate referral could not be attached to your account.");
+  }
+  return json(req,{success:true,attributed:true});
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(req.headers.get("Origin") ?? SITE) });
   const url = new URL(req.url);
@@ -588,11 +838,19 @@ Deno.serve(async (req: Request) => {
     if (url.pathname.endsWith("/assessment-list") && req.method === "GET") return await assessmentList(req);
     if (url.pathname.endsWith("/assessment-start") && req.method === "POST") return await startAssessment(req);
     if (url.pathname.endsWith("/assessment-submit") && req.method === "POST") return await submitAssessment(req);
+    if (url.pathname.endsWith("/membership-checkout") && req.method === "POST") return await membershipCheckout(req);
+    if (url.pathname.endsWith("/membership-verify") && req.method === "GET") return await membershipVerify(req);
+    if (url.pathname.endsWith("/memberships") && req.method === "GET") return await customerMemberships(req);
+    if (url.pathname.endsWith("/sponsor-placements") && req.method === "GET") return await sponsorPlacements(req);
+    if (url.pathname.endsWith("/sponsor-event") && req.method === "POST") return await sponsorEvent(req);
+    if (url.pathname.endsWith("/affiliate-click") && req.method === "POST") return await affiliateClick(req);
+    if (url.pathname.endsWith("/affiliate-attribute") && req.method === "POST") return await affiliateAttribute(req);
     if (url.pathname.endsWith("/admin-report") && req.method === "GET") return await adminReport(req);
 
     if (url.pathname.endsWith("/return") && req.method === "GET") {
       const reference = url.searchParams.get("reference") ?? "";
-      const destination = SITE + "/knowledge-checkout.html?payment=return&reference=" + encodeURIComponent(reference);
+      const {data:membershipRenewal}=await db().from("kc_membership_renewals").select("reference").eq("reference",reference).maybeSingle();
+      const destination = SITE + (membershipRenewal ? "/knowledge-membership.html" : "/knowledge-checkout.html") + "?payment=return&reference=" + encodeURIComponent(reference);
       return Response.redirect(destination, 303);
     }
 
@@ -607,7 +865,8 @@ Deno.serve(async (req: Request) => {
       const payload = JSON.parse(rawBody);
       const reference = String(payload?.data?.reference ?? payload?.reference ?? "");
       if (!reference) return json(req, { success: false, message: "Payment reference missing." }, 400);
-      const result = await verifyReference(reference);
+      const {data:membershipRenewal}=await db().from("kc_membership_renewals").select("reference").eq("reference",reference).maybeSingle();
+      const result = membershipRenewal ? await verifyMembershipReference(reference) : await verifyReference(reference);
       return json(req, { ...result });
     }
 
