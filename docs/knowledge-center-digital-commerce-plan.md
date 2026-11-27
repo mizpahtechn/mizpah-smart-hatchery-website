@@ -38,6 +38,17 @@ Supabase project: existing project `ouebgmhtyekqnyrkfrcp`
 - Existing blog images are public. Paid e-books/course files must not be stored in that public bucket.
 - Initial Supabase security advisor output includes 32 authenticated-executable SECURITY DEFINER function warnings, 17 RLS-enabled/no-policy informational findings, and leaked-password protection disabled. These are existing project-wide findings and must be triaged separately; do not bulk-change hatchery permissions as part of this project.
 
+## Confirmed launch decisions
+
+- Audience: global; the public pages remain English-first for the initial soft launch.
+- Currency: NGN and USD product prices. Paystack handles NGN and, only after account activation, USD. OPay remains NGN-only. USD checkout is disabled by default behind `KC_PAYSTACK_USD_ENABLED`.
+- Digital downloads: permanent entitlement by default (`expires_at = null)); each generated download URL is short-lived and can be regenerated from the customer's library.
+- Video hosting: external provider; lesson videos are not stored in Supabase Storage.
+- Certificates: deferred until separately approved.
+- Refund policy: still under review; do not publish a new refund promise or automate refunds until the policy is approved.
+- Launch: soft launch using a deliberately small set of published resources/courses and monitored customer support.
+- Flutter app: web experience only for this release; do not modify the native Flutter app.
+
 ## Target architecture
 
 ### Public website
@@ -172,7 +183,7 @@ Do not mark Phase 1 complete or deploy until those checks pass. Production remai
 
 Phase 1 supports NGN and USD product pricing. NGN checkouts may use Paystack or OPay. USD checkouts are Paystack-only; OPay is restricted to NGN. USD checkout is fail-closed behind `KC_PAYSTACK_USD_ENABLED=true` and must remain disabled until the Mizpah Paystack merchant account has USD currency enabled and its settlement arrangement is confirmed. Paystack documents USD transactions for Nigerian businesses, but USD payouts require an approved USD domiciliary account; international card acceptance in NGN is also possible without changing the product's NGN price. Do not enable USD checkout merely because the code supports it.
 
-Payment isolation: the new function reads only `KC_PAYSTACK_MODE`, `KC_PAYSTACK_SECRET_KEY`, `KC_PAYSTACK_USD_ENABLED`, `KC_OPAY_MODE`, `KC_OPAY_CREDENTIALS_MODE`, `KC_OPAY_PUBLIC_KEY`, `KC_OPAY_SECRET_KEY` and `KC_OPAY_MERCHANT_ID`. It deliberately does not reuse the existing hatchery checkout's provider secrets. Configure these `KC_` secrets with sandbox credentials before test deployment; use live credentials only after separate production approval.
+Payment isolation: the new function reads only `KC_PAYSTACK_MODE`, `KC_PAYSTACK_SECRET_KEY`, `KC_PAYSTACK_USD_ENABLED`, `KC_OPAY_MODE`, `KC_OPAY_CREDENTIALS_MODE`, `KC_OPAY_PUBLIC_KEY`, `KC_OPAY_SECRET_KEY` and `KC_OPAY_MERCHANT_ID`. It deliberately does not reuse the existing hatchery checkout's provider secrets. Configure these `KC_` secrets with sandbox credentials before test deployment; use live credentials only after separate production approval. Set `KC_PAYSTACK_USD_ENABLED=false` until Paystack confirms USD capability for this merchant account; never enable USD merely to bypass the gate.
 
 ## Remaining phase implementation specifications
 
