@@ -37,9 +37,6 @@ create table if not exists public.kc_assessments (
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (module_id is null or exists (
-    select 1 from public.kc_course_modules m where m.id=module_id and m.course_id=kc_assessments.course_id
-  ))
 );
 create index if not exists kc_assessments_course_idx
   on public.kc_assessments(course_id, published);
@@ -105,7 +102,7 @@ grant select, insert, update, delete on public.kc_instructors to authenticated;
 grant select, insert, update, delete on public.kc_course_instructors to authenticated;
 grant select on public.kc_assessments to authenticated;
 grant insert, update, delete on public.kc_assessments to authenticated;
-grant select on public.kc_assessment_questions to authenticated;
+grant select (id,assessment_id,question_type,prompt,options,points,explanation,sort_order) on public.kc_assessment_questions to authenticated;
 grant insert, update, delete on public.kc_assessment_questions to authenticated;
 grant select on public.kc_assessment_attempts to authenticated;
 grant select, insert, update on public.kc_assessment_attempts to authenticated;
