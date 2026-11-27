@@ -25,6 +25,7 @@ on:
       - "supabase/functions/website-checkout/**"
       - "supabase/migrations/**"
       - "supabase/tests/**"
+      - "docs/knowledge-center-digital-commerce-plan.md"
   pull_request:
     paths:
       - ".github/scripts/**"
@@ -47,6 +48,7 @@ on:
       - "supabase/functions/website-checkout/**"
       - "supabase/migrations/**"
       - "supabase/tests/**"
+      - "docs/knowledge-center-digital-commerce-plan.md"
 
 permissions:
   contents: read
