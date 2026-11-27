@@ -492,7 +492,7 @@ Deno.serve(async (req: Request) => {
       const reference = String(payload?.data?.reference ?? payload?.reference ?? "");
       if (!reference) return json(req, { success: false, message: "Payment reference missing." }, 400);
       const result = await verifyReference(reference);
-      return json(req, { success: true, ...result });
+      return json(req, { ...result });
     }
 
     return json(req, { success: false, message: "Unknown Knowledge Center commerce endpoint." }, 404);
