@@ -264,6 +264,18 @@ create policy kc_entitlements_staff_read on public.kc_entitlements
 create policy kc_courses_public_read on public.kc_courses
   for select to anon, authenticated
   using (status='published' and exists(select 1 from public.kc_digital_products p where p.id=product_id and p.status='published' and (p.published_at is null or p.published_at<=now())));
+create policy kc_courses_enrolled_read on public.kc_courses
+  for select to authenticated
+  using (exists(
+    select 1
+    from public.kc_course_enrolments e
+    join public.kc_entitlements en on en.id=e.entitlement_id
+    where e.course_id=kc_courses.id
+      and e.user_id=(select auth.uid())
+      and e.status in ('active','completed')
+      and en.status='active'
+      and (en.expires_at is null or en.expires_at>now())
+  ));
 create policy kc_courses_staff_manage on public.kc_courses
   for all to authenticated
   using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')))
