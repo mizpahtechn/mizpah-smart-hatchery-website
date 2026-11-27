@@ -362,14 +362,30 @@ async function customerLibrary(req: Request) {
 }
 
 
+
+async function requireCourseEntitlement(userId: string, courseId: string) {
+  const client = db();
+  const { data: enrolment, error } = await client.from("kc_course_enrolments")
+    .select("id,status,entitlement_id")
+    .eq("user_id", userId).eq("course_id", courseId)
+    .in("status", ["active", "completed"]).maybeSingle();
+  if (error || !enrolment) throw new Error("An active course enrolment is required.");
+  const { data: entitlement, error: entitlementError } = await client.from("kc_entitlements")
+    .select("id,status,expires_at")
+    .eq("id", enrolment.entitlement_id).eq("user_id", userId).eq("status", "active").maybeSingle();
+  if (entitlementError || !entitlement ||
+      (entitlement.expires_at && new Date(entitlement.expires_at).getTime() <= Date.now())) {
+    throw new Error("Your course access is no longer active.");
+  }
+  return enrolment;
+}
+
 async function courseOutline(req: Request) {
   const user = await requireUser(req);
   const url = new URL(req.url);
   const courseId = safeText(url.searchParams.get("course_id"), 80);
   const client = db();
-  const { data: enrolment, error: enrolmentError } = await client.from("kc_course_enrolments")
-    .select("id,status").eq("user_id", user.id).eq("course_id", courseId).eq("status", "active").maybeSingle();
-  if (enrolmentError || !enrolment) throw new Error("An active course enrolment is required.");
+  await requireCourseEntitlement(user.id, courseId);
   const { data: modules, error } = await client.from("kc_course_modules")
     .select("id,title,description,sort_order")
     .eq("course_id", courseId).eq("published", true).order("sort_order");
@@ -405,9 +421,7 @@ async function lessonContent(req: Request) {
   const course = module?.kc_courses;
   if (!module?.published || course?.status !== "published") throw new Error("This lesson is not available.");
   if (!lesson.is_preview) {
-    const { data: enrolment, error: enrolmentError } = await client.from("kc_course_enrolments")
-      .select("id,status").eq("user_id", user.id).eq("course_id", course.id).eq("status", "active").maybeSingle();
-    if (enrolmentError || !enrolment) throw new Error("Enrolment is required to access this lesson.");
+    await requireCourseEntitlement(user.id, course.id);
   }
   return json(req, {
     success: true,
