@@ -178,6 +178,24 @@ create policy kc_responses_staff_read on public.kc_assessment_responses
   for select to authenticated using (exists(select 1 from public.mizpah_web_staff s where s.user_id=(select auth.uid()) and s.active=true and s.role in ('owner','admin','manager')));
 
 
+
+create or replace function public.kc_validate_assessment_publish()
+returns trigger language plpgsql set search_path=public,pg_temp as $function$
+begin
+  if new.published=true and (tg_op='INSERT' or old.published=false) and not exists(
+    select 1 from public.kc_assessment_questions q where q.assessment_id=new.id
+  ) then
+    raise exception 'Add at least one question before publishing an assessment.';
+  end if;
+  return new;
+end
+$function$;
+revoke all on function public.kc_validate_assessment_publish() from public,anon,authenticated;
+drop trigger if exists kc_assessment_publish_requires_questions on public.kc_assessments;
+create trigger kc_assessment_publish_requires_questions
+before insert or update of published on public.kc_assessments
+for each row execute function public.kc_validate_assessment_publish();
+
 -- Trusted, transactional assessment attempt creation and grading.
 create or replace function public.kc_start_assessment_attempt(p_assessment_id uuid,p_user_id uuid)
 returns jsonb language plpgsql set search_path=public,pg_temp as $function$
