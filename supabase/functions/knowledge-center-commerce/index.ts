@@ -797,7 +797,6 @@ async function sponsorPlacements(req:Request){
     .eq("placement_key",slot).eq("active",true).order("priority").limit(5);
   if(error) throw new Error("Sponsored placements are temporarily unavailable.");
   const now=Date.now();
-  const now=Date.now();
   const rows=(data??[]).filter((p:any)=>{
     const c=p.kc_sponsor_campaigns, s=c?.kc_sponsors, cr=c?.kc_sponsor_creatives;
     return c?.status==="approved"&&s?.status==="approved"&&
