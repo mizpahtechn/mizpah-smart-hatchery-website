@@ -274,7 +274,7 @@ The dynamic sitemap endpoint becomes available to search engines only after the 
 ### Current release gates and known limitations
 
 - All five phases have development code in the same PR; this does not mean all five are production-ready or released.
-- Latest CI verification passed on commit `d0e56bc6dfbac496933f7c51ebd80093c119d236`: Deno Edge Function type-check, Paystack/OPay helper tests, inline and external JavaScript syntax checks, and PostgreSQL 16 migrations/RLS/assessment/membership/affiliate smoke tests. Any later code or migration commit must be re-tested before release.
+- Latest CI verification passed on commit `952772e30a3c1c6382f6e09aad082bf5c5ffc766`: Deno Edge Function type-check, Paystack/OPay helper tests, inline and external JavaScript syntax checks, and PostgreSQL 16 migrations/RLS/assessment/membership/affiliate smoke tests. Any later code or migration commit must be re-tested before release.
 - Paystack/OPay sandbox credentials, provider callback configuration and real provider test transactions are still required before payment acceptance can be signed off.
 - Browser-based desktop/mobile journeys, accessibility checks and regression tests for the existing hatchery website/app remain outstanding.
 - Automatic recurring membership billing, sponsor invoicing/payment, automated affiliate payouts, instructor self-service and certificates are not included in this release.
