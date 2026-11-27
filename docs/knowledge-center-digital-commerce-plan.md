@@ -151,7 +151,7 @@ Phase 1 acceptance:
 
 ## Immediate next work
 
-Complete the remaining source inspection and establish the Phase 1 schema/API contracts. Then implement the Phase 1 database migration and secure services on the development branch, test them without touching production, and continue through the Phase 1 user interface and end-to-end acceptance suite.
+Finish the integrated five-phase review on the existing development branch: resolve every CI finding, verify the SQL migrations in sequence, inspect the customer/admin flows, and complete provider-test and browser/regression plans. Do not merge, deploy, configure live provider secrets, or apply migrations to the existing production Supabase project until the user separately approves release.
 
 ## Phase 1 implementation status — development branch
 
@@ -217,3 +217,67 @@ Payment isolation: the new function reads only `KC_PAYSTACK_MODE`, `KC_PAYSTACK_
 ### Phase sequencing and acceptance
 - Each phase remains in its own release gate. Do not begin charging for memberships, selling sponsorship placements or accruing affiliate commissions until their ledger, payment, cancellation and reporting tests pass.
 - Every production deployment requires a separate approval. No new Supabase project or paid branch is planned; the existing project remains the target, with new kc_ tables and dedicated Edge Function routes.
+
+
+## Phases 2–5 implementation status — development branch
+
+The same draft PR and development branch now contain implementation work for all five phases. These are development artifacts only; no production database or live website changes have been made.
+
+### Phase 2 — Academy expansion
+
+Added:
+- Instructor profiles and course-instructor assignments, managed by authorised staff.
+- Assessment definitions, question bank, learner attempts and responses.
+- Server-side attempt creation with attempt limits and resume support.
+- Server-side grading; correct answers are not exposed to learner queries.
+- Time-limit enforcement, submission replay protection, pass/fail results and saved assessment history.
+- Student-facing assessment screens and staff assessment/question administration.
+- External YouTube and Vimeo lesson embeds using provider IDs, privacy-mode metadata and optional HTTPS captions links.
+- Secure lesson completion, lesson progress and course completion calculation.
+
+### Phase 3 — Membership
+
+Added:
+- Monthly and annual membership plans with product/course access mapping.
+- Customer membership page, billing history and manual renewal controls.
+- Paystack and OPay one-off renewal checkout and server-verified settlement.
+- Membership grace periods, failed initial-payment handling, expiry checks and stop-future-renewals control.
+- Membership access checks for course lessons, assessments and private downloads.
+
+Automatic recurring charges are deliberately disabled. The membership flow uses manual renewals until recurring capability and settlement are confirmed for the actual merchant accounts. USD remains fail-closed behind the Phase 1 Paystack capability gate; OPay is NGN-only.
+
+### Phase 4 — Sponsorship and advertising
+
+Added:
+- Sponsor application and sponsor profile records.
+- Staff approval, campaign creation, creatives and placement management.
+- Scheduled placements for home, article, library and Academy surfaces.
+- Public display explicitly labelled “Sponsored” or “Advertisement”.
+- Impression/click event recording, campaign status/date checks and basic bot filtering.
+- Staff-facing campaign and event summaries.
+
+The campaign budget field is currently an administrative record. Sponsor invoicing and sponsor-payment collection are not implemented; campaigns must not be represented as paid or billed until a separate billing workflow is built and tested.
+
+### Phase 5 — Growth and optimisation
+
+Added:
+- Affiliate applications, partner approval, unique referral links and attribution windows.
+- Customer referral capture and account attribution.
+- Commission accrual from verified paid digital orders, with duplicate prevention and reversal on full refunds.
+- Staff commission approval and manual payout-status recording. Actual bank payout automation is not implemented.
+- First-party recommendation events and related-resource recommendations.
+- Growth analytics for digital revenue, memberships, sponsorship activity, affiliate commissions and recommendation events.
+- Product/course structured data and a generated sitemap route for published Knowledge Center resources.
+
+The dynamic sitemap endpoint becomes available to search engines only after the Edge Function is deployed. The existing static sitemap is retained.
+
+### Current release gates and known limitations
+
+- All five phases have development code in the same PR; this does not mean all five are production-ready or released.
+- The latest CI run must finish successfully after the newest commits. Do not rely on earlier successful runs when newer changes are still being tested.
+- Paystack/OPay sandbox credentials, provider callback configuration and real provider test transactions are still required before payment acceptance can be signed off.
+- Browser-based desktop/mobile journeys, accessibility checks and regression tests for the existing hatchery website/app remain outstanding.
+- Automatic recurring membership billing, sponsor invoicing/payment, automated affiliate payouts, instructor self-service and certificates are not included in this release.
+- External video privacy/domain restrictions must be configured in the selected YouTube/Vimeo accounts.
+- No production merge, deployment, live Supabase migration or live secret configuration has been performed.
+
