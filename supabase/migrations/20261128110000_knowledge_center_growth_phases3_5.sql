@@ -303,13 +303,15 @@ as $function$
 declare v_attribution public.kc_affiliate_attributions%rowtype; v_basis integer;
 begin
   if new.status='paid' and old.status is distinct from 'paid' then
-    select a.*,p.default_commission_basis_points into v_attribution,v_basis
+    select a.* into v_attribution
     from public.kc_affiliate_attributions a
     join public.kc_affiliate_partners p on p.id=a.partner_id
     where a.customer_user_id=new.user_id and a.status='active'
       and a.expires_at>now() and p.status='approved'
     order by a.attributed_at desc limit 1;
     if found then
+      select default_commission_basis_points into v_basis
+      from public.kc_affiliate_partners where id=v_attribution.partner_id;
       insert into public.kc_affiliate_commissions(
         attribution_id,partner_id,order_id,order_item_id,basis_points,amount_minor,currency,status
       )
