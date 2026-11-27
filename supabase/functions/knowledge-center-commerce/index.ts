@@ -180,7 +180,7 @@ async function initializeCheckout(req: Request) {
 
   const client = db();
   const { data: prior, error: priorError } = await client.from("kc_digital_payments")
-    .select("reference,provider,checkout_url,status,amount_minor,currency")
+    .select("reference,provider,checkout_url,status,amount_minor,currency,created_at")
     .eq("order_id", orderId).in("status", ["pending", "initialized"])
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (priorError) throw new Error("The previous payment attempt could not be checked.");
@@ -767,9 +767,13 @@ async function membershipCheckout(req:Request){
     .eq("membership_id",membership.id).in("status",["pending","initialized"])
     .order("created_at",{ascending:false}).limit(1).maybeSingle();
   if(priorError) throw new Error("Existing membership payment could not be checked.");
-  if(prior?.status==="initialized"&&prior.checkout_url&&Number(prior.amount_minor)===amount&&prior.currency===currency)
+  if(prior?.status==="initialized"&&prior.checkout_url&&Number(prior.amount_minor)===amount&&prior.currency===currency&&prior.provider===provider)
     return json(req,{success:true,status:"pending",reference:prior.reference,checkout_url:prior.checkout_url,provider:prior.provider});
-  if(prior?.status==="pending") throw new Error("A membership payment is already being prepared. Please wait and refresh.");
+  if(prior?.status==="pending"){
+    const age=Date.now()-new Date(prior.created_at).getTime();
+    if(age<10*60*1000) throw new Error("A membership payment is already being prepared. Please wait and refresh.");
+    await client.from("kc_membership_renewals").update({status:"failed",updated_at:new Date().toISOString()}).eq("reference",prior.reference);
+  }
   if(prior?.status==="initialized") throw new Error("An existing membership payment needs review before a new one can be started.");
   const now=new Date();
   const currentEnd=membership.current_period_end?new Date(membership.current_period_end):now;
