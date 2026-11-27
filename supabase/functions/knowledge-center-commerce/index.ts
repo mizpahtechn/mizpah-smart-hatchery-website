@@ -361,6 +361,37 @@ async function customerLibrary(req: Request) {
   });
 }
 
+
+async function courseOutline(req: Request) {
+  const user = await requireUser(req);
+  const url = new URL(req.url);
+  const courseId = safeText(url.searchParams.get("course_id"), 80);
+  const client = db();
+  const { data: enrolment, error: enrolmentError } = await client.from("kc_course_enrolments")
+    .select("id,status").eq("user_id", user.id).eq("course_id", courseId).eq("status", "active").maybeSingle();
+  if (enrolmentError || !enrolment) throw new Error("An active course enrolment is required.");
+  const { data: modules, error } = await client.from("kc_course_modules")
+    .select("id,title,description,sort_order")
+    .eq("course_id", courseId).eq("published", true).order("sort_order");
+  if (error) throw new Error("The course outline could not be loaded.");
+  const moduleIds = (modules ?? []).map((m: any) => m.id);
+  let lessons: any[] = [];
+  if (moduleIds.length) {
+    const { data, error: lessonError } = await client.from("kc_course_lessons")
+      .select("id,module_id,title,lesson_type,duration_minutes,sort_order,is_preview")
+      .in("module_id", moduleIds).eq("published", true).order("sort_order");
+    if (lessonError) throw new Error("The course lessons could not be loaded.");
+    lessons = data ?? [];
+  }
+  return json(req, {
+    success: true,
+    modules: (modules ?? []).map((m: any) => ({
+      ...m,
+      lessons: lessons.filter((lesson: any) => lesson.module_id === m.id),
+    })),
+  });
+}
+
 async function lessonContent(req: Request) {
   const user = await requireUser(req);
   const url = new URL(req.url);
@@ -421,7 +452,7 @@ Deno.serve(async (req: Request) => {
     if (url.pathname.endsWith("/checkout") && req.method === "POST") return await initializeCheckout(req);
     if (url.pathname.endsWith("/verify") && req.method === "GET") return await verifyForCustomer(req);
     if (url.pathname.endsWith("/download") && req.method === "GET") return await signedDownload(req);\n    if (url.pathname.endsWith("/library") && req.method === "GET") return await customerLibrary(req);
-    if (url.pathname.endsWith("/lesson") && req.method === "GET") return await lessonContent(req);
+    if (url.pathname.endsWith("/lesson") && req.method === "GET") return await lessonContent(req);\n    if (url.pathname.endsWith("/course-outline") && req.method === "GET") return await courseOutline(req);
     if (url.pathname.endsWith("/admin-report") && req.method === "GET") return await adminReport(req);
 
     if (url.pathname.endsWith("/return") && req.method === "GET") {
