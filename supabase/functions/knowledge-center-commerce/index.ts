@@ -343,10 +343,18 @@ async function signedDownload(req: Request) {
     .select("id,status,expires_at")
     .eq("user_id", user.id).eq("product_id", file.product_id).eq("status", "active")
     .limit(1).maybeSingle();
-  if (entitlementError || !entitlement ||
-      (entitlement.expires_at && new Date(entitlement.expires_at).getTime() <= Date.now())) {
-    throw new Error("Your account does not have access to this download.");
+  let hasAccess=!entitlementError&&!!entitlement&&(!entitlement.expires_at||new Date(entitlement.expires_at).getTime()>Date.now());
+  if(!hasAccess){
+    const {data:planAccess}=await client.from("kc_membership_plan_products").select("plan_id").eq("product_id",file.product_id);
+    const planIds=(planAccess??[]).map((x:any)=>x.plan_id);
+    if(planIds.length){
+      const {data:memberships}=await client.from("kc_memberships").select("id,current_period_end,grace_ends_at")
+        .eq("user_id",user.id).in("plan_id",planIds).in("status",["active","past_due"]);
+      hasAccess=(memberships??[]).some((m:any)=>(m.current_period_end&&new Date(m.current_period_end).getTime()>Date.now())||
+        (m.grace_ends_at&&new Date(m.grace_ends_at).getTime()>Date.now()));
+    }
   }
+  if(!hasAccess) throw new Error("Your account does not have access to this download.");
   const { data: signed, error: signedError } = await client.storage.from("mizpah-kc-private")
     .createSignedUrl(file.storage_path, 60, { download: file.download_filename });
   if (signedError || !signed?.signedUrl) throw new Error("A secure download link could not be created.");
@@ -417,20 +425,31 @@ async function customerLibrary(req: Request) {
 
 
 async function requireCourseEntitlement(userId: string, courseId: string) {
-  const client = db();
-  const { data: enrolment, error } = await client.from("kc_course_enrolments")
-    .select("id,status,entitlement_id")
-    .eq("user_id", userId).eq("course_id", courseId)
-    .in("status", ["active", "completed"]).maybeSingle();
-  if (error || !enrolment) throw new Error("An active course enrolment is required.");
-  const { data: entitlement, error: entitlementError } = await client.from("kc_entitlements")
-    .select("id,status,expires_at")
-    .eq("id", enrolment.entitlement_id).eq("user_id", userId).eq("status", "active").maybeSingle();
-  if (entitlementError || !entitlement ||
-      (entitlement.expires_at && new Date(entitlement.expires_at).getTime() <= Date.now())) {
-    throw new Error("Your course access is no longer active.");
+  const client=db();
+  const {data:course,error:courseError}=await client.from("kc_courses").select("id,product_id").eq("id",courseId).maybeSingle();
+  if(courseError||!course) throw new Error("Course access is not available.");
+  const {data:enrolment,error}=await client.from("kc_course_enrolments")
+    .select("id,status,entitlement_id").eq("user_id",userId).eq("course_id",courseId)
+    .in("status",["active","completed"]).maybeSingle();
+  if(!error&&enrolment){
+    const {data:entitlement,error:entitlementError}=await client.from("kc_entitlements")
+      .select("id,status,expires_at").eq("id",enrolment.entitlement_id).eq("user_id",userId).eq("status","active").maybeSingle();
+    if(!entitlementError&&entitlement&&(!entitlement.expires_at||new Date(entitlement.expires_at).getTime()>Date.now())) return enrolment;
   }
-  return enrolment;
+  const {data:access,error:accessError}=await client.from("kc_membership_plan_products")
+    .select("plan_id").eq("product_id",course.product_id);
+  if(accessError||!access?.length) throw new Error("An active course enrolment or membership is required.");
+  const planIds=access.map((x:any)=>x.plan_id);
+  const {data:memberships,error:membershipError}=await client.from("kc_memberships")
+    .select("id,status,current_period_end,grace_ends_at").eq("user_id",userId)
+    .in("plan_id",planIds).in("status",["active","past_due"]);
+  const now=Date.now();
+  const valid=(memberships??[]).find((m:any)=>
+    (m.current_period_end&&new Date(m.current_period_end).getTime()>now)||
+    (m.grace_ends_at&&new Date(m.grace_ends_at).getTime()>now)
+  );
+  if(membershipError||!valid) throw new Error("An active course enrolment or membership is required.");
+  return {id:"membership:"+valid.id,status:"active",entitlement_id:null};
 }
 
 async function courseOutline(req: Request) {
@@ -720,6 +739,19 @@ async function membershipVerify(req:Request){
   const reference=safeText(new URL(req.url).searchParams.get("reference"),80);
   return json(req,await verifyMembershipReference(reference,user.id));
 }
+
+async function cancelMembership(req:Request){
+  const user=await requireUser(req);const body=await req.json().catch(()=>({}));
+  const id=safeText(body.membership_id,80);
+  if(!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("Invalid membership.");
+  const {data:membership,error}=await db().from("kc_memberships").update({
+    cancel_at_period_end:true,updated_at:new Date().toISOString()
+  }).eq("id",id).eq("user_id",user.id).in("status",["active","past_due"])
+    .select("id,status,current_period_end,cancel_at_period_end").maybeSingle();
+  if(error||!membership) throw new Error("This membership could not be cancelled.");
+  return json(req,{success:true,membership,message:"Automatic renewal is not enabled; this prevents future manual renewal and leaves current access in place until the period ends."});
+}
+
 async function customerMemberships(req:Request){
   const user=await requireUser(req);
   const {data:memberships,error}=await db().from("kc_memberships")
@@ -901,6 +933,7 @@ Deno.serve(async (req: Request) => {
     if (url.pathname.endsWith("/membership-checkout") && req.method === "POST") return await membershipCheckout(req);
     if (url.pathname.endsWith("/membership-verify") && req.method === "GET") return await membershipVerify(req);
     if (url.pathname.endsWith("/memberships") && req.method === "GET") return await customerMemberships(req);
+    if (url.pathname.endsWith("/membership-cancel") && req.method === "POST") return await cancelMembership(req);
     if (url.pathname.endsWith("/sponsor-placements") && req.method === "GET") return await sponsorPlacements(req);
     if (url.pathname.endsWith("/sponsor-event") && req.method === "POST") return await sponsorEvent(req);
     if (url.pathname.endsWith("/affiliate-click") && req.method === "POST") return await affiliateClick(req);
