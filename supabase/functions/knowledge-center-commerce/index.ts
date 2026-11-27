@@ -98,6 +98,10 @@ function safeText(value: unknown, max: number) {
   if (!v || v.length > max) throw new Error("Invalid request.");
   return v;
 }
+function isLikelyBot(req:Request){
+  const agent=req.headers.get("User-Agent")??"";
+  return /(bot|crawler|spider|headless|lighthouse|uptime|monitor|preview)/i.test(agent);
+}
 function newReference() {
   return "KC" + crypto.randomUUID().replaceAll("-", "").slice(0, 30).toUpperCase();
 }
@@ -826,6 +830,7 @@ async function sponsorPlacements(req:Request){
   return json(req,{success:true,placements:rows});
 }
 async function sponsorEvent(req:Request){
+  if(isLikelyBot(req)) return json(req,{success:true,recorded:false,ignored:true});
   const body=await req.json().catch(()=>({}));
   const placementId=safeText(body.placement_id,80),eventType=String(body.event_type??"");
   const eventKey=safeText(body.event_key,100);
@@ -849,6 +854,7 @@ async function sponsorEvent(req:Request){
 }
 
 async function affiliateClick(req:Request){
+  if(isLikelyBot(req)) return json(req,{success:true,recorded:false,ignored:true});
   const body=await req.json().catch(()=>({}));
   const code=safeText(body.code,32);
   const {data:link,error}=await db().from("kc_affiliate_links")
@@ -982,6 +988,7 @@ async function recommendations(req:Request){
   return json(req,{success:true,recommendations:rows});
 }
 async function recommendationEvent(req:Request){
+  if(isLikelyBot(req)) return json(req,{success:true,recorded:false,ignored:true});
   const body=await req.json().catch(()=>({}));
   const productId=safeText(body.recommended_product_id,80);
   const sourceId=body.source_product_id?String(body.source_product_id):null;
