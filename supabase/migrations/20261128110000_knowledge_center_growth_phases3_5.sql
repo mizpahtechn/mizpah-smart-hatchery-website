@@ -367,6 +367,9 @@ revoke all on function public.kc_settle_membership_renewal(text,jsonb) from publ
 grant execute on function public.kc_settle_membership_renewal(text,jsonb) to service_role;
 
 
+create unique index if not exists kc_sponsors_user_idx
+  on public.kc_sponsors(user_id) where user_id is not null;
+
 create unique index if not exists kc_affiliate_partners_user_idx
   on public.kc_affiliate_partners(user_id) where user_id is not null;
 
