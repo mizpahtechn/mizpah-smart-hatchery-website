@@ -336,4 +336,32 @@ for each row execute function public.kc_record_affiliate_commissions();
 grant usage,select on sequence public.kc_sponsor_events_id_seq,public.kc_recommendation_events_id_seq,
   public.kc_affiliate_clicks_id_seq to service_role;
 
+
+alter table public.kc_membership_renewals add column if not exists checkout_url text;
+
+create or replace function public.kc_settle_membership_renewal(p_reference text,p_provider_event jsonb default '{}'::jsonb)
+returns jsonb language plpgsql set search_path=public,pg_temp as $function$
+declare v_renewal public.kc_membership_renewals%rowtype; v_membership public.kc_memberships%rowtype;
+begin
+  select * into v_renewal from public.kc_membership_renewals where reference=p_reference for update;
+  if not found then raise exception 'Membership renewal reference not found.'; end if;
+  if v_renewal.status='success' then
+    return jsonb_build_object('success',true,'already_settled',true,'membership_id',v_renewal.membership_id);
+  end if;
+  if v_renewal.status not in ('pending','initialized') then raise exception 'Membership renewal is not payable.'; end if;
+  select * into v_membership from public.kc_memberships where id=v_renewal.membership_id for update;
+  if not found then raise exception 'Membership record not found.'; end if;
+  update public.kc_membership_renewals set status='success',raw_event=p_provider_event,paid_at=now(),updated_at=now()
+    where id=v_renewal.id;
+  update public.kc_memberships set status='active',provider=v_renewal.provider,
+    current_period_start=v_renewal.period_start,current_period_end=v_renewal.period_end,
+    grace_ends_at=null,updated_at=now()
+    where id=v_membership.id;
+  return jsonb_build_object('success',true,'membership_id',v_membership.id,
+    'period_start',v_renewal.period_start,'period_end',v_renewal.period_end);
+end
+$function$;
+revoke all on function public.kc_settle_membership_renewal(text,jsonb) from public,anon,authenticated;
+grant execute on function public.kc_settle_membership_renewal(text,jsonb) to service_role;
+
 commit;
