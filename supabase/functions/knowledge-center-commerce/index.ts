@@ -870,7 +870,7 @@ async function affiliateAttribute(req:Request){
     throw new Error("Affiliate referral is no longer active.");
   const days=Number((link as any).kc_affiliate_partners.attribution_days)||30;
   if(Date.now()-new Date(click.clicked_at).getTime()>days*86400000) throw new Error("Affiliate referral has expired.");
-  const expires=new Date(Date.now()+days*86400000).toISOString();
+  const expires=new Date(new Date(click.clicked_at).getTime()+days*86400000).toISOString();
   const {error:insertError}=await db().from("kc_affiliate_attributions").insert({
     partner_id:link.partner_id,link_id:link.id,click_id:click.id,customer_user_id:user.id,
     expires_at:expires,status:"active"
