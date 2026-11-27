@@ -64,6 +64,17 @@ where c.product_id='15151515-1515-4151-8151-151515151515';
 insert into public.kc_assessments(id,course_id,title,pass_mark,max_attempts,published)
 select '18181818-1818-4181-8181-181818181818',id,'Assessment security test',50,1,false
 from public.kc_courses where product_id='15151515-1515-4151-8151-151515151515';
+do $assessment_publish_guard$
+declare v_blocked boolean:=false;
+begin
+  begin
+    update public.kc_assessments set published=true where id='18181818-1818-4181-8181-181818181818';
+  exception when others then v_blocked:=true;
+  end;
+  if not v_blocked then raise exception 'Empty assessments must not be publishable.'; end if;
+end
+$assessment_publish_guard$;
+
 insert into public.kc_assessment_questions(
   id,assessment_id,question_type,prompt,options,correct_answer,points,sort_order
 ) values(
