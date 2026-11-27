@@ -52,7 +52,8 @@ insert into public.kc_digital_products(
   id,slug,title,product_type,status,summary,price_minor,currency,published_at
 ) values
 ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','public-test-resource','Public test resource','ebook','published','Published catalogue test',50000,'NGN',now()),
-('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','draft-test-resource','Draft test resource','ebook','draft','Draft catalogue test',50000,'NGN',null);
+('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','draft-test-resource','Draft test resource','ebook','draft','Draft catalogue test',50000,'NGN',null),
+('14141414-1414-4141-8141-141414141414','usd-test-resource','USD test resource','ebook','published','USD currency acceptance test',2500,'USD',now());
 
 insert into public.kc_digital_orders(
   id,order_number,user_id,customer_email,status,subtotal_minor,discount_minor,total_minor,currency,idempotency_key,request_hash
@@ -255,6 +256,27 @@ begin
     v_failed := true;
   end;
   if not v_failed then raise exception 'A customer with an active entitlement must not buy the same product again.'; end if;
+
+  -- USD product pricing and payment settlement remain separate from NGN amounts.
+  v_order := public.kc_create_digital_order(
+    '11111111-1111-4111-8111-111111111111',
+    'customer@example.test',
+    'usd-test-idempotency-0001',
+    repeat('9',64),
+    array['14141414-1414-4141-8141-141414141414'::uuid]
+  );
+  if v_order->>'currency' <> 'USD' or (v_order->>'total_minor')::bigint <> 2500 then
+    raise exception 'USD checkout must preserve the product currency and amount.';
+  end if;
+  v_order_id := (v_order->>'order_id')::uuid;
+  v_reference := 'KCUSDTESTPAYMENT001';
+  insert into public.kc_digital_payments(order_id,provider,reference,amount_minor,currency,status)
+  values(v_order_id,'paystack',v_reference,2500,'USD','initialized');
+  perform public.kc_settle_digital_order_payment(v_reference,'{"status":"success","currency":"USD"}'::jsonb);
+  select count(*) into v_count from public.kc_entitlements
+  where user_id='11111111-1111-4111-8111-111111111111'
+    and product_id='14141414-1414-4141-8141-141414141414' and status='active';
+  if v_count <> 1 then raise exception 'Verified USD payment must grant the purchased entitlement.'; end if;
 
   -- Free resources use the same entitlement grant path without a payment.
   v_order := public.kc_create_digital_order(
