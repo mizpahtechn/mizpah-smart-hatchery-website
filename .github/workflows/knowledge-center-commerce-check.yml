@@ -3,7 +3,7 @@ name: Knowledge Center commerce checks
 on:
   push:
     branches:
-      - feature/knowledge-center-digital-commerce
+      - main
     paths:
       - ".github/scripts/**"
       - ".github/workflows/knowledge-center-commerce-check.yml"
@@ -26,6 +26,9 @@ on:
       - "supabase/migrations/**"
       - "supabase/tests/**"
       - "docs/knowledge-center-digital-commerce-plan.md"
+      - "knowledge-ebooks/**"
+      - "sitemap.xml"
+      - "robots.txt"
   pull_request:
     paths:
       - ".github/scripts/**"
