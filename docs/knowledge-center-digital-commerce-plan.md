@@ -147,7 +147,7 @@ Complete the remaining source inspection and establish the Phase 1 schema/API co
 Development artifacts now added on `feature/knowledge-center-digital-commerce`:
 - Phase 1 schema migration draft with isolated catalogue, private files, digital orders, payments, entitlements, course structure, enrolments and lesson progress.
 - Atomic server-side digital order creation, verified payment settlement and entitlement/enrolment grants.
-- Knowledge Center commerce Edge Function draft for checkout, provider verification/webhooks, private signed downloads, customer library, course outline/lesson access and admin sales reporting.
+- Self-contained Knowledge Center commerce Edge Function draft for checkout, provider verification/webhooks, private signed downloads, customer library, course outline/lesson access and admin sales reporting. Its planned deployment uses `verify_jwt=false` because the function validates customer bearer tokens itself and verifies Paystack/OPay webhooks internally; customer routes remain authenticated.
 - Public Digital Library, Academy catalogue, product/course detail, payment return, customer library and course lesson pages.
 - Existing site navigation, customer account and admin navigation links to the new area.
 - Dedicated Knowledge Center admin page for product/file/course/lesson management and digital sales reporting.
@@ -155,8 +155,9 @@ Development artifacts now added on `feature/knowledge-center-digital-commerce`:
 
 Automated checks passed on the development branch:
 - Deno type-check of the Knowledge Center commerce Edge Function.
+- Unit tests for Paystack/OPay mode, deterministic payload signing, cashier-host validation, and reference/amount/currency verification.
 - Inline JavaScript syntax checks for all new customer-facing and admin pages.
-- PostgreSQL 16 migration smoke test using a disposable Supabase-like fixture.
+- PostgreSQL 16 migration smoke test using a disposable Supabase-like fixture, including enrolled-customer access to archived courses.
 - RLS checks for published-vs-draft catalogue visibility, customer order isolation, staff-only file metadata/storage access, private bucket configuration, payment payload column restrictions and service-role-only order creation.
 
 Not yet complete or verified:
@@ -167,3 +168,5 @@ Not yet complete or verified:
 - Phase 1 needs a full review of payment concurrency, RLS, private storage, customer ownership, course entitlements, download expiry and existing hatchery regression flows before production release.
 
 Do not mark Phase 1 complete or deploy until those checks pass. Production remains unchanged.
+
+Phase 1 pricing is initially denominated in NGN. Multi-currency pricing and foreign-currency settlement are deferred until the supported gateway capabilities and settlement arrangements are verified.
