@@ -151,7 +151,13 @@ async function initializeCheckout(req: Request) {
   const orderId = String(created.order_id);
   const orderNumber = String(created.order_number);
   const totalMinor = Number(created.total_minor);
+  const currency = String(created.currency ?? "");
+  if (!["NGN", "USD"].includes(currency)) throw new Error("The digital order currency is not supported.");
   if (!Number.isSafeInteger(totalMinor) || totalMinor < 0) throw new Error("The digital order total is invalid.");
+  if (provider === "opay" && currency !== "NGN") throw new Error("OPay checkout is available for NGN purchases only. Choose Paystack for USD purchases.");
+  if (totalMinor > 0 && ((currency === "NGN" && totalMinor < 5000) || (currency === "USD" && totalMinor < 200))) {
+    throw new Error(currency === "USD" ? "Paystack USD transactions must be at least $2.00." : "Paystack NGN transactions must be at least ₦50.00.");
+  }
 
   if (created.status === "paid") {
     return json(req, { success: true, status: "paid", order_number: orderNumber });
@@ -167,12 +173,12 @@ async function initializeCheckout(req: Request) {
 
   const client = db();
   const { data: prior, error: priorError } = await client.from("kc_digital_payments")
-    .select("reference,provider,checkout_url,status,amount_minor")
+    .select("reference,provider,checkout_url,status,amount_minor,currency")
     .eq("order_id", orderId).in("status", ["pending", "initialized"])
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (priorError) throw new Error("The previous payment attempt could not be checked.");
   if (prior?.status === "initialized" && prior.checkout_url &&
-      Number(prior.amount_minor) === totalMinor) {
+      Number(prior.amount_minor) === totalMinor && prior.currency === currency) {
     return json(req, {
       success: true, status: "pending", reference: prior.reference,
       checkout_url: prior.checkout_url, provider: prior.provider,
@@ -190,7 +196,7 @@ async function initializeCheckout(req: Request) {
 
   const reference = newReference();
   const { error: paymentInsertError } = await client.from("kc_digital_payments").insert({
-    order_id: orderId, provider, reference, amount_minor: totalMinor, currency: "NGN", status: "pending",
+    order_id: orderId, provider, reference, amount_minor: totalMinor, currency, status: "pending",
   });
   if (paymentInsertError) throw new Error("A payment attempt is already being processed. Please refresh and try again.");
 
@@ -205,7 +211,7 @@ async function initializeCheckout(req: Request) {
         body: JSON.stringify({
           email: user.email,
           amount: String(totalMinor),
-          currency: "NGN",
+          currency,
           reference,
           callback_url: SITE + "/knowledge-checkout.html?payment=return&reference=" + encodeURIComponent(reference),
           metadata: { source: "mizpah_knowledge_center", digitalOrderId: orderId, orderNumber },
@@ -286,7 +292,7 @@ async function verifyReference(referenceValue: string, userId?: string) {
       }
       return { success: false, status: "pending", order_number: order.order_number };
     }
-    if (Number(data.amount) !== Number(payment.amount_minor) || String(data.currency ?? "").toUpperCase() !== "NGN") {
+    if (Number(data.amount) !== Number(payment.amount_minor) || String(data.currency ?? "").toUpperCase() !== payment.currency) {
       throw new Error("The verified Paystack amount or currency does not match this order.");
     }
   } else if (payment.provider === "opay") {
