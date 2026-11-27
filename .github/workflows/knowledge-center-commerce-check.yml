@@ -8,6 +8,7 @@ on:
       - "supabase/functions/knowledge-center-commerce/**"
       - "supabase/functions/website-checkout/**"
       - "supabase/migrations/**"
+      - "supabase/tests/**"
   pull_request:
     paths:
       - "supabase/functions/knowledge-center-commerce/**"
@@ -35,3 +36,37 @@ jobs:
           node-version: "22"
       - name: Check inline JavaScript syntax in Knowledge Center pages
         run: node .github/scripts/check-inline-js.mjs
+
+  database-migration-smoke-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kc_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d kc_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Prepare disposable Supabase-like schema
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_migration_fixture.sql
+      - name: Apply Knowledge Center migration to disposable database
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/migrations/20261127120000_knowledge_center_digital_commerce_phase1.sql
+      - name: Run RLS, grants and private-storage smoke tests
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kc_test -v ON_ERROR_STOP=1 -f supabase/tests/knowledge_center_migration_smoke.sql
