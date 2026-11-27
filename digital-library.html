@@ -20,7 +20,8 @@ a{color:inherit}.wrap{width:min(1160px,92%);margin:auto}.top{background:var(--g)
 <main><section class="hero"><div class="wrap"><div class="eyebrow">Mizpah Knowledge Center</div><h1>Practical resources to help you learn, plan and grow.</h1><p>Browse digital guides, e-books and downloadable tools prepared for poultry farmers, business owners and learners.</p></div></section>
 <section class="section"><div class="wrap"><h2>Digital resources</h2><p class="lead">Purchase once and access your resources from your Mizpah customer library.</p>
 <div class="toolbar"><input id="search" type="search" placeholder="Search e-books and resources…" aria-label="Search digital resources"><select id="type"><option value="all">All resources</option><option value="ebook">E-books</option><option value="downloadable_resource">Downloadable resources</option></select></div>
-<div id="catalogue" class="grid"><div class="empty">Loading digital resources…</div></div><p id="status" role="status" class="lead"></p></div></section></main>
+<div id="catalogue" class="grid"><div class="empty">Loading digital resources…</div></div><p id="status" role="status" class="lead"></p></div></section><div class="wrap" data-kc-sponsor-slot="library_sidebar" aria-label="Sponsored placement"></div>
+</main>
 <footer class="mizpah-site-footer"><div class="mizpah-footer-inner"><div class="mizpah-footer-identity"><strong>MIZPAH TECHNOLOGY</strong><span>© <span id="year">2026</span> Mizpah Technology. All rights reserved.</span></div><nav class="mizpah-footer-links" aria-label="Footer"><a href="/privacy-policy.html">Privacy Policy</a><a href="/cancellation-refund-policy.html">Refunds &amp; Cancellation</a><a href="/terms-and-conditions.html">Terms &amp; Conditions</a><a href="/#contact">Contact Us</a></nav></div></footer>
 <script>
 (()=>{const db=window.supabase.createClient('https://ouebgmhtyekqnyrkfrcp.supabase.co','sb_publishable_4PQqWYUXAi_ECtiSv063NA_G5G7IKDk');const $=id=>document.getElementById(id);$('year').textContent=new Date().getFullYear();let items=[];
@@ -30,4 +31,5 @@ function render(){const q=$('search').value.trim().toLowerCase(),type=$('type').
 async function load(){const {data,error}=await db.from('kc_digital_products').select('id,slug,title,product_type,summary,cover_image_url,price_minor,currency,description_markdown').in('product_type',['ebook','downloadable_resource']).eq('status','published').order('is_featured',{ascending:false}).order('published_at',{ascending:false});if(error){$('catalogue').innerHTML='<div class="empty">The digital catalogue is temporarily unavailable. Please try again later.</div>';return;}items=data||[];render();$('status').textContent=items.length+' published resource'+(items.length===1?'':'s');}
 $('search').addEventListener('input',render);$('type').addEventListener('change',render);load();})();
 </script><script src="/assets/js/knowledge-referrals.js" defer></script>
+<script src="/assets/js/knowledge-sponsors.js" defer></script>
 </body></html>
