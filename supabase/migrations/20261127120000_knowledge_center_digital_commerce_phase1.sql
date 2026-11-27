@@ -739,7 +739,7 @@ as $kc$
     'orders', (select count(*) from public.kc_digital_orders),
     'paid_orders', (select count(*) from public.kc_digital_orders where status='paid'),
     'pending_orders', (select count(*) from public.kc_digital_orders where status='pending'),
-    'gross_revenue_minor', (select coalesce(sum(total_minor),0) from public.kc_digital_orders where status='paid'),
+    'gross_revenue_by_currency', (select coalesce(jsonb_object_agg(currency, revenue_minor), '{}'::jsonb) from (select currency, sum(total_minor) as revenue_minor from public.kc_digital_orders where status='paid' group by currency) revenue),
     'published_products', (select count(*) from public.kc_digital_products where status='published')
   );
 $kc$;
