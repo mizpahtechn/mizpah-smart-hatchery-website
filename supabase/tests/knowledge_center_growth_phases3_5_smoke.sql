@@ -62,7 +62,7 @@ insert into public.kc_membership_renewals(
 begin;
 set local role service_role;
 select public.kc_settle_membership_renewal('KCMEMBERTEST000001','{"status":"success"}'::jsonb);
-rollback;
+commit;
 
 do $membership_test$
 begin
