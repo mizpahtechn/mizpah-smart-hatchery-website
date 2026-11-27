@@ -47,6 +47,8 @@ create index if not exists kc_memberships_user_status_idx
 create unique index if not exists kc_memberships_provider_subscription_idx
   on public.kc_memberships(provider,provider_subscription_code)
   where provider_subscription_code is not null;
+create unique index if not exists kc_memberships_open_plan_idx
+  on public.kc_memberships(user_id,plan_id) where status in ('pending','active','past_due');
 create table if not exists public.kc_membership_renewals (
   id uuid primary key default gen_random_uuid(),
   membership_id uuid not null references public.kc_memberships(id) on delete restrict,
