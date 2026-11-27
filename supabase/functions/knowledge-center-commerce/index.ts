@@ -468,8 +468,10 @@ Deno.serve(async (req: Request) => {
 
     if (url.pathname.endsWith("/checkout") && req.method === "POST") return await initializeCheckout(req);
     if (url.pathname.endsWith("/verify") && req.method === "GET") return await verifyForCustomer(req);
-    if (url.pathname.endsWith("/download") && req.method === "GET") return await signedDownload(req);\n    if (url.pathname.endsWith("/library") && req.method === "GET") return await customerLibrary(req);
-    if (url.pathname.endsWith("/lesson") && req.method === "GET") return await lessonContent(req);\n    if (url.pathname.endsWith("/course-outline") && req.method === "GET") return await courseOutline(req);
+    if (url.pathname.endsWith("/download") && req.method === "GET") return await signedDownload(req);
+    if (url.pathname.endsWith("/library") && req.method === "GET") return await customerLibrary(req);
+    if (url.pathname.endsWith("/lesson") && req.method === "GET") return await lessonContent(req);
+    if (url.pathname.endsWith("/course-outline") && req.method === "GET") return await courseOutline(req);
     if (url.pathname.endsWith("/admin-report") && req.method === "GET") return await adminReport(req);
 
     if (url.pathname.endsWith("/return") && req.method === "GET") {
