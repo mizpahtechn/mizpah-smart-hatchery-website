@@ -62,7 +62,7 @@ from public.kc_courses c join public.kc_entitlements e on e.product_id=c.product
 where c.product_id='15151515-1515-4151-8151-151515151515';
 
 insert into public.kc_assessments(id,course_id,title,pass_mark,max_attempts,published)
-select '18181818-1818-4181-8181-181818181818',id,'Assessment security test',50,1,true
+select '18181818-1818-4181-8181-181818181818',id,'Assessment security test',50,1,false
 from public.kc_courses where product_id='15151515-1515-4151-8151-151515151515';
 insert into public.kc_assessment_questions(
   id,assessment_id,question_type,prompt,options,correct_answer,points,sort_order
@@ -70,6 +70,7 @@ insert into public.kc_assessment_questions(
   '19191919-1919-4191-8191-191919191919','18181818-1818-4181-8181-181818181818',
   'single_choice','Choose the correct answer.','["A","B"]'::jsonb,'"B"'::jsonb,2,1
 );
+update public.kc_assessments set published=true where id='18181818-1818-4181-8181-181818181818';
 
 begin;
 set local role service_role;
