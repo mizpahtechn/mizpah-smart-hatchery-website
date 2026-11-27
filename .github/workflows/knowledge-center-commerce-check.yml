@@ -29,3 +29,9 @@ jobs:
           deno-version: v2.x
       - name: Type-check Knowledge Center commerce function
         run: deno check supabase/functions/knowledge-center-commerce/index.ts
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check inline JavaScript syntax in Knowledge Center pages
+        run: node .github/scripts/check-inline-js.mjs
