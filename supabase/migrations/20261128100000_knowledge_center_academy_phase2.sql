@@ -181,7 +181,13 @@ begin
   if not found then raise exception 'Assessment is not available.'; end if;
   if not exists(select 1 from public.kc_course_enrolments e join public.kc_entitlements en on en.id=e.entitlement_id
     where e.course_id=v_assessment.course_id and e.user_id=p_user_id and e.status in ('active','completed')
-      and en.status='active' and (en.expires_at is null or en.expires_at>now())) then
+      and en.status='active' and (en.expires_at is null or en.expires_at>now()))
+    and not exists(select 1 from public.kc_courses c
+      join public.kc_membership_plan_products pp on pp.product_id=c.product_id
+      join public.kc_memberships m on m.plan_id=pp.plan_id
+      where c.id=v_assessment.course_id and m.user_id=p_user_id and m.status in ('active','past_due')
+        and ((m.current_period_end is not null and m.current_period_end>now())
+          or (m.grace_ends_at is not null and m.grace_ends_at>now()))) then
     raise exception 'An active course enrolment is required.';
   end if;
   select * into v_attempt from public.kc_assessment_attempts
@@ -220,7 +226,13 @@ begin
   if not found then raise exception 'Assessment is no longer available.'; end if;
   if not exists(select 1 from public.kc_course_enrolments e join public.kc_entitlements en on en.id=e.entitlement_id
     where e.course_id=v_assessment.course_id and e.user_id=p_user_id and e.status in ('active','completed')
-      and en.status='active' and (en.expires_at is null or en.expires_at>now())) then
+      and en.status='active' and (en.expires_at is null or en.expires_at>now()))
+    and not exists(select 1 from public.kc_courses c
+      join public.kc_membership_plan_products pp on pp.product_id=c.product_id
+      join public.kc_memberships m on m.plan_id=pp.plan_id
+      where c.id=v_assessment.course_id and m.user_id=p_user_id and m.status in ('active','past_due')
+        and ((m.current_period_end is not null and m.current_period_end>now())
+          or (m.grace_ends_at is not null and m.grace_ends_at>now()))) then
     raise exception 'Your course access is no longer active.';
   end if;
   if v_assessment.time_limit_minutes is not null and now()>v_attempt.started_at+make_interval(mins=>v_assessment.time_limit_minutes) then
