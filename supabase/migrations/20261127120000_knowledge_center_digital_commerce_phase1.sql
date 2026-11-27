@@ -70,7 +70,7 @@ create index if not exists kc_digital_orders_status_idx
 create table if not exists public.kc_digital_order_items (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.kc_digital_orders(id) on delete restrict,
-  product_id uuid references public.kc_digital_products(id) on delete set null,
+  product_id uuid references public.kc_digital_products(id) on delete restrict,
   product_title text not null,
   product_slug text not null,
   product_type text not null check (product_type in ('ebook','downloadable_resource','course')),
