@@ -42,7 +42,9 @@ The book follows the breeder operation from programme design and bird selection 
 23. Case study: more floor eggs and dirty eggs
 24. Reader's action plan
 25. Species and production-system comparison
-26. Glossary and references
+
+References and further reading
+Final technical and editorial release gates
 
 ---
 
@@ -333,48 +335,9 @@ This record should be adapted to the farm's actual workflow and linked to the ha
 - **Floor egg:** An egg laid outside the designated nest area.
 - **Traceability:** The ability to identify the source and handling history of an egg batch.
 
-## References and further reading
-
-1. Aviagen. *Ross Parent Stock Management Handbook* and current Ross Parent Stock Production Pocket Guide. Use the current strain-specific edition available through the [Aviagen Technical Centre](https://aviagen.com/in/tech-center). The handbook provides breeder-management guidance and should be applied to the relevant Ross genotype and production system.
-2. Aviagen. *Ross Parent Stock Management Handbook* (2018), section on care of hatching eggs on farm. [Published handbook copy](https://staging.aviagen.com/assets/Tech_Center/Ross_PS/RossPSHandBook2018.pdf). Refer to the source edition and verify current guidance before operational application.
-3. Mississippi State University Extension. *Keys to Successful Handling of Hatching Eggs*. [Extension publication](https://www.extension.msstate.edu/publications/keys-successful-handling-hatching-eggs).
-4. Food and Agriculture Organization of the United Nations. *Poultry Development Review*, chapter on egg production. [FAO resource](https://www.fao.org/4/Y4628E/y4628e03.htm).
-
-## Editorial and technical review checklist
-
-- [ ] Confirm that all species-specific examples are correctly attributed and bounded.
-- [ ] Check all recommendations against the current breeder guide for the relevant strain.
-- [ ] Obtain poultry veterinarian or breeder technical review of health and reproductive management sections.
-- [ ] Confirm calculations and definitions used in the worked examples.
-- [ ] Add original diagrams and worksheets after technical review.
-- [ ] Complete plagiarism and similarity review.
-- [ ] Copyedit, proofread and format the final manuscript.
-- [ ] Prepare final publication metadata and the approved Mizpah cover artwork.
-
-
----
-
 ## 13. The biology behind a fertile hatching egg
 
 A hatching egg is the outcome of a reproductive process involving both the female and male. Understanding the broad biology helps farm teams recognise why bird condition, mating effectiveness and egg handling matter.
-
-### 13.1 The hen's reproductive system
-
-In the domestic hen, the functional ovary releases the yolk (ovum). As it moves through the oviduct, albumen, shell membranes and shell are added in sequence. Fertilisation, when it occurs, takes place in the upper part of the oviduct shortly after ovulation. The egg then continues through the reproductive tract before laying.
-
-The shell is not a protective coating that can be repaired after laying. Cracks and severe shell defects can compromise the egg's suitability for incubation. Internal egg quality is also influenced by bird health, nutrition, age and management before the egg is laid.
-
-### 13.2 The male's contribution
-
-Sperm are produced in the testes and transferred to the female during successful mating. Hens can store sperm in specialised storage sites in the reproductive tract, allowing fertilisation of subsequent ova after mating. The duration and effectiveness of sperm storage vary; a farm should not use one assumed interval as proof that a female remains fertile.
-
-Monitor actual fertility results rather than assuming that the presence of males guarantees fertilisation. Changes in male activity, health, body condition, age distribution, mating behaviour or flock composition should be compared with fertility trends.
-
-### 13.3 Fertility is not embryo survival
-
-Fertilisation is the beginning of embryonic development, not a guarantee of a live chick. An egg can be fertilised and the embryo can die early, midway through incubation or close to hatch. If a hatchery classifies every egg without a visible embryo as infertile, early embryonic death may be misclassified and the breeder farm may be blamed incorrectly.
-
-Breakout analysis must use a consistent method and trained personnel. Where the distinction is uncertain, record the finding as uncertain or seek a second assessment rather than forcing it into a convenient category.
 
 ### 13.1 The reproductive sequence in the hen
 
@@ -786,6 +749,47 @@ Before the next breeder-farm review, the reader should be able to answer:
 10. Are corrective actions assigned, dated and reviewed?
 
 A breeder farm does not need expensive software to begin improving control. It needs consistent definitions, reliable records, trained staff and management that responds to evidence.
+
+## 25. Species and production-system comparison
+
+The chicken breeder flock is the principal worked model in this book. The table below is an orientation tool, not a substitute for species-specific production manuals. It highlights why a farm must identify its species and production system before applying a breeding or hatchery procedure.
+
+| Species / group | Common breeding context | Important planning distinction | What must be verified before applying a procedure |
+|---|---|---|---|
+| Commercial broiler chickens | Parent-stock programmes supplying broiler chicks | Genetic-line objectives, controlled rearing and breeder-company performance targets are central | Current handbook for the exact genotype, age and housing system |
+| Commercial layer chickens | Parent stock supplying replacement layers | The breeding objective and offspring market differ from broiler production | Layer-breeder supplier guidance, reproductive targets and hatchery requirements |
+| Indigenous / village chickens | Smallholder, community or conservation breeding groups | Local adaptation, flock structure, uncontrolled mating and genetic diversity may be important | Local breed characteristics, disease risks, selection goals and community management |
+| Turkeys | Commercial meat production and specialist breeder systems | Artificial insemination is used in major commercial systems; management is not simply a scaled-up chicken programme | Current turkey breeder guidance, trained insemination personnel and veterinary oversight |
+| Common ducks | Meat, egg and dual-purpose systems | Breed, body size, mating behaviour and housing influence breeder management | Species- and breed-specific mating, egg handling and incubation references |
+| Muscovy ducks | Meat and breeding systems | Do not assume management is identical to common domestic ducks | Muscovy-specific breeder, mating and hatchery guidance |
+| Geese | Meat, egg, down and conservation systems | Seasonal reproductive patterns and flock objectives can differ substantially | Species/breed-specific breeding season, fertility and egg-handling guidance |
+| Guinea fowl | Meat, egg and smallholder systems | Mating behaviour and breeding management may differ from chicken parent stock | Current guinea-fowl reproduction and breeder management literature |
+| Quail | Meat and egg production, often in compact systems | Small body size, production intensity and handling requirements need species-specific procedures | Quail-specific breeder stock, egg selection, density and incubation references |
+
+### 25.1 A safe method for adapting a breeder programme
+
+When moving from one poultry species or genetic line to another, use the following sequence:
+
+1. Identify the exact species, breed or commercial strain.
+2. Define the offspring product and the market requirement.
+3. Obtain current breeder or recognised species-specific technical guidance.
+4. Confirm the mating system and whether natural mating or artificial insemination is used.
+5. Confirm species-specific nutrition, housing, welfare and health requirements with qualified specialists.
+6. Establish egg collection, grading, storage and transport procedures from validated references.
+7. Agree with the receiving hatchery on egg acceptance, setting and reporting definitions.
+8. Keep separate performance records until the system has enough reliable data for meaningful comparison.
+
+### 25.2 Do not transfer numerical targets by analogy
+
+A male-to-female ratio, body-weight target, lighting programme, age at first egg, egg storage limit, collection frequency or incubation setting used for one species or strain must not be copied to another simply because both are poultry. A value may be suitable for a particular commercial genotype and unsuitable for a local chicken or waterfowl flock. Even within one species, recommendations can change with genetics, climate, housing, mating method and production objective.
+
+Where reliable species-specific evidence is unavailable, state that the value is not established in this book and seek specialist advice. A transparent limitation is safer than an invented universal standard.
+
+### 25.3 Keep records species-specific
+
+Use separate flock identifiers, egg records, fertility definitions and hatchery performance histories for each species and genetic group. Do not combine chicken, duck, turkey or quail results into one farm-wide fertility percentage. Such aggregation can conceal real performance differences and lead to inappropriate management decisions.
+
+The literature on avian sperm-storage structures also cautions against assuming identical reproductive mechanisms across bird groups. This is another reason to keep species-specific claims and data clearly labelled. [14]
 
 ## Consolidated references and further reading
 
