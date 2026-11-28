@@ -3232,6 +3232,99 @@ if ("serviceWorker" in navigator) {
 
 <script src="/assets/js/knowledge-referrals.js" defer></script>
 <script src="/assets/js/knowledge-sponsors.js" defer></script>
+
+<!-- Mizpah Knowledge Centre welcome dialog -->
+<style id="mizpah-knowledge-welcome-dialog-styles">
+#mizpah-knowledge-welcome-overlay{position:fixed;inset:0;z-index:99990;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,25,13,.62);backdrop-filter:blur(3px)}
+#mizpah-knowledge-welcome-overlay.is-visible{display:flex}
+#mizpah-knowledge-welcome-dialog{position:relative;width:min(510px,100%);max-height:min(88vh,760px);overflow:auto;padding:30px 28px 24px;border:1px solid #d4af37;border-radius:20px;background:#fffdf7;box-shadow:0 22px 70px rgba(0,0,0,.3);color:#183322;text-align:center}
+#mizpah-knowledge-welcome-dialog .mkw-close{position:absolute;top:10px;right:12px;width:36px;height:36px;border:0;border-radius:50%;background:#edf3eb;color:#31513a;font-size:23px;line-height:1;cursor:pointer}
+#mizpah-knowledge-welcome-dialog .mkw-mark{display:grid;place-items:center;width:62px;height:62px;margin:0 auto 13px;border:2px solid #d4af37;border-radius:50%;background:#075b28;color:#fff;font-size:29px}
+#mizpah-knowledge-welcome-dialog .mkw-eyebrow{margin:0 0 7px;color:#a27b12;font-size:12px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase}
+#mizpah-knowledge-welcome-dialog h2{margin:0 0 10px;color:#075b28;font-size:clamp(23px,5vw,29px);line-height:1.2}
+#mizpah-knowledge-welcome-dialog .mkw-intro{max-width:420px;margin:0 auto 18px;color:#48594d;font-size:15px;line-height:1.65}
+#mizpah-knowledge-welcome-dialog .mkw-topics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:0 0 20px;text-align:left}
+#mizpah-knowledge-welcome-dialog .mkw-topic{display:flex;align-items:center;gap:9px;min-height:48px;padding:10px 11px;border:1px solid #e4eadf;border-radius:10px;background:#f5f8f1;color:#284333;font-size:13px;font-weight:700;line-height:1.35}
+#mizpah-knowledge-welcome-dialog .mkw-topic span{color:#b18b20;font-size:18px;flex:0 0 auto}
+#mizpah-knowledge-welcome-dialog .mkw-primary{display:block;width:100%;padding:14px 18px;border:0;border-radius:28px;background:#075b28;color:#fff;text-decoration:none;font-size:15px;font-weight:850}
+#mizpah-knowledge-welcome-dialog .mkw-primary:hover{background:#06451f}
+#mizpah-knowledge-welcome-dialog .mkw-later{margin-top:11px;padding:9px 14px;border:0;background:transparent;color:#526257;font-size:14px;font-weight:700;cursor:pointer}
+#mizpah-knowledge-welcome-dialog button:focus-visible,#mizpah-knowledge-welcome-dialog a:focus-visible{outline:3px solid #d4af37;outline-offset:3px}
+@media(max-width:480px){#mizpah-knowledge-welcome-dialog{padding:27px 18px 19px;border-radius:16px}#mizpah-knowledge-welcome-dialog .mkw-topics{grid-template-columns:1fr;gap:7px}#mizpah-knowledge-welcome-dialog .mkw-topic{min-height:42px;padding:8px 10px}}
+@media(prefers-reduced-motion:reduce){#mizpah-knowledge-welcome-overlay{backdrop-filter:none}}
+</style>
+<div id="mizpah-knowledge-welcome-overlay" aria-hidden="true">
+  <section id="mizpah-knowledge-welcome-dialog" role="dialog" aria-modal="true" aria-labelledby="mizpah-knowledge-welcome-title" aria-describedby="mizpah-knowledge-welcome-description">
+    <button class="mkw-close" type="button" id="mizpah-knowledge-welcome-close" aria-label="Close Knowledge Centre invitation">×</button>
+    <div class="mkw-mark" aria-hidden="true">✦</div>
+    <p class="mkw-eyebrow">Learn with Mizpah</p>
+    <h2 id="mizpah-knowledge-welcome-title">Welcome to the Knowledge Centre</h2>
+    <p class="mkw-intro" id="mizpah-knowledge-welcome-description">Find practical poultry guidance to help you care for your birds, make informed decisions and build a stronger farm.</p>
+    <div class="mkw-topics" aria-label="Knowledge Centre topics">
+      <div class="mkw-topic"><span aria-hidden="true">✚</span> Chick care and brooding</div>
+      <div class="mkw-topic"><span aria-hidden="true">✚</span> Vaccination and flock health</div>
+      <div class="mkw-topic"><span aria-hidden="true">✚</span> Hatchery and incubation</div>
+      <div class="mkw-topic"><span aria-hidden="true">✚</span> Poultry equipment and farm management</div>
+    </div>
+    <a class="mkw-primary" href="/blog.html">Explore Knowledge Centre</a>
+    <button class="mkw-later" type="button" id="mizpah-knowledge-welcome-later">Maybe later</button>
+  </section>
+</div>
+<script id="mizpah-knowledge-welcome-dialog-script">
+(function(){
+  "use strict";
+  var overlay=document.getElementById("mizpah-knowledge-welcome-overlay");
+  var dialog=document.getElementById("mizpah-knowledge-welcome-dialog");
+  if(!overlay||!dialog)return;
+  var close=document.getElementById("mizpah-knowledge-welcome-close");
+  var later=document.getElementById("mizpah-knowledge-welcome-later");
+  var installOverlay=document.getElementById("mizpah-install-overlay");
+  var storageKey="mizpah-knowledge-centre-welcome-dismissed-v1";
+  var repeatAfter=14*24*60*60*1000;
+  var previousFocus=null;
+  var shown=false;
+  function wasRecentlyDismissed(){
+    try{var stamp=Number(localStorage.getItem(storageKey)||0);return stamp>0&&Date.now()-stamp<repeatAfter;}
+    catch(error){return false;}
+  }
+  function show(){
+    if(shown||wasRecentlyDismissed())return;
+    if(installOverlay&&installOverlay.classList.contains("is-visible")){window.setTimeout(show,900);return;}
+    shown=true;
+    previousFocus=document.activeElement;
+    overlay.classList.add("is-visible");
+    overlay.setAttribute("aria-hidden","false");
+    document.body.style.overflow="hidden";
+    close.focus();
+  }
+  function hide(remember){
+    overlay.classList.remove("is-visible");
+    overlay.setAttribute("aria-hidden","true");
+    document.body.style.overflow="";
+    if(remember){try{localStorage.setItem(storageKey,String(Date.now()));}catch(error){}}
+    if(previousFocus&&typeof previousFocus.focus==="function")previousFocus.focus();
+  }
+  close.addEventListener("click",function(){hide(true);});
+  later.addEventListener("click",function(){hide(true);});
+  overlay.addEventListener("click",function(event){if(event.target===overlay)hide(true);});
+  document.addEventListener("keydown",function(event){
+    if(!overlay.classList.contains("is-visible"))return;
+    if(event.key==="Escape"){hide(true);return;}
+    if(event.key==="Tab"){
+      var focusable=dialog.querySelectorAll("a[href],button:not([disabled])");
+      if(!focusable.length)return;
+      var first=focusable[0],last=focusable[focusable.length-1];
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+    }
+  });
+  if(!wasRecentlyDismissed()){
+    window.addEventListener("load",function(){window.setTimeout(show,9000);},{once:true});
+    if(document.readyState==="complete")window.setTimeout(show,9000);
+  }
+})();
+</script>
+
 </body></html>
 
 <style id="mizpah-home-three-feature-cards-font-minus-two">
