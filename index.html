@@ -3336,7 +3336,12 @@ if ("serviceWorker" in navigator) {
 /* Reduce every text element inside the three About/Commitment/Get Started cards by 3px.
    Keep card geometry, imagery, colors, weights and responsive layout unchanged. */
 .bottom.mzp-about-redesign .mzp-about-content .mzp-about-kicker{
-  font-size:8px!important;
+  /* Override the older 8px rule so all three section labels remain comfortably readable. */
+  display:block!important;
+  font-size:clamp(17px,1.5vw,20px)!important;
+  font-weight:850!important;
+  line-height:1.4!important;
+  letter-spacing:.5px!important;
 }
 .bottom.mzp-about-redesign .mzp-about-content h2{
   font-size:clamp(18px,calc(2vw - 3px),24px)!important;
