@@ -2,7 +2,7 @@
 ## Understanding Poultry Breeding, Fertility and Hatching Egg Production
 **Mizpah Poultry & Hatchery Knowledge Series — Volume 1, Book 1**  
 **Publisher:** Mizpah Technology  
-**Editorial status:** Consolidated editorial manuscript — independent poultry technical review, copyediting and publication checks pending  
+**Editorial status:** Expanded editorial manuscript — independent poultry technical review, copyediting and publication checks pending  
 **Audience:** Poultry breeders, farm managers, hatchery operators, technicians, agricultural students and developing poultry entrepreneurs worldwide.
 
 > Editorial note: This is an original working manuscript. It is not yet a released e-book. Breed-specific targets, veterinary protocols, legal requirements and production recommendations must be checked against the relevant breeder guide, local veterinary authority and the actual flock system before operational use.
@@ -11,7 +11,9 @@
 
 A hatchery's results begin long before eggs enter an incubator. Fertile eggs are the outcome of a managed breeding flock: suitable male and female birds, sound nutrition, appropriate housing and environment, effective health and biosecurity, careful mating management, clean nests, disciplined egg collection and accurate records.
 
-This book explains that upstream system. It focuses on how a breeder flock produces hatching eggs and how farm decisions affect the quantity, fertility and usable quality of eggs delivered to the hatchery. Detailed egg grading and storage procedures are treated more fully in the companion books in this series.
+This book explains that upstream system. Its principal worked example is the managed chicken breeder flock, especially commercial parent stock, because this is the context in which much of the available breeder-management guidance is written. It also identifies important differences in indigenous chicken, layer-breeder, turkey, duck, goose, guinea-fowl and quail systems. Those differences are not interchangeable: mating behaviour, reproductive physiology, flock structure, artificial insemination practices and management targets can vary by species and genetic line. Where the evidence in this book is chicken-specific, it is labelled as such.
+
+The book follows the breeder operation from programme design and bird selection through rearing, reproductive management, egg collection, traceability and performance review. It is intended to help readers ask better questions, keep better records and recognise when a decision requires current breeder-company guidance or veterinary advice. It is not a substitute for a current strain manual, a nutrition formulation, a veterinary prescription or a site-specific engineering design. Detailed egg grading, storage and incubation procedures are treated more fully in the companion books in this series.
 
 ## Contents
 
@@ -25,9 +27,22 @@ This book explains that upstream system. It focuses on how a breeder flock produ
 8. Farm-to-hatchery records and performance indicators
 9. Common causes of poor fertile-egg supply
 10. A practical breeder-farm operating routine
-11. Glossary
-12. References and further reading
-13–24. Expanded breeder biology, programme design, management, biosecurity, traceability, performance review, case studies and action plan
+11. Practical breeder-farm batch record
+12. Glossary
+13. The biology behind a fertile hatching egg
+14. Breeding programme design: match the system to the objective
+15. Male and female management as one reproductive system
+16. Nutrition, water and environmental management
+17. Biosecurity and health protection at breeder-farm level
+18. Egg collection, identification and the farm-to-hatchery handover
+19. Performance review: turn records into management decisions
+20. Worked farm-to-hatchery example
+21. Management templates
+22. Case study: fertility falls in one house
+23. Case study: more floor eggs and dirty eggs
+24. Reader's action plan
+25. Species and production-system comparison
+26. Glossary and references
 
 ---
 
@@ -361,6 +376,30 @@ Fertilisation is the beginning of embryonic development, not a guarantee of a li
 
 Breakout analysis must use a consistent method and trained personnel. Where the distinction is uncertain, record the finding as uncertain or seek a second assessment rather than forcing it into a convenient category.
 
+### 13.1 The reproductive sequence in the hen
+
+In the chicken, reproductive function involves coordinated activity of the ovary, oviduct and endocrine system. A mature follicle releases the ovum at ovulation. The infundibulum receives it, and fertilisation normally takes place in this region if viable sperm are present. As the egg moves through the oviduct, albumen, shell membranes and shell are added in sequence before the egg is laid. This means that the egg collected from a nest is the result of a biological process that began before ovulation and continued during passage through the oviduct.
+
+The rooster's testes produce spermatozoa. During mating, semen is transferred into the hen's reproductive tract. Sperm that pass the selection and transport barriers can enter specialised sperm-storage tubules, particularly at the uterovaginal junction. Stored sperm may be released over time and travel towards the site of fertilisation. This storage mechanism helps explain why a single successful mating can contribute to fertility in more than one subsequently laid egg, although the duration and level of sustained fertility vary with species, line, hen condition, sperm quality and management. It is not sound practice to convert a general biological description into a fixed number of days for every flock. [11, 12, 13]
+
+### 13.2 Why mating does not guarantee fertilisation
+
+For fertilisation to occur, several events must succeed: the male must produce functional sperm; mating or insemination must transfer semen; sperm must move through the female tract; a sufficient population must enter and remain functional in storage sites; sperm must be released and reach the infundibulum; and viable sperm must interact successfully with the ovum. A failure at any point can reduce fertility.
+
+This is why simply counting males or observing occasional mating is not enough to prove reproductive effectiveness. Male mobility, semen quality, female reproductive condition, social behaviour, flock environment and the timing of management events all contribute. Specialist semen tests can provide information about sperm characteristics, but laboratory measures should be interpreted by trained personnel and do not replace flock-level fertility records. [12, 13]
+
+### 13.3 Fertility is not the same as embryo survival
+
+An egg may be fertilised and still fail to produce a chick. Embryonic development can stop at an early, middle or late stage. When eggs are examined after incubation, the operator must distinguish true infertility from very early embryonic death as carefully as the available method allows. Misclassification can make a breeder flock appear to have a fertility problem when the underlying issue is embryo survival, egg handling or incubation.
+
+For this reason, a hatchery should record its examination method, sample size, batch identity, examiner training and classification categories. Where results are uncertain, report the uncertainty instead of forcing every questionable egg into an infertile category. The breakout findings should be read together with egg storage history, incubation records, hatch timing and chick quality.
+
+### 13.4 Species differences matter
+
+Chicken reproductive anatomy provides a useful starting model, but poultry species should not be assumed to have identical reproductive behaviour or management requirements. Artificial insemination is a routine component of some commercial turkey systems, while natural mating is widely used in chicken breeder flocks. Ducks, geese, guinea fowl and quail have their own behavioural, anatomical and production characteristics. Even within a species, genetic lines and production objectives can change the practical management programme.
+
+The 2024 review of sperm-storage structures across Galliformes cautions against assuming that structures and mechanisms are identical across all bird species simply because they share a broad anatomical description. The practical implication is to use species-specific literature and breeder guidance when planning a flock, and to label chicken-based examples clearly. [14]
+
 ## 14. Breeding programme design: match the system to the objective
 
 A breeder flock should be designed around a defined production objective, not simply around the number of birds that can fit in a house.
@@ -382,6 +421,45 @@ Artificial insemination requires trained operators, hygienic equipment, semen ha
 Every breeder flock should have a unique identity. At minimum, record source, strain or type, hatch date or age, placement date, house, sex composition, health documentation and any movement between locations. Replacement birds should be introduced under a documented health and biosecurity procedure.
 
 Mixing birds of unknown age or source can make fertility analysis and disease investigation difficult. It can also compromise the accuracy of claims made to chick buyers.
+
+### 14.1 Start with the breeding objective
+
+A breeding programme should be designed backwards from the offspring required by the customer. A farm supplying commercial broiler chicks, replacement layer pullets, indigenous dual-purpose chicks, turkey poults or ducklings is not producing the same biological or commercial product. The objective determines the genetic stock, breeding method, production timetable, egg specifications, health controls and hatchery relationship.
+
+Before acquiring birds, write a short production brief that answers:
+- Which species and genetic type will be produced?
+- Is the objective commercial performance, local adaptation, conservation of a breed, household production or a combination?
+- Who will buy the offspring, and what characteristics do they require?
+- What number and frequency of hatching eggs can the farm realistically supply?
+- Which hatchery will receive the eggs, and what acceptance criteria does it apply?
+- What veterinary, feed, housing, labour, transport and record systems are available?
+- What is the contingency if the breeder flock underperforms or the hatchery cannot receive a batch?
+
+A clear production brief reduces the risk of purchasing birds that do not fit the intended market or the farm's technical capacity.
+
+### 14.2 Commercial parent stock and independent breeding groups
+
+Commercial parent-stock systems are usually part of a structured genetic pyramid. The breeder farm receives a defined genetic line and follows the relevant company's programme for rearing, body-weight control, lighting, mating, nutrition and production. The purpose is to produce offspring with the expected commercial characteristics while maintaining breeder performance and health.
+
+An independent or smallholder breeding group may use locally adapted birds and select replacements within the flock. Such a programme requires clear selection goals and disciplined records. If birds are selected only because they are large or lay many eggs, the farm may unintentionally neglect fertility, hatchability, chick survival, temperament, disease resilience or adaptation to local conditions. Selection should consider the whole production objective, not one visible trait.
+
+### 14.3 Plan flock size from the egg requirement
+
+Flock size should be calculated from a realistic production plan, not from an assumed universal number of eggs per hen. The manager should use the appropriate breeder performance objectives for the selected stock and then account for the farm's own expected rejection, fertility, hatchability and saleable-chick rates.
+
+A planning model can be written as:
+
+**Required eggs set = required saleable chicks ÷ expected saleable-chick rate per egg set.**
+
+If the hatchery needs 8,000 saleable chicks and its planning assumption is 0.78 saleable chicks per egg set, the arithmetic requirement is approximately 10,257 eggs set. This is a planning illustration only; 0.78 is not a universal benchmark. The farm must use its own validated historical data or the relevant breeder/hatchery performance guidance, and should add an appropriate operational buffer only after considering storage, rejection and capacity constraints.
+
+The breeder farm then estimates the number of females and males needed using strain- and age-specific production data. It should also plan for mortality, culling, replacement timing, seasonal variation, downtime and the fact that egg production is not constant throughout a flock cycle.
+
+### 14.4 Build the supply chain before placement
+
+A breeder flock should not be placed without a credible route for its eggs and offspring. Confirm the receiving hatchery's species capability, setting capacity, egg acceptance rules, collection schedule, transport arrangements, batch documentation and payment terms. If the farm operates its own hatchery, confirm that equipment, staff, backup power, sanitation, maintenance and chick marketing arrangements are ready.
+
+The production plan should include a response if the hatchery changes its schedule, the road becomes impassable, power is unavailable, feed supply is interrupted or demand falls. A biologically successful breeder flock can still become an unprofitable operation if eggs cannot be collected, transported, set or sold at the right time.
 
 ## 15. Male and female management as one reproductive system
 
@@ -407,6 +485,33 @@ A ratio copied from another farm may be unsuitable because the correct programme
 
 Record male and female body weights separately where the breeder programme requires it. Track mortality, removals, culls, replacements and the number of active males. Review these records alongside fertility by flock age and house. This allows the manager to distinguish a broad flock problem from one concentrated in a particular house or age group.
 
+### 15.4 Reproductive ageing and fertility trends
+
+Fertility should be interpreted in relation to flock age and the production curve. Male reproductive performance can change as birds age; body condition, health, leg function, semen characteristics and mating behaviour may all contribute. Research reviews describe reproductive ageing in male broiler breeders and discuss management approaches, but their findings must be interpreted within the genotype and production system studied. They do not establish a universal age at which every male flock will decline. [15]
+
+A manager should compare fertility trends with male and female age, body-weight records, removals, replacements, health events, environmental conditions and hatchery sampling methods. If fertility falls after a management change, establish the timing and affected houses before concluding that age alone is responsible.
+
+### 15.5 Natural mating and artificial insemination
+
+Natural mating is common in many chicken breeder systems. Artificial insemination is used in some other poultry sectors and specialised breeding programmes, including commercial turkey production. It requires trained personnel, suitable semen collection and handling, controlled timing, hygiene, equipment and a species-appropriate protocol.
+
+Do not attempt to transfer an insemination interval, semen dose or handling method from one species or production system to another. Poor technique can injure birds, compromise welfare, introduce infection or produce unreliable fertility. The procedure should be designed and supervised by qualified specialists under applicable animal-welfare and veterinary requirements.
+
+### 15.6 Investigate fertility in a structured sequence
+
+When fertility declines, the investigation should move from data quality to flock biology and then to the wider production system:
+
+1. Confirm the result: check the batch identity, sample size, examination method and denominator.
+2. Locate the pattern: compare houses, flock ages, collection dates and male groups.
+3. Review the males: body condition, mobility, feet, injuries, mortality, removals and mating behaviour.
+4. Review the females: body condition, health, reproductive stage and any management changes.
+5. Review the environment: heat load, ventilation, lighting, water access and equipment faults.
+6. Review handling: collection, storage, transport and time to setting.
+7. Review hatchery classification: separate infertility from early embryo death as reliably as possible.
+8. Consult the breeder technical adviser and veterinarian before making major flock interventions.
+
+The sequence is intended to organise investigation, not to diagnose a specific disease or prescribe a management change.
+
 ## 16. Nutrition, water and environmental management
 
 Nutrition supports maintenance, growth, reproduction and egg formation. Breeder diets must be appropriate to species, strain, age and production stage. The quantity and composition of feed, feeding access, body condition and water availability should be monitored as a connected system.
@@ -428,6 +533,22 @@ In hot climates, heat load can reduce feed intake, alter water consumption, affe
 Practical controls include maintaining ventilation systems and backup power; checking that air inlets and fans are not obstructed; providing reliable clean drinking water; monitoring bird distribution and panting; avoiding unnecessary handling during the hottest periods; maintaining shade and appropriate building insulation where applicable; and preparing an emergency response for fan or power failure.
 
 These are general management considerations, not a substitute for a locally designed ventilation and heat-stress plan.
+
+### 16.4 Feed quality assurance and mycotoxin risk
+
+Feed ingredients can vary in nutrient content and physical quality. Poor storage, moisture ingress, pests, mould growth, rancidity, ingredient substitution and inaccurate weighing can undermine a ration that was correctly formulated on paper. Establish supplier specifications, receiving checks, storage rotation, batch identification and a procedure for rejecting suspect ingredients. Where contamination is suspected, use an appropriate laboratory and nutrition/veterinary advice rather than relying on smell or appearance alone.
+
+Mycotoxin exposure is a feed-safety concern in many climates and supply chains. Risk depends on the ingredient, fungal species, toxin, concentration, duration of exposure and bird age or physiological state. Do not assume that one binder or additive makes contaminated feed safe. Prevention through sourcing, drying, storage and testing is preferable to relying on an unverified corrective product.
+
+### 16.5 Heat load is more than air temperature
+
+Birds respond to the combined effects of air temperature, relative humidity, air speed, radiant heat, stocking density, feather cover, age and acclimatisation. A thermometer reading by itself does not describe the entire heat load. Staff should observe bird behaviour and distribution as well as instrument readings, and should know the normal operating range for their specific house and equipment.
+
+For tropical and humid environments, the farm's plan should include reliable power for ventilation, tested backup systems, alarm escalation, water availability and a written response to fan or controller failure. A generator that exists but has not been load-tested or cannot start automatically may not provide meaningful protection. Any cooling or ventilation design should be checked by a competent poultry-house engineer or specialist.
+
+### 16.6 Changes to feed and water should be documented
+
+When feed formulation, ingredient supplier, delivery schedule, water source, medication or supplementation changes, record the effective date and affected flock. This allows a manager to compare performance before and after the change. Avoid simultaneous unrecorded changes that make it impossible to identify the cause of a production response. Veterinary medicines and additives must be used only under their approved label, prescription and local regulatory requirements.
 
 ## 17. Biosecurity and health protection at breeder-farm level
 
@@ -468,6 +589,22 @@ If unusual mortality, respiratory signs, neurological signs, sudden production d
 
 Do not diagnose a disease from a single symptom or use unprescribed antibiotics as a substitute for investigation.
 
+### 17.4 Biosecurity is a chain of controlled movements
+
+A breeder farm should map how people, birds, vehicles, feed, trays, crates, tools, waste and carcasses move through the site. Each movement can introduce or spread pathogens. The written plan should assign responsibility for entry approval, cleaning, disinfection, pest control, isolation and record keeping.
+
+A practical biosecurity audit should ask:
+- Can an unauthorised visitor enter a poultry house?
+- Are farm-only footwear and clothing available and used correctly?
+- Are clean and dirty equipment routes separated?
+- Are egg trays and transport containers cleaned under a validated procedure?
+- Are dead birds removed and disposed of safely and promptly?
+- Are rodents, wild birds and insects monitored?
+- Are sick birds or unusual mortality reported immediately?
+- Are staff trained to report a breach without hiding it?
+
+The answers should be checked through observation and records, not only through a signed policy. Biosecurity procedures must be realistic enough that staff can follow them every day.
+
 ## 18. Egg collection, identification and the farm-to-hatchery handover
 
 Collection staff are the first quality checkpoint. Their task is to preserve identity and prevent avoidable damage or contamination before eggs reach the grading and storage team.
@@ -489,6 +626,23 @@ The receiving hatchery should acknowledge quantities and report discrepancies. A
 Eggs should be protected from shock, vibration, direct sun, rain, contamination and uncontrolled temperature changes during loading and transport. Packaging, vehicle conditions, journey time and road quality all matter. The appropriate temperature and humidity targets belong in the egg-storage and handling book and must be based on species, storage duration and current technical references.
 
 For long or rough journeys, evaluate packaging and route conditions. Avoid placing trays where they can slide, fall or be struck by other cargo. Clean and disinfect reusable transport equipment under a written procedure.
+
+### 18.4 Define the point of responsibility for every loss
+
+Eggs may be lost or rejected at collection, farm grading, storage, loading, transport, hatchery receipt, hatchery grading or setting. If the farm and hatchery use different definitions, disputes become difficult to resolve. Agree in writing how each quantity is counted and who records it.
+
+A batch reconciliation should distinguish:
+- eggs collected at the farm;
+- eggs rejected at farm grading, by reason;
+- eggs loaded and dispatched;
+- eggs received by the hatchery;
+- eggs rejected at receipt or hatchery grading;
+- eggs accepted and set;
+- eggs identified as infertile or showing embryo mortality;
+- chicks hatched;
+- chicks graded as saleable under the agreed specification.
+
+This chain makes it possible to investigate the stage at which a loss occurred. It also prevents a farm from being blamed for damage that happened in transit or a hatchery from being blamed for eggs that arrived outside the agreed specification.
 
 ## 19. Performance review: turn records into management decisions
 
@@ -518,6 +672,23 @@ The farm manager, breeder supervisor, hatchery representative and veterinarian o
 
 Record decisions, responsible persons and due dates. Review unfinished actions at the next meeting.
 
+### 19.4 Use a balanced dashboard
+
+A useful breeder-farm dashboard should not reward one result while hiding damage elsewhere. For example, a high egg count may be accompanied by more floor eggs, more cracks or poorer hatchability. Review a balanced set of measures:
+
+| Area | Example measure | Management question |
+|---|---|---|
+| Flock status | Live males and females by house | Is the flock composition known and current? |
+| Production | Eggs laid per day and per hen | Is production following the expected curve? |
+| Egg quality | Nest eggs, floor eggs and rejects by reason | Where are usable eggs being lost? |
+| Health | Mortality, morbidity and veterinary events | Are health events linked to production changes? |
+| Inputs | Feed delivery, feed use and water use | Are inputs consistent with the flock plan? |
+| Reproduction | Fertility and hatchability using stated definitions | Is the problem before or after fertilisation? |
+| Logistics | Eggs dispatched, received and accepted | Where do quantity differences occur? |
+| Corrective action | Open actions, owner and due date | Are problems being resolved and checked? |
+
+Managers should resist ranking farms or houses using a single percentage without checking the underlying definitions and production context.
+
 ## 20. Worked farm-to-hatchery example
 
 The following example demonstrates how records can reveal where a problem may sit. All figures are illustrative and are not industry targets.
@@ -527,6 +698,20 @@ A breeder farm dispatches 4,000 eggs from one identified flock over a documented
 The farm and hatchery should reconcile dispatched quantity against received quantity; received quantity against eggs accepted and eggs set; egg rejection categories and timing; source flock and house identity; storage and transport history; fertility sampling method and sample size; and incubation and hatch records.
 
 This example demonstrates why each stage needs its own denominator. The difference between eggs dispatched, received, accepted and set is operationally important. A fertility sample should not be treated as an exact count of every egg unless the entire batch has been examined using an appropriate method.
+
+### 20.1 Worked calculation with explicit denominators
+
+Assume a hypothetical batch has 4,000 eggs dispatched. The hatchery records 3,960 received, 3,800 accepted and set, and 3,420 chicks hatched. The hatchability of eggs set is:
+
+3,420 ÷ 3,800 × 100 = 90%.
+
+This calculation does not establish fertility. To estimate fertility, the hatchery must examine an appropriate sample or the entire batch using a suitable method and report the number examined and classification method. If 950 of a sample of 1,000 are classified as fertile, the estimated fertility in that sample is 95%; it does not mean exactly 3,610 of the 3,800 eggs in the whole batch were fertile unless the sampling design supports that inference.
+
+If the hatchery reports 90% hatchability of eggs set and 95% estimated fertility, it should not automatically divide or combine those percentages without explaining the assumptions. The sample may not represent the entire batch, and early embryo deaths may be misclassified. The report should preserve the raw counts, definitions and method so a specialist can interpret the result.
+
+### 20.2 A practical reconciliation question
+
+If 4,000 eggs were dispatched but only 3,960 were received, the immediate difference is 40 eggs. That difference should be investigated as a transport or handover discrepancy. It should not be recorded as infertility, because no fertility examination has yet taken place. Likewise, eggs rejected at hatchery grading should be recorded separately from eggs that were set and failed to hatch.
 
 ## 21. Management templates
 
@@ -614,6 +799,12 @@ A breeder farm does not need expensive software to begin improving control. It n
 8. Food and Agriculture Organization of the United Nations. *Poultry Development Review*, Chapter 1: Egg Production. [FAO chapter](https://www.fao.org/4/y4628e/y4628e03.htm).
 9. Tamil Nadu Agricultural University. *Breeder Management*. Regional extension reference; numerical standards should not be generalised beyond the systems for which they were developed. [TNAU extension resource](https://agritech.tnau.ac.in/expert_system/poultry/Breeder%20Management.html).
 10. Department of Livestock Services, Bangladesh. *National Guidelines on Good Livestock Production Practices* (2024), chapter on breeder poultry flock and hatchery management. Jurisdiction-specific guidance. [Guidelines](https://objectstorage.ap-dcc-gazipur-1.oraclecloud15-1.oraclecloud15-1.oraclecloud.com/n/axvjbnqprylg/b/V2Ministry/o/office-dls/2024/12/343c5bfe4b30479ebbb1944dc2cff1de.pdf).
+
+11. Scanes, C. G., Butler, L. D. and Kidd, M. T. (2020). “Reproductive management of poultry.” In *Animal Agriculture: Sustainability, Challenges and Innovations*. Open-access chapter covering male and female reproductive physiology and poultry reproduction. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC7153309/).
+12. Bakst, M. R. (2011). “Role of the oviduct in maintaining sustained fertility in hens.” *Journal of Animal Science*, 89(5), 1323–1329. [DOI: 10.2527/jas.2010-3663](https://doi.org/10.2527/jas.2010-3663).
+13. Bongalhardo, D. C. (2025; published online 2024). “Sperm fitness assessment in poultry: Brief review of in vitro methods.” *Animal Reproduction Science*, 272, 107666. [DOI: 10.1016/j.anireprosci.2024.107666](https://doi.org/10.1016/j.anireprosci.2024.107666).
+14. “The surprising complexity and diversity of sperm storage structures across Galliformes” (2024). *Ecology and Evolution*. Research on variation in avian sperm-storage structures; use to support caution against assuming identical mechanisms across species. [DOI: 10.1002/ece3.11585](https://doi.org/10.1002/ece3.11585).
+15. Ansari, M. (2024). “Recent strategies to mitigate reproductive aging in male broiler breeders: A review.” *Animal Reproduction Science*, 268, 107570. [DOI: 10.1016/j.anireprosci.2024.107570](https://doi.org/10.1016/j.anireprosci.2024.107570).
 
 ## Final technical and editorial release gates
 
