@@ -1649,13 +1649,13 @@ document.addEventListener('DOMContentLoaded',()=>{
 .more-intro>p{margin:0;color:#4b6352;font-size:18px;font-weight:600}
 .moregrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;align-items:stretch}
 .more-card{padding:0!important;overflow:hidden;background:#fff!important;border:1px solid #dce8d8;border-radius:18px!important;box-shadow:0 8px 24px #123c1b0d;display:flex;flex-direction:column}
-.more-card-image{display:block;width:100%;height:220px;object-fit:cover;background:#edf4e9}
+.more-card-image{display:block;width:100%;height:220px;object-fit:contain;object-position:center center;background:#edf4e9}
 .more-card-content{padding:23px 22px 25px;display:flex;flex-direction:column;flex:1}
 .more-card h3{margin:0 0 13px;color:#075b28;font-size:24px;line-height:1.2}
 .more-card p{margin:0 0 13px;color:#39483d;font-size:15.5px;line-height:1.65}
 .more-card .more-card-emphasis{margin-top:auto;padding-top:10px;border-top:2px solid #e6c65a;color:#075b28;font-weight:700}
 @media(max-width:1000px){.moregrid{grid-template-columns:1fr 1fr}.more-card:last-child{grid-column:1/-1}.more-card:last-child .more-card-image{height:240px}}
-@media(max-width:650px){.more{padding:38px 0 42px}.more-intro{margin-bottom:20px}.more-intro>p{font-size:16px}.moregrid{grid-template-columns:1fr;gap:16px}.more-card:last-child{grid-column:auto}.more-card-image,.more-card:last-child .more-card-image{height:205px}.more-card-content{padding:19px 17px 21px}.more-card h3{font-size:22px}.more-card p{font-size:15px;line-height:1.6}}
+@media(max-width:650px){.more{padding:38px 0 42px}.more-intro{margin-bottom:20px}.more-intro>p{font-size:16px}.moregrid{grid-template-columns:1fr;gap:16px}.more-card:last-child{grid-column:auto}.more-card-image,.more-card:last-child .more-card-image{height:205px;object-fit:contain;object-position:center center}.more-card-content{padding:19px 17px 21px}.more-card h3{font-size:22px}.more-card p{font-size:15px;line-height:1.6}}
 </style>
 
 <style id="mizpah-expanded-five-feature-boxes">
