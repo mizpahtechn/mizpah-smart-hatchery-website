@@ -212,3 +212,33 @@ body{font-size:18px!important;line-height:1.75!important}
 <script src="/assets/js/knowledge-referrals.js" defer></script>
 <script src="/assets/js/knowledge-sponsors.js" defer></script>
 </body></html>
+
+<style id="mizpah-blog-nav-single-line-contact-fix">
+/* Keep Contact on the same desktop navigation row as every other menu item. */
+@media (min-width:801px){
+  .nav .navin{
+    width:min(1400px,98%);
+    gap:8px;
+    flex-wrap:nowrap;
+  }
+  .nav .brand{
+    flex:0 0 auto;
+    white-space:nowrap;
+    font-size:17px!important;
+    letter-spacing:.04em;
+  }
+  .nav .links{
+    flex:0 1 auto;
+    min-width:0;
+    flex-wrap:nowrap;
+    white-space:nowrap;
+    gap:clamp(6px,.75vw,11px);
+  }
+  .nav .links a{
+    flex:0 0 auto;
+    white-space:nowrap;
+    font-size:clamp(11px,1.05vw,13px)!important;
+    letter-spacing:-.015em;
+  }
+}
+</style>
