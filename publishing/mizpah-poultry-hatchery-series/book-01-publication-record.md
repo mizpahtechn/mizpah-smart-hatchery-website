@@ -8,7 +8,7 @@
 **Publisher imprint:** Mizpah Technology  
 **Primary audience:** International  
 **Language:** English  
-**Editorial status:** Consolidated editorial manuscript; not yet approved for publication  
+**Editorial status:** Expanded and structurally revised editorial manuscript; not yet approved for publication  
 **Source manuscript:** [book-01-from-flock-to-fertile-egg.md](./book-01-from-flock-to-fertile-egg.md)
 
 ## Publication decisions already established
@@ -24,7 +24,10 @@
 | Item | Status | Release requirement |
 |---|---|---|
 | Manuscript consolidation | Complete | One canonical source manuscript |
-| Technical content draft | Complete as editorial draft | Independent poultry specialist review |
+| First editorial revision pass | Complete | Expanded to approximately 9,967 words; 25 numbered chapters; species scope clarified; duplicate sections removed |
+| Editorial/technical audit | Complete as desk review | Findings recorded in the separate audit report; external specialist review still required |
+| In-text scientific citations | Partially improved | Reproductive biology citations added; full claim-by-claim citation pass still required |
+| Technical content draft | Expanded editorial draft | Independent poultry specialist review and further technical revision |
 | Veterinary and biosecurity review | Pending | Qualified poultry veterinarian |
 | Nutrition and ventilation review | Pending | Relevant technical specialist |
 | Copyediting and proofreading | Pending | Final language and consistency pass |
